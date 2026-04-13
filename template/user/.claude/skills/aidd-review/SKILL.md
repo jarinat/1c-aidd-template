@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-review
 description: >
   Review изменений по тикету в рамках AIDD. Используй для сценария review:
@@ -13,10 +13,10 @@ description: >
 Source of truth:
 
 - lifecycle `review` и связанные статусы:
-  - `.claude/rules/core/aidd-workflow.md`
-  - `.claude/rules/core/aidd-artifacts.md`
+  - `~/.claude/rules/core/aidd-workflow.md`
+  - `~/.claude/rules/core/aidd-artifacts.md`
 - общая политика code review:
-  - `.claude/rules/core/code-review.md`
+  - `~/.claude/rules/core/code-review.md`
 
 ## Границы выполнения
 

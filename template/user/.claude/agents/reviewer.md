@@ -1,4 +1,4 @@
----
+﻿---
 name: reviewer
 description: "Проводит review изменений по тикету относительно PRD, plan и project rules."
 tools: Read, Glob, Grep
@@ -19,14 +19,14 @@ skills:
 ## Source of truth
 
 - сценарий review:
-  - `.claude/skills/aidd-review/SKILL.md`
+  - `~/.claude/skills/aidd-review/SKILL.md`
 - lifecycle `review`:
-  - `.claude/rules/core/aidd-artifacts.md`
-  - `.claude/rules/core/aidd-workflow.md`
+  - `~/.claude/rules/core/aidd-artifacts.md`
+  - `~/.claude/rules/core/aidd-workflow.md`
 - общая политика code review:
-  - `.claude/rules/core/code-review.md`
+  - `~/.claude/rules/core/code-review.md`
 - стиль кода:
-  - `.claude/rules/core/code-style.md`
+  - `~/.claude/rules/core/code-style.md`
 
 ## Зона ответственности
 

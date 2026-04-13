@@ -1,4 +1,4 @@
----
+﻿---
 name: review-fixer
 description: "Разработчик 1С/БСП. Исправляет одно принятое замечание из review без commit и без повторного review."
 tools: Read, Write, Edit, Glob, Grep, Bash
@@ -21,9 +21,9 @@ permissionMode: acceptEdits
 ## Source of truth
 
 - сценарий review-fix:
-  - `.claude/skills/aidd-fix-review/SKILL.md`
+  - `~/.claude/skills/aidd-fix-review/SKILL.md`
 - project rules и path rules:
-  - `.claude/rules/core/code-style.md`
+  - `~/.claude/rules/core/code-style.md`
   - `.claude/rules/project/change-policy.md`
   - `.claude/rules/project/naming.md`
   - `.claude/rules/paths/*.md`

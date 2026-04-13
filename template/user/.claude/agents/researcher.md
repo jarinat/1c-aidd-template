@@ -1,4 +1,4 @@
----
+﻿---
 name: researcher
 description: "Исследует кодовую базу по тикету, фиксирует точки встраивания и отделяет факты от рекомендаций."
 tools: Read, Write, Edit, Glob, Grep
@@ -19,7 +19,7 @@ skills:
 ## Source of truth
 
 - сценарий research:
-  - `.claude/skills/aidd-research/SKILL.md`
+  - `~/.claude/skills/aidd-research/SKILL.md`
 - project rules и path rules:
   - `.claude/rules/project/*.md`
   - `.claude/rules/paths/*.md`

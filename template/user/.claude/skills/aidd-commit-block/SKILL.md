@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-commit-block
 description: >
   Один commit текущего change-блока в рамках AIDD. Используй для сценария
@@ -14,7 +14,7 @@ description: >
 Source of truth:
 
 - общая политика git и commit по change-блокам:
-  - `.claude/rules/core/git-workflow.md`
+  - `~/.claude/rules/core/git-workflow.md`
 - project ticketing:
   - `.claude/rules/project/ticketing.md`
 - механизм commit:

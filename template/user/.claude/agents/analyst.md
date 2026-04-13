@@ -1,4 +1,4 @@
----
+﻿---
 name: analyst
 description: "Формирует PRD по тикету, выявляет противоречия и фиксирует открытые вопросы."
 tools: Read, Write, Edit, Glob, Grep
@@ -15,10 +15,10 @@ model: opus
 ## Source of truth
 
 - lifecycle артефактов и статусов:
-  - `.claude/rules/core/aidd-artifacts.md`
-  - `.claude/rules/core/aidd-workflow.md`
+  - `~/.claude/rules/core/aidd-artifacts.md`
+  - `~/.claude/rules/core/aidd-workflow.md`
 - сценарий подготовки PRD:
-  - `.claude/skills/aidd-idea/SKILL.md`
+  - `~/.claude/skills/aidd-idea/SKILL.md`
 
 ## Зона ответственности
 

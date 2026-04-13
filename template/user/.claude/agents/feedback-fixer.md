@@ -1,4 +1,4 @@
----
+﻿---
 name: feedback-fixer
 description: "Разработчик 1С/БСП. Исправляет одно согласованное замечание из feedback без commit и без смены статуса."
 tools: Read, Write, Edit, Glob, Grep, Bash
@@ -22,9 +22,9 @@ permissionMode: acceptEdits
 ## Source of truth
 
 - сценарий feedback-fix:
-  - `.claude/skills/aidd-fix-feedback/SKILL.md`
+  - `~/.claude/skills/aidd-fix-feedback/SKILL.md`
 - project rules и path rules:
-  - `.claude/rules/core/code-style.md`
+  - `~/.claude/rules/core/code-style.md`
   - `.claude/rules/project/change-policy.md`
   - `.claude/rules/project/naming.md`
   - `.claude/rules/paths/*.md`

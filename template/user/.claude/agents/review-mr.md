@@ -1,4 +1,4 @@
----
+﻿---
 name: review-mr
 description: "Проводит code review merge request между двумя ветками Git."
 tools: Read, Glob, Grep, Bash, WebSearch, WebFetch
@@ -21,9 +21,9 @@ skills:
 ## Source of truth
 
 - сценарий review merge request:
-  - `.claude/skills/review-mr/SKILL.md`
+  - `~/.claude/skills/review-mr/SKILL.md`
 - общая политика code review:
-  - `.claude/rules/core/code-review.md`
+  - `~/.claude/rules/core/code-review.md`
 - специализированные проверки:
   - `yaxunit-tests`
   - `edt-form-editing`
@@ -51,6 +51,6 @@ skills:
 
 - Не дублируй проверки Сонара.
 - Для пошагового алгоритма и checklist ориентируйся на
-  `.claude/skills/review-mr/SKILL.md`.
+  `~/.claude/skills/review-mr/SKILL.md`.
 - Фокусируйся на логике, архитектуре, рисках и конкретных предложениях.
 - Если проблем нет, зафиксируй это явно, а не придумывай замечания.

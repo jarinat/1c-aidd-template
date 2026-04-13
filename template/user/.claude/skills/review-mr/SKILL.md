@@ -1,4 +1,4 @@
----
+﻿---
 name: review-mr
 description: >
   Review merge request между двумя ветками Git. Используй для сценария
@@ -13,7 +13,7 @@ description: >
 Source of truth:
 
 - общая политика code review:
-  - `.claude/rules/core/code-review.md`
+  - `~/.claude/rules/core/code-review.md`
 - специализированные проверки:
   - `1c-query`
   - `edt-form-editing`

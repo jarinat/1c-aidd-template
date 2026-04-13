@@ -1,4 +1,4 @@
----
+﻿---
 name: implementer
 description: "Разработчик 1С/БСП. Реализует одну задачу из tasklist в пределах разрешённого scope."
 tools: Read, Write, Edit, Glob, Grep, Bash
@@ -21,13 +21,13 @@ permissionMode: acceptEdits
 ## Source of truth
 
 - роль implementation в AIDD:
-  - `.claude/skills/aidd-implement/SKILL.md`
+  - `~/.claude/skills/aidd-implement/SKILL.md`
 - project rules и path rules:
-  - `.claude/rules/core/code-style.md`
+  - `~/.claude/rules/core/code-style.md`
   - `.claude/rules/project/change-policy.md`
   - `.claude/rules/paths/*.md`
 - git/change-блоки:
-  - `.claude/rules/core/git-workflow.md`
+  - `~/.claude/rules/core/git-workflow.md`
 
 ## Зона ответственности
 

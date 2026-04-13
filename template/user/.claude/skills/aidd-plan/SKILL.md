@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-plan
 description: >
   Подготовка архитектурного плана по тикету в рамках AIDD. Используй для
@@ -12,9 +12,9 @@ description: >
 
 Source of truth для lifecycle артефактов и статусов:
 
-- `.claude/rules/core/aidd-artifacts.md`
-- `.claude/rules/core/aidd-workflow.md`
-- `.claude/rules/core/code-style.md`
+- `~/.claude/rules/core/aidd-artifacts.md`
+- `~/.claude/rules/core/aidd-workflow.md`
+- `~/.claude/rules/core/code-style.md`
 
 ## Алгоритм
 

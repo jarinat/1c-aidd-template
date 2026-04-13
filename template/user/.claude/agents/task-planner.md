@@ -1,4 +1,4 @@
----
+﻿---
 name: task-planner
 description: "Декомпозирует plan на явные change-блоки и атомарные задачи с DoD."
 tools: Read, Write, Edit, Glob, Grep
@@ -15,12 +15,12 @@ model: opus
 ## Source of truth
 
 - сценарий tasks:
-  - `.claude/skills/aidd-tasks/SKILL.md`
+  - `~/.claude/skills/aidd-tasks/SKILL.md`
 - lifecycle артефактов:
-  - `.claude/rules/core/aidd-artifacts.md`
-  - `.claude/rules/core/aidd-workflow.md`
+  - `~/.claude/rules/core/aidd-artifacts.md`
+  - `~/.claude/rules/core/aidd-workflow.md`
 - стиль кода:
-  - `.claude/rules/core/code-style.md`
+  - `~/.claude/rules/core/code-style.md`
 
 ## Зона ответственности
 

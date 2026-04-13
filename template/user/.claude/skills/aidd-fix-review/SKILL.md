@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-fix-review
 description: >
   Исправление принятого замечания из review в рамках AIDD. Используй для
@@ -12,8 +12,8 @@ description: >
 
 Source of truth для lifecycle `review` и статусов:
 
-- `.claude/rules/core/aidd-workflow.md`
-- `.claude/rules/core/aidd-artifacts.md`
+- `~/.claude/rules/core/aidd-workflow.md`
+- `~/.claude/rules/core/aidd-artifacts.md`
 
 ## Ключевые правила
 

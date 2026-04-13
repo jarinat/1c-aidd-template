@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-implement
 description: >
   Реализация задач из tasklist в рамках AIDD. Используй для сценария implement:
@@ -9,14 +9,14 @@ description: >
 # AIDD Implement
 
 Используй subagent `implementer` для реализации задач. Перед commit основная
-сессия читает и применяет `.claude/skills/aidd-commit-block/SKILL.md` как
+сессия читает и применяет `~/.claude/skills/aidd-commit-block/SKILL.md` как
 source of truth по механике commit; отдельный subagent для commit не запускай.
 
 Source of truth для lifecycle этапов, статусов и change-блоков:
 
-- `.claude/rules/core/aidd-workflow.md`
-- `.claude/rules/core/aidd-artifacts.md`
-- `.claude/rules/core/git-workflow.md`
+- `~/.claude/rules/core/aidd-workflow.md`
+- `~/.claude/rules/core/aidd-artifacts.md`
+- `~/.claude/rules/core/git-workflow.md`
 - `.claude/rules/project/naming.md`
 
 ## Ключевые правила

@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-close-ticket
 description: >
   Закрытие тикета в рамках AIDD. Используй для сценария close-ticket:
@@ -11,8 +11,8 @@ description: >
 Source of truth:
 
 - lifecycle тикета, `feedback` и `review`:
-  - `.claude/rules/core/aidd-workflow.md`
-  - `.claude/rules/core/aidd-artifacts.md`
+  - `~/.claude/rules/core/aidd-workflow.md`
+  - `~/.claude/rules/core/aidd-artifacts.md`
 
 ## Алгоритм
 

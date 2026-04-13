@@ -1,4 +1,4 @@
----
+﻿---
 name: aidd-tasks
 description: >
   Декомпозиция плана в tasklist в рамках AIDD. Используй для сценария tasks:
@@ -11,9 +11,9 @@ description: >
 
 Source of truth для lifecycle артефактов и статусов:
 
-- `.claude/rules/core/aidd-artifacts.md`
-- `.claude/rules/core/aidd-workflow.md`
-- `.claude/rules/core/code-style.md`
+- `~/.claude/rules/core/aidd-artifacts.md`
+- `~/.claude/rules/core/aidd-workflow.md`
+- `~/.claude/rules/core/code-style.md`
 
 ## Алгоритм
 

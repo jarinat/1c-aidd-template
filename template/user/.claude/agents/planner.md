@@ -1,4 +1,4 @@
----
+﻿---
 name: planner
 description: "Проектирует решение и готовит plan/architecture по тикету."
 tools: Read, Write, Edit, Glob, Grep
@@ -15,12 +15,12 @@ model: opus
 ## Source of truth
 
 - сценарий plan:
-  - `.claude/skills/aidd-plan/SKILL.md`
+  - `~/.claude/skills/aidd-plan/SKILL.md`
 - lifecycle артефактов:
-  - `.claude/rules/core/aidd-artifacts.md`
-  - `.claude/rules/core/aidd-workflow.md`
+  - `~/.claude/rules/core/aidd-artifacts.md`
+  - `~/.claude/rules/core/aidd-workflow.md`
 - стиль кода:
-  - `.claude/rules/core/code-style.md`
+  - `~/.claude/rules/core/code-style.md`
 
 ## Зона ответственности
 
