@@ -17,6 +17,8 @@
   при необходимости в `rules/core/aidd-artifacts.md`.
 - Project-specific правила не должны попадать в общие agents и skills.
 - Локальные и машинозависимые настройки не версионируем.
+- `~/.claude/settings.json` пока используем как локальную user-level настройку,
+  но не версионируем в этом репозитории.
 
 ## Целевая структура
 
@@ -32,7 +34,6 @@ template/
   project/
     .claude/
       CLAUDE.md
-      settings.json
       rules/
         paths/
         project/
@@ -75,6 +76,7 @@ tools/
 - текущее состояние тикетов;
 - project entrypoint scripts, которые вызываются как `.claude/scripts/*`;
 - локальные permissions и machine-specific настройки.
+- `settings.json`, пока принято решение не версионировать user-level settings.
 
 ## Что хранится в `template/project`
 
@@ -84,7 +86,6 @@ tools/
 Подходит:
 
 - минимальный `.claude/CLAUDE.md` как project entry point;
-- пример `.claude/settings.json`;
 - шаблоны `.claude/rules/project/*`;
 - шаблоны `.claude/rules/paths/*`;
 - project entrypoint scripts из `.claude/scripts/*`, включая
@@ -94,6 +95,8 @@ tools/
 Не подходит:
 
 - реальные PRD, plan, tasklist, research, feedback и review конкретных тикетов;
+- `.claude/settings.json`, пока project settings не используются как
+  версионируемый shared-слой;
 - `.claude/settings.local.json`;
 - secrets, credentials, локальные пути.
 
@@ -102,12 +105,16 @@ tools/
 В каждом рабочем проекте остаются:
 
 - `.claude/CLAUDE.md`;
-- `.claude/settings.json`;
 - `.claude/rules/project/*`;
 - `.claude/rules/paths/*`;
 - `.claude/scripts/*`, если скрипт зависит от project rules;
 - `aidd/docs/<type>/<ticket>.md`;
 - `aidd/docs/.active_ticket`.
+
+Если проекту позже понадобятся версионируемые project-level permissions,
+`.claude/settings.json` можно вернуть как project-specific файл. Локальные
+разрешения пользователя и машины должны оставаться в `.claude/settings.local.json`
+или `~/.claude/settings.json` и не попадать в этот шаблон.
 
 ## Правило для `.claude/scripts`
 
@@ -133,6 +140,8 @@ scripts допустимы только если все ссылки испол�
 - `~/.claude/telemetry`;
 - `~/.claude/cache`;
 - `~/.claude/shell-snapshots`;
+- `~/.claude/settings.json` на текущем этапе;
+- `.claude/settings.json` на текущем этапе;
 - `.claude/settings.local.json`;
 - `aidd/tmp`;
 - реальные тикетные артефакты из рабочих проектов.
@@ -175,11 +184,27 @@ scripts допустимы только если все ссылки испол�
   маркеров.
 - `scripts/README.md`: оставлен как описание project entrypoint scripts.
 
+Подготовлены для `template/project`:
+
+- `.claude/CLAUDE.md`: нейтральный project entry point, который ссылается на
+  user-level `~/.claude/rules/core`, `~/.claude/skills` и `~/.claude/agents`,
+  а project-specific слой оставляет в `.claude/rules/project`,
+  `.claude/rules/paths` и `.claude/scripts`.
+- `.claude/rules/project/*`: нейтральные шаблоны `profile`, `ticketing`,
+  `naming`, `change-policy`, `testing`, `pitfalls`.
+- `.claude/rules/paths/*`: README и нейтральный `source-example.md` без
+  проектных путей.
+- `aidd/docs/*/.gitkeep`: пустой каркас тикетных артефактов без
+  `feedback/README.md`.
+
 Осталось подготовить:
 
+- `tools/check-shared.ps1`: автоматическая проверка shared-слоя на случайную
+  проектную специфику.
+- `tools/sync-to-user.ps1`: установка `template/user/.claude` в `~/.claude`.
+- `tools/sync-to-project.ps1`: установка `template/project` в новый проект.
 - `docs/claude-process-target-state.md`: убрать проектные маркеры и сделать
   документ общим, если решим переносить этот документ.
-- `settings.json`: разделить user-safe permissions и project permissions.
 
 ## Контроль shared-слоя
 
