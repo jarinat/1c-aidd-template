@@ -21,29 +21,30 @@
 ## Целевая структура
 
 ```text
-user/
-  .claude/
-    agents/
-    rules/
-      core/
-    skills/
+template/
+  user/
+    .claude/
+      agents/
+      rules/
+        core/
+      skills/
 
-project-template/
-  .claude/
-    CLAUDE.md
-    settings.json
-    rules/
-      paths/
-      project/
-    scripts/
-  aidd/
-    docs/
-      feedback/
-      plan/
-      prd/
-      research/
-      review/
-      tasklist/
+  project/
+    .claude/
+      CLAUDE.md
+      settings.json
+      rules/
+        paths/
+        project/
+      scripts/
+    aidd/
+      docs/
+        feedback/
+        plan/
+        prd/
+        research/
+        review/
+        tasklist/
 
 tools/
   check-shared.ps1
@@ -51,10 +52,10 @@ tools/
   sync-to-user.ps1
 ```
 
-## Что хранится в `user/.claude`
+## Что хранится в `template/user/.claude`
 
-`user/.claude` содержит только переносимые правила и сценарии, которые могут
-применяться в разных проектах.
+`template/user/.claude` содержит только переносимые правила и сценарии, которые
+могут применяться в разных проектах.
 
 Подходит:
 
@@ -74,9 +75,9 @@ tools/
 - текущее состояние тикетов;
 - локальные permissions и machine-specific настройки.
 
-## Что хранится в `project-template`
+## Что хранится в `template/project`
 
-`project-template` содержит каркас, который устанавливается в новый проект и
+`template/project` содержит каркас, который устанавливается в новый проект и
 дорабатывается под него.
 
 Подходит:
@@ -125,9 +126,9 @@ tools/
 
 Перед добавлением новой инструкции нужно выбрать слой:
 
-- общее правило процесса: `user/.claude/rules/core`;
-- исполняемый сценарий: `user/.claude/skills`;
-- роль subagent: `user/.claude/agents`;
+- общее правило процесса: `template/user/.claude/rules/core`;
+- исполняемый сценарий: `template/user/.claude/skills`;
+- роль subagent: `template/user/.claude/agents`;
 - проектное ограничение: `.claude/rules/project` в проекте;
 - path-specific правило: `.claude/rules/paths` в проекте;
 - состояние тикета: `aidd/docs/<type>/<ticket>.md` в проекте;
