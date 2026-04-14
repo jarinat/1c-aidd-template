@@ -4,6 +4,7 @@ description: >
   Реализация задач из tasklist в рамках AIDD. Используй для сценария implement:
   последовательно выполнять change-блоки, запускать implementer по одной задаче,
   делать commit по блоку и обновлять tasklist.
+allowed-tools: Agent(implementer)
 ---
 
 # AIDD Implement
@@ -28,8 +29,17 @@ Source of truth для lifecycle этапов, статусов и change-бло
   `aidd-fix-review`, а не этот skill.
 - Один task = один запуск `implementer`.
 - Запуски идут только последовательно, без параллельных `implementer`.
+- Запускай `implementer` как foreground subagent и дождись его результата перед
+  любыми следующими действиями по этому task.
+- Основная сессия не использует `Edit`/`Write` для файлов реализации в `src/`
+  и других project source paths. Все правки реализации выполняет только
+  `implementer`.
+- Если `implementer` не запустился или недоступен, останови реализацию и верни
+  blocker в основную сессию; не подменяй его прямой правкой из основной сессии.
 - `implementer` не делает `git commit` и не обновляет `tasklist`.
 - Основная сессия делает один commit на change-блок.
+- Основная сессия обновляет AIDD-артефакты, включая `tasklist`, после проверки
+  результата и commit или verification-only проверки.
 - После успешного commit блока основная сессия сразу обновляет `tasklist` для
   этого блока. Не переходи к следующему блоку и не завершай ответ, пока
   `tasklist` не обновлён.

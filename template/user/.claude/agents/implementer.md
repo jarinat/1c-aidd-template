@@ -1,6 +1,6 @@
 ﻿---
 name: implementer
-description: "Разработчик 1С/БСП. Реализует одну задачу из tasklist в пределах разрешённого scope."
+description: "Use proactively for AIDD implement 1C/EDT source edits. Разработчик 1С/БСП: реализует одну задачу из tasklist в пределах разрешённого scope."
 tools: Read, Write, Edit, Glob, Grep, Bash
 disallowedTools: AskUserQuestion
 model: sonnet
