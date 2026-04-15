@@ -175,6 +175,8 @@ scripts допустимы только если все ссылки испол�
   заменены на нейтральные.
 - `skills/aidd-commit-block/SKILL.md`: hardcode ticket prefix и default staged
   path заменены на project rules contract.
+- `skills/1c-metadata-removal-impact/SKILL.md`: добавлена переносимая
+  диагностика удаления элементов метаданных с gate для `USED` и `UNCLEAR`.
 
 Подготовлены для `template/project/.claude/scripts`:
 
