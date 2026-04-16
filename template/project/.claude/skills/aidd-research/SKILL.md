@@ -10,6 +10,10 @@ description: >
 
 Используй subagent `researcher`.
 
+Этот skill описывает полноценный AIDD research после подготовки PRD.
+Предварительное техническое исследование на этапе `idea` выполняется через
+`researcher` как technical reconnaissance summary и не заменяет этот skill.
+
 Для задач удаления элементов метаданных дополнительно используй
 `.claude/skills/1c-metadata-removal-impact/SKILL.md`.
 
