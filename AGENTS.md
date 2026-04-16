@@ -30,9 +30,16 @@ Codex выступает как независимый эксперт и ана�
 
 ## Границы шаблона
 
-- `template/user/.claude` содержит переносимые user-level правила, agents и skills.
-- `template/project` содержит каркас, который устанавливается в рабочий проект.
-- Не смешивай project-specific правила с общим user-level слоем.
+- `template/project` содержит полный project-local комплект, который
+  устанавливается в рабочий проект.
+- `template/project/.claude/agents`, `template/project/.claude/skills` и
+  `template/project/.claude/rules/core` содержат переносимый runtime-слой:
+  общий AIDD workflow, роли, сценарии и инженерные правила без привязки к
+  конкретному проекту.
+- `template/project/.claude/rules/project` и
+  `template/project/.claude/rules/paths` содержат проектные настройки и
+  path-specific ограничения.
+- Не смешивай project-specific правила с переносимым runtime-слоем.
 - Локальные и machine-specific настройки не версионируй.
 - Не добавляй корневой `CLAUDE.md`: этот репозиторий сопровождается через Codex,
   а поставляемые Claude Code инструкции живут внутри `template/`.

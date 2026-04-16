@@ -1,45 +1,45 @@
 # AIDD / Claude Code Template
 
-Этот репозиторий предназначен для версионирования общей конфигурации Claude Code
-и AIDD workflow, чтобы изменения в общем процессе не приходилось вручную
-переносить между проектами.
+Этот репозиторий предназначен для версионирования project-local комплекта
+Claude Code и AIDD workflow для 1С/EDT/YAxUnit проектов. Цель — обновлять общий
+процесс, agents, skills и core rules из одного шаблона, не полагаясь на
+глобальный runtime в домашнем каталоге пользователя.
 
 ## Принятые решения
 
-- User-level `~/.claude/CLAUDE.md` не используем.
-- Общий runtime-слой Claude Code храним в `~/.claude/rules`,
-  `~/.claude/skills` и `~/.claude/agents`.
-- Project-specific слой остается в `.claude` конкретного проекта.
+- Глобальный `~/.claude/CLAUDE.md` не используем.
+- Agents, skills и core rules поставляем в каждый рабочий проект как
+  project-local runtime bundle внутри `.claude`.
+- Переносимость сохраняется на уровне содержания: `agents`, `skills` и
+  `rules/core` не должны содержать конкретные project-specific детали.
+- Project-specific слой остается в `.claude/rules/project` и
+  `.claude/rules/paths` конкретного проекта.
 - `aidd/docs` остается рабочей зоной тикетов конкретного проекта.
 - Инструкции для Claude Code не храним в `aidd/docs/README.md`-файлах.
 - `aidd/docs/feedback/README.md` не переносим как файл; его правила должны
-  жить в общем skill/rule, например в `skills/aidd-fix-feedback/SKILL.md` и
-  при необходимости в `rules/core/aidd-artifacts.md`.
-- Project-specific правила не должны попадать в общие agents и skills.
+  жить в skill/rule, например в `.claude/skills/aidd-fix-feedback/SKILL.md` и
+  при необходимости в `.claude/rules/core/aidd-artifacts.md`.
 - Локальные и машинозависимые настройки не версионируем.
-- `~/.claude/settings.json` пока используем как локальную user-level настройку,
-  но не версионируем в этом репозитории.
+- `~/.claude/settings.json` может оставаться локальной пользовательской
+  настройкой машины, но не является частью этого шаблона.
 
 ## Целевая структура
 
 ```text
 template/
-  user/
-    .claude/
-      agents/
-      rules/
-        core/
-      skills/
-
   project/
     .claude/
       CLAUDE.md
+      agents/
       rules/
+        core/
         paths/
         project/
       scripts/
+      skills/
     aidd/
       docs/
+        adr/
         feedback/
         plan/
         prd/
@@ -50,85 +50,89 @@ template/
 tools/
   check-shared.ps1
   sync-to-project.ps1
-  sync-to-user.ps1
+  sync-all-projects.ps1
+
+config/
+  projects.example.json
+  projects.local.json   # не версионируется
 ```
 
-## Что хранится в `template/user/.claude`
+`tools` и `config` в целевой структуре описывают планируемую инфраструктуру
+синхронизации. Если файлов еще нет, это не означает, что архитектура должна
+возвращаться к глобальному runtime в домашнем каталоге пользователя.
 
-`template/user/.claude` содержит только переносимые правила и сценарии, которые
-могут применяться в разных проектах.
+## Что хранится в `template/project/.claude`
 
-Подходит:
-
-- общие agents;
-- общий AIDD workflow;
-- общие rules `core`;
-- общие skills;
-- общие 1C/EDT/YAxUnit правила без привязки к проекту.
-
-Не подходит:
-
-- названия проектов;
-- ticket prefixes вроде `MPLSYS` или `INITKZ`;
-- конкретные рабочие пути вроде `src/cf_edt`;
-- проектные префиксы метаданных вроде `ар_` или `INT_`;
-- версии БСП и конфигураций;
-- текущее состояние тикетов;
-- project entrypoint scripts, которые вызываются как `.claude/scripts/*`;
-- локальные permissions и machine-specific настройки.
-- `settings.json`, пока принято решение не версионировать user-level settings.
-
-## Что хранится в `template/project`
-
-`template/project` содержит каркас, который устанавливается в новый проект и
-дорабатывается под него.
+`template/project/.claude` содержит полный комплект Claude Code инструкций,
+который устанавливается в рабочий проект.
 
 Подходит:
 
-- минимальный `.claude/CLAUDE.md` как project entry point;
+- `.claude/CLAUDE.md` как project entry point;
+- переносимые agents;
+- переносимые skills;
+- переносимые core rules;
 - шаблоны `.claude/rules/project/*`;
 - шаблоны `.claude/rules/paths/*`;
 - project entrypoint scripts из `.claude/scripts/*`, включая
-  `commit-block.sh` и read-only helpers вроде `aidd-inspect.ps1`;
-- пустая структура `aidd/docs/*`.
+  `commit-block.sh` и read-only helpers вроде `aidd-inspect.ps1`.
 
 Не подходит:
 
 - реальные PRD, plan, tasklist, research, feedback и review конкретных тикетов;
-- `.claude/settings.json`, пока project settings не используются как
-  версионируемый shared-слой;
+- secrets, credentials, локальные пути;
 - `.claude/settings.local.json`;
-- secrets, credentials, локальные пути.
+- machine-specific permissions;
+- project-specific детали внутри переносимых `agents`, `skills` и `rules/core`.
 
-## Что остается в проекте
+## Разделение слоев
+
+Переносимый runtime-слой физически лежит в проекте, но остается общим по смыслу:
+
+- `.claude/agents` — роли subagent-ов и границы ответственности;
+- `.claude/skills` — исполняемые пошаговые сценарии;
+- `.claude/rules/core` — общий AIDD workflow, review, git, code style и
+  1С/EDT/YAxUnit правила.
+
+Project-specific слой:
+
+- `.claude/rules/project` — профиль проекта, тикеты, naming, testing,
+  change policy и известные project pitfalls;
+- `.claude/rules/paths` — правила для конкретных зон дерева;
+- `.claude/scripts` — entrypoint scripts, которые вызываются по project-local
+  путям и могут зависеть от project rules.
+
+Если инструкция содержит конкретный проект, тикетный префикс, рабочий путь,
+версию БСП или префикс метаданных, она не должна попадать в переносимые
+`agents`, `skills` или `rules/core` без параметризации.
+
+## Что остается в рабочем проекте
 
 В каждом рабочем проекте остаются:
 
 - `.claude/CLAUDE.md`;
+- `.claude/agents/*`;
+- `.claude/skills/*`;
+- `.claude/rules/core/*`;
 - `.claude/rules/project/*`;
 - `.claude/rules/paths/*`;
-- `.claude/scripts/*`, если скрипт зависит от project rules;
+- `.claude/scripts/*`;
 - `aidd/docs/<type>/<ticket>.md`;
 - `aidd/docs/.active_ticket`.
 
 Если проекту позже понадобятся версионируемые project-level permissions,
-`.claude/settings.json` можно вернуть как project-specific файл. Локальные
+`.claude/settings.json` можно добавить как project-specific файл. Локальные
 разрешения пользователя и машины должны оставаться в `.claude/settings.local.json`
 или `~/.claude/settings.json` и не попадать в этот шаблон.
 
 ## Правило для `.claude/scripts`
 
 Если skill или agent вызывает скрипт по пути `.claude/scripts/<name>`, этот
-скрипт должен поставляться через `template/project/.claude/scripts`, а не через
-`template/user/.claude/scripts`.
+скрипт должен поставляться через `template/project/.claude/scripts`.
 
-Причина: `.claude/scripts/<name>` является путем внутри рабочего проекта. Общий
-user-level skill может ссылаться на такой entrypoint, но сам entrypoint должен
-быть установлен в проект и при необходимости адаптирован под project rules.
-
-Полностью переносимые helper-скрипты тоже могут лежать в `template/project`,
-если agents/skills обращаются к ним через `.claude/scripts/*`. User-level
-scripts допустимы только если все ссылки используют user-level путь явно.
+Причина: `.claude/scripts/<name>` является путем внутри рабочего проекта.
+Даже полностью переносимый helper должен быть установлен в проект, если
+agents/skills обращаются к нему через `.claude/scripts/*`.
 
 ## Что не версионируем здесь
 
@@ -140,9 +144,9 @@ scripts допустимы только если все ссылки испол�
 - `~/.claude/telemetry`;
 - `~/.claude/cache`;
 - `~/.claude/shell-snapshots`;
-- `~/.claude/settings.json` на текущем этапе;
-- `.claude/settings.json` на текущем этапе;
+- `~/.claude/settings.json`;
 - `.claude/settings.local.json`;
+- `config/projects.local.json`;
 - `aidd/tmp`;
 - реальные тикетные артефакты из рабочих проектов.
 
@@ -150,22 +154,22 @@ scripts допустимы только если все ссылки испол�
 
 Перед добавлением новой инструкции нужно выбрать слой:
 
-- общее правило процесса: `template/user/.claude/rules/core`;
-- исполняемый сценарий: `template/user/.claude/skills`;
-- роль subagent: `template/user/.claude/agents`;
-- проектное ограничение: `.claude/rules/project` в проекте;
-- path-specific правило: `.claude/rules/paths` в проекте;
+- общее правило процесса: `template/project/.claude/rules/core`;
+- исполняемый сценарий: `template/project/.claude/skills`;
+- роль subagent: `template/project/.claude/agents`;
+- проектное ограничение: `template/project/.claude/rules/project`;
+- path-specific правило: `template/project/.claude/rules/paths`;
 - project entrypoint script: `template/project/.claude/scripts`;
-- состояние тикета: `aidd/docs/<type>/<ticket>.md` в проекте;
+- состояние тикета: `aidd/docs/<type>/<ticket>.md` в рабочем проекте;
 - локальное исключение пользователя или машины: не версионировать.
 
-Если инструкция содержит конкретный проект, тикетный префикс, рабочий путь,
-версию БСП или префикс метаданных, она не должна попадать в общий user-level
-слой без параметризации.
+Если сомневаешься между `rules/core` и `rules/project`, выбирай по содержанию,
+а не по физическому расположению. Общая методика — в `rules/core`; конкретика
+проекта — в `rules/project` или `rules/paths`.
 
 ## Статус подготовки
 
-Подготовлены для общего `template/user/.claude`:
+Подготовлены для project-local runtime bundle:
 
 - `agents/reviewer.md`: project-specific префикс заменен на ссылку на
   `.claude/rules/project/naming.md`.
@@ -189,9 +193,8 @@ scripts допустимы только если все ссылки испол�
 Подготовлены для `template/project`:
 
 - `.claude/CLAUDE.md`: нейтральный project entry point, который ссылается на
-  user-level `~/.claude/rules/core`, `~/.claude/skills` и `~/.claude/agents`,
-  а project-specific слой оставляет в `.claude/rules/project`,
-  `.claude/rules/paths` и `.claude/scripts`.
+  project-local `rules/core`, `skills`, `agents`, `rules/project`,
+  `rules/paths` и `scripts`.
 - `.claude/rules/project/*`: нейтральные шаблоны `profile`, `ticketing`,
   `naming`, `change-policy`, `testing`, `pitfalls`.
 - `.claude/rules/paths/*`: README и нейтральный `source-example.md` без
@@ -201,17 +204,18 @@ scripts допустимы только если все ссылки испол�
 
 Осталось подготовить:
 
-- `tools/check-shared.ps1`: автоматическая проверка shared-слоя на случайную
-  проектную специфику.
-- `tools/sync-to-user.ps1`: установка `template/user/.claude` в `~/.claude`.
-- `tools/sync-to-project.ps1`: установка `template/project` в новый проект.
-- `docs/claude-process-target-state.md`: убрать проектные маркеры и сделать
-  документ общим, если решим переносить этот документ.
+- `tools/check-shared.ps1`: автоматическая проверка переносимого runtime-слоя
+  на случайную проектную специфику.
+- `tools/sync-to-project.ps1`: установка `template/project` в один рабочий
+  проект.
+- `tools/sync-all-projects.ps1`: обновление проектов из локального списка.
+- `config/projects.example.json`: пример локальной настройки списка проектов.
 
-## Контроль shared-слоя
+## Контроль переносимого слоя
 
-Перед установкой общего слоя нужно проверять, что в нем нет случайной проектной
-специфики. Минимальный набор маркеров для проверки:
+Перед установкой или массовым обновлением нужно проверять, что в переносимом
+runtime-слое нет случайной проектной специфики. Минимальный набор маркеров для
+проверки:
 
 ```text
 MPLSYS|INITKZ|PROSYS|Avtolid|Автолид|Intertop|src/cf_edt|ар_|INT_|Розница|Документооборот

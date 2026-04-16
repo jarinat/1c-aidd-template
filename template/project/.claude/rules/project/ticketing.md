@@ -2,7 +2,7 @@
 
 Этот файл — project-specific настройка форматов тикетов, веток и commit
 message. При переносе AIDD в другой проект меняй правила здесь, а не в
-`~/.claude/agents` и не в `~/.claude/skills`.
+`.claude/agents` и не в `.claude/skills`.
 
 ## Настройки проекта
 
