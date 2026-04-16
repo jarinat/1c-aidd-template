@@ -1,0 +1,10 @@
+{
+  "projects": [
+    {
+      "name": "example-1c-project",
+      "path": "C:/Users/<user>/git/work/example-1c-project",
+      "enabled": true,
+      "notes": "Optional human-readable note about the project."
+    }
+  ]
+}
