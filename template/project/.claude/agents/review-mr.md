@@ -43,6 +43,7 @@ skills:
   используй `.claude/skills/yaxunit-tests/SKILL.md`. Для API YAxUnit, Мокито,
   HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или `&Вместо` дополнительно
   прочитай `.claude/skills/yaxunit-tests/references/api-reference.md`.
+  Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
 - Подготовить структурированный отчёт по категориям `blocking`, `important`,
   `minor`.
 

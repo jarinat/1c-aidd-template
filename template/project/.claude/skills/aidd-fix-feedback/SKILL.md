@@ -58,6 +58,8 @@ Source of truth для lifecycle `feedback` и статусов:
      `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
      `feedback-fixer`, что он обязан применить
      `.claude/skills/yaxunit-tests/SKILL.md`;
+   - чтение `.claude/skills/yaxunit-tests/references/api-reference.md` не
+     заменяет применение `.claude/skills/yaxunit-tests/SKILL.md`;
    - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
      `&Вместо` отдельно укажи прочитать
      `.claude/skills/yaxunit-tests/references/api-reference.md`.

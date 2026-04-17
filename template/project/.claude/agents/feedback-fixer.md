@@ -41,6 +41,7 @@ permissionMode: acceptEdits
   API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
   `&Вместо` дополнительно прочитай
   `.claude/skills/yaxunit-tests/references/api-reference.md`.
+  Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
 - Если замечание связано с переименованием объектов или элементов метаданных,
   применять `.claude/rules/project/naming.md`: менять mdo-имя и связанные
   ссылки, а не только синоним/заголовок, если пользователь явно не указал
