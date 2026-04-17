@@ -54,6 +54,13 @@ Source of truth для lifecycle `feedback` и статусов:
    согласия нет, покажи рекомендацию и остановись до решения пользователя.
 6. Прочитай связанный код и контекст тикета.
 7. Запусти `feedback-fixer` со scope ровно текущего `FB-XXX`.
+   - если замечание затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
+     `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
+     `feedback-fixer`, что он обязан применить
+     `.claude/skills/yaxunit-tests/SKILL.md`;
+   - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
+     `&Вместо` отдельно укажи прочитать
+     `.claude/skills/yaxunit-tests/references/api-reference.md`.
 8. Проверь результат и обнови запись в `aidd/docs/feedback/<ticket>.md`:
    - зафиксируй фактическое исправление;
    - перечисли изменённые файлы;

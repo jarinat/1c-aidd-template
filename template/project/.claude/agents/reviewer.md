@@ -61,6 +61,11 @@ skills:
 - Для YAxUnit проверить production-path: тесты должны вызывать production-код
   или фактический entrypoint и мокировать внешнюю границу, а не вручную
   повторять проверяемую бизнес-логику или тестировать дубль реализации.
+- Если review затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
+  `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, обязательно
+  используй `.claude/skills/yaxunit-tests/SKILL.md`. Для API YAxUnit, Мокито,
+  HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или `&Вместо` дополнительно
+  прочитай `.claude/skills/yaxunit-tests/references/api-reference.md`.
 
 ## Вход
 

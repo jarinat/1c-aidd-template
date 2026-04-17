@@ -71,6 +71,12 @@ Source of truth для lifecycle этапов, статусов и change-бло
    блоку и верни blocker на plan/tasklist.
 7. Для каждой незакрытой задачи выбранного блока запусти отдельного
    `implementer` со scope ровно этой задачи.
+   - если задача затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
+     `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
+     `implementer`, что он обязан применить `.claude/skills/yaxunit-tests/SKILL.md`;
+   - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
+     `&Вместо` отдельно укажи прочитать
+     `.claude/skills/yaxunit-tests/references/api-reference.md`.
 8. После каждой задачи проверь результат и отсутствие выхода за scope.
 9. После завершения всего блока:
    - если есть файловые изменения, сделай один commit change-блока;

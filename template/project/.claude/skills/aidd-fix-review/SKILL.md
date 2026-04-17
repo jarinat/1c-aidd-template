@@ -35,6 +35,13 @@ Source of truth для lifecycle `review` и статусов:
 4. Убедись, что статус записи допускает запуск review-fix.
 5. Прочитай связанный код и контекст тикета.
 6. Запусти `review-fixer` со scope ровно текущего `RV-XXX`.
+   - если замечание затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
+     `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
+     `review-fixer`, что он обязан применить
+     `.claude/skills/yaxunit-tests/SKILL.md`;
+   - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
+     `&Вместо` отдельно укажи прочитать
+     `.claude/skills/yaxunit-tests/references/api-reference.md`.
 7. Проверь результат.
 8. Обнови запись в `aidd/docs/review/<ticket>.md` по правилам AIDD:
    - зафиксируй, что изменено;
