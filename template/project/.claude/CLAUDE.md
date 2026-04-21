@@ -62,6 +62,20 @@ supporting docs.
 
 ## Обязательный routing skills
 
+### rlm-tools-bsl
+
+Для смыслового discovery по 1С/EDT-кодовой базе сначала примени
+`.claude/skills/rlm-tools-bsl/SKILL.md`, если MCP `rlm-tools-bsl` доступен.
+
+Это относится к `/aidd-idea`, preliminary technical reconnaissance, подготовке
+research, поиску точек использования, ссылок на метаданные, форм, движений,
+подписок, callers, интеграций и локальных reference patterns.
+
+`Read` известного файла и `Glob` узкого известного пути допустимы без skill.
+Широкий `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` для поиска 1С-сущностей
+используй только как fallback, если MCP недоступен, или для подтверждения уже
+найденных MCP-кандидатов.
+
 ### YAxUnit
 
 Любое содержательное действие, связанное с YAxUnit, выполняй через

@@ -39,6 +39,34 @@ description: >
 - Для вывода требований из похожей реализации: reference pattern остается
   инженерным аналогом, а не источником scope.
 
+## Выбор инструмента
+
+- Известный метод или небольшой файл: читай напрямую через `Read` или
+  `read_file`.
+- Известный большой файл: сначала сузь область через `extract_procedures`,
+  `read_procedure`, `parse_form`, `parse_object_xml`, `grep_read` или точечный
+  `Grep`; затем читай только подтверждающий фрагмент.
+- Известная узкая директория: допустим `Glob`/`Grep` по этой директории.
+- Неизвестные связи метаданных, формы, ссылки, движения, callers, интеграции,
+  подсистемы и локальные аналоги: сначала используй MCP helpers.
+- Широкий `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` для поиска 1С-сущностей
+  считается fallback. Используй его только если MCP недоступен, индекс/сессия не
+  работают или нужно подтвердить уже найденных MCP-кандидатов.
+
+Предпочтительный первый проход для 1С discovery:
+
+- `search` / `search_objects` — найти объект по названию, синониму или
+  бизнес-термину.
+- `analyze_object` — получить профиль объекта, модули, процедуры и exports.
+- `find_attributes` / `parse_object_xml` — проверить реквизиты, измерения,
+  ресурсы и табличные части.
+- `parse_form` — найти формы, команды, обработчики и привязки.
+- `find_references_to_object` — найти metadata references.
+- `find_callers_context` — проверить callers найденного метода.
+- `find_event_subscriptions`, `find_register_movements`,
+  `find_http_services`, `find_web_services`, `find_xdto_packages` — для
+  профильных областей поведения.
+
 ## Доступные MCP tools
 
 Ожидаемый user-level MCP server:
