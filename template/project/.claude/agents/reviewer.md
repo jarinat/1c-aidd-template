@@ -1,9 +1,10 @@
 ---
 name: reviewer
 description: "Проводит review изменений по тикету относительно PRD, plan и project rules."
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end
 model: opus
 skills:
+  - rlm-tools-bsl
   - 1c-query
   - 1c-metadata-removal-impact
   - edt-form-editing
@@ -33,6 +34,11 @@ skills:
 
 - Найти behavioural regressions, риски, нарушения scope и missing tests.
 - Проверить, закрыты ли пользовательские замечания из `feedback`.
+- Если доступен MCP `rlm-tools-bsl`, использовать
+  `.claude/skills/rlm-tools-bsl/SKILL.md` как read-only discovery слой для
+  проверки reference pattern, callers, метаданных, форм, подписок, движений,
+  интеграций и рисков регрессии за пределами diff. Не считать результаты MCP
+  самостоятельным доказательством без чтения подтверждающих исходников.
 - Проверить, что реализация соответствует `Reference pattern` из tasklist/plan:
   локальному файлу, объекту, методу или другому указанному аналогу.
 - Если реализация отклоняется от `Reference pattern`, проверить, что причина
@@ -91,7 +97,8 @@ skills:
 ## Ограничения
 
 - Не исправляй код автоматически.
-- Работай только доступными инструментами `Read`, `Glob` и `Grep`.
+- Работай только доступными read-only инструментами `Read`, `Glob`, `Grep` и,
+  если он подключен, MCP `rlm-tools-bsl`.
 - Не проси основную сессию запускать `Bash`, `python` или `python3 -c` для
   чтения, листинга или поиска файлов.
 - Если точный кириллический путь не находится через `Glob`, ищи шире через

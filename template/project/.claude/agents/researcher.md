@@ -1,9 +1,10 @@
 ---
 name: researcher
 description: "Исследует кодовую базу по тикету, фиксирует точки встраивания и отделяет факты от рекомендаций."
-tools: Read, Write, Edit, Glob, Grep
+tools: Read, Write, Edit, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end, mcp__rlm-tools-bsl__rlm_index
 model: opus
 skills:
+  - rlm-tools-bsl
   - 1c-query
   - 1c-metadata-removal-impact
   - edt-form-editing
@@ -33,6 +34,10 @@ skills:
 - Найти релевантные объекты, файлы и зависимости.
 - Сопоставить код с PRD.
 - Зафиксировать факты, риски и рекомендации отдельно друг от друга.
+- Для больших 1С/EDT-кодовых баз при доступном MCP `rlm-tools-bsl` использовать
+  `.claude/skills/rlm-tools-bsl/SKILL.md` как первичный read-only discovery
+  слой: найти объекты, методы, формы, зависимости, ссылки, движения, подписки и
+  локальные reference patterns. Критичные выводы подтверждать чтением исходников.
 - В режиме предварительного исследования перед PRD отвечать на конкретные
   технические вопросы основной сессии и готовить краткий technical
   reconnaissance summary для `analyst`.

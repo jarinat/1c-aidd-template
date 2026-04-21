@@ -37,6 +37,7 @@ supporting docs.
 - Специализированные skills:
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
+  `.claude/skills/rlm-tools-bsl/SKILL.md`
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/edt-form-editing/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
