@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: "Проводит review изменений по тикету относительно PRD, plan и project rules."
-tools: Read, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end
+tools: Read, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end, mcp__rlm-tools-bsl__rlm_index
 model: sonnet
 skills:
   - rlm-tools-bsl
@@ -34,11 +34,15 @@ skills:
 
 - Найти behavioural regressions, риски, нарушения scope и missing tests.
 - Проверить, закрыты ли пользовательские замечания из `feedback`.
-- Если доступен MCP `rlm-tools-bsl`, использовать
+- Все 1С/EDT проекты этого шаблона считать большими кодовыми базами.
+- Если доступен MCP `rlm-tools-bsl`, обязательно использовать
   `.claude/skills/rlm-tools-bsl/SKILL.md` как read-only discovery слой для
   проверки reference pattern, callers, метаданных, форм, подписок, движений,
   интеграций и рисков регрессии за пределами diff. Не считать результаты MCP
   самостоятельным доказательством без чтения подтверждающих исходников.
+- Если `rlm-tools-bsl` недоступен, индекс отсутствует или устарел, явно
+  зафиксировать это как ограничение проверки до fallback на `Read`, `Glob` и
+  `Grep`.
 - Проверить, что реализация соответствует `Reference pattern` из tasklist/plan:
   локальному файлу, объекту, методу или другому указанному аналогу.
 - Если реализация отклоняется от `Reference pattern`, проверить, что причина
@@ -99,6 +103,9 @@ skills:
 - Не исправляй код автоматически.
 - Работай только доступными read-only инструментами `Read`, `Glob`, `Grep` и,
   если он подключен, MCP `rlm-tools-bsl`.
+- Не начинай с широкого `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` или чтения
+  целых больших модулей, если область можно сузить через AIDD-контекст и
+  `rlm-tools-bsl`.
 - Не проси основную сессию запускать `Bash`, `python` или `python3 -c` для
   чтения, листинга или поиска файлов.
 - Если точный кириллический путь не находится через `Glob`, ищи шире через
