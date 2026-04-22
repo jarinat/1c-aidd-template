@@ -2,7 +2,7 @@
 name: reviewer
 description: "Проводит review изменений по тикету относительно PRD, plan и project rules."
 tools: Read, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end
-model: opus
+model: sonnet
 skills:
   - rlm-tools-bsl
   - 1c-query

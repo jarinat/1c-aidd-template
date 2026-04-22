@@ -2,7 +2,7 @@
 name: review-mr
 description: "Проводит code review merge request между двумя ветками Git."
 tools: Read, Glob, Grep, Bash
-model: opus
+model: sonnet
 skills:
   - 1c-query
   - edt-form-editing
