@@ -90,11 +90,12 @@ Fallback:
    пустой или MR не подготовлен GitLab, остановись и попроси повторить позже.
 6. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
    Подготовь отдельный worktree:
-   - если `.claude/worktrees/` игнорируется Git в текущем проекте, размести
-     его внутри `.claude/worktrees/review-mr-<iid>-<short-sha>`;
-   - если путь не игнорируется, размести worktree рядом с репозиторием,
-     например `../<repo-name>-review-mr-<iid>-<short-sha>`, чтобы не засорять
-     рабочую копию untracked-файлами;
+   - всегда размещай review worktree под единым коротким корнем
+     `C:\ai-review-wt`;
+   - путь формируй как
+     `C:\ai-review-wt\<repo-name>-review-mr-<iid>-<short-sha>`;
+   - не размещай review worktree внутри текущего репозитория, `.claude/` или
+     рядом с проектом: поведение не должно зависеть от `.gitignore` проекта;
    - перед созданием проверь `git worktree list`;
    - если worktree для того же MR и `head_sha` уже существует, переиспользуй
      его;
@@ -108,10 +109,13 @@ Fallback:
      fork сначала проверь, что remote/source project доступен; если нет,
      остановись с понятным сообщением.
 8. Создай worktree в detached/head-safe режиме от проверяемого commit:
-   - `git worktree add --detach <worktree-path> <head_sha>` или эквивалент от
-     `origin/mr/<iid>/head`;
+   - используй `git -c core.longpaths=true worktree add --detach
+     <worktree-path> <head_sha>` или эквивалент от `origin/mr/<iid>/head`;
    - предпочтительно от `diff_refs.head_sha` или `origin/mr/<iid>/head`;
    - не checkout-и source branch в основной рабочей копии.
+   - если создание worktree завершилось ошибкой, сразу выполни cleanup
+     частичного каталога и `git worktree prune`, затем остановись или повтори
+     только после понятного исправления причины.
 9. Внутри worktree вычисли diff:
    - `git diff <base_sha>...<head_sha> --stat`;
    - `git diff <base_sha>...<head_sha> --name-status --find-renames`;
@@ -124,12 +128,25 @@ Fallback:
    - diff stat и name-status;
    - требование выполнять чтение файлов и `git diff` только внутри
      `REVIEW_WORKTREE`.
-11. Выведи итоговый отчёт review в текущую сессию:
+11. Сформируй итоговый отчёт review:
     - MR title/link;
     - проверенные `base_sha` и `head_sha`;
     - краткая статистика diff;
     - `blocking`, `important`, `minor`;
-    - явная фиксация, что замечаний нет, если review чистый.
+    - явная фиксация, что замечаний нет, если review чистый;
+    - статус cleanup: `worktree removed: <path>` или `worktree kept: <path>`
+      с причиной.
+12. До вывода итогового отчёта удали review worktree по умолчанию:
+    - если пользователь заранее явно попросил оставить worktree, не удаляй его;
+    - если review не удалось завершить из-за ошибки инструментов или нужно
+      сохранить каталог для ручной диагностики, не удаляй его и явно объясни
+      причину в отчёте;
+    - в обычном успешном сценарии выполни
+      `git worktree remove --force <worktree-path>` и затем `git worktree prune`;
+    - не удаляй произвольные каталоги: cleanup разрешён только для пути,
+      построенного под `C:\ai-review-wt`.
+13. Выведи итоговый отчёт review в текущую сессию уже с фактическим cleanup
+    статусом.
 
 ## Публикация в GitLab
 
@@ -153,8 +170,9 @@ Fallback:
   `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.
 - Не делай `git checkout`, `git switch`, `git pull`, `git merge` или `git
   rebase` в основной рабочей копии.
-- Не удаляй worktree автоматически после review: пользователь может захотеть
-  открыть его для проверки. Укажи путь к worktree в итоговом сообщении.
+- Не оставляй review worktree автоматически после успешного review. Оставлять
+  его можно только по явной просьбе пользователя или при диагностической
+  необходимости; в отчёте обязательно укажи причину.
 - Не запрашивай и не сохраняй GitLab token в файлах проекта.
 - Не исправляй код автоматически в рамках review GitLab MR.
 - Не дублируй проверки Сонара.
