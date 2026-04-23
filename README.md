@@ -191,6 +191,9 @@ agents/skills обращаются к нему через `.claude/scripts/*`.
   path заменены на project rules contract.
 - `skills/1c-metadata-removal-impact/SKILL.md`: добавлена переносимая
   диагностика удаления элементов метаданных с gate для `USED` и `UNCLEAR`.
+- `skills/review-gitlab-mr/SKILL.md`: добавлен ручной read-only сценарий
+  review GitLab MR по ссылке через изолированный worktree и существующий
+  `review-mr` engine.
 
 Подготовлены для `template/project/.claude/scripts`:
 

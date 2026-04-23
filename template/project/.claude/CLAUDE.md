@@ -41,6 +41,7 @@ supporting docs.
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/edt-form-editing/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
+  `.claude/skills/review-gitlab-mr/SKILL.md`
 - Роли subagent-ов:
   `.claude/agents/*.md`
 - Project entrypoint scripts:
