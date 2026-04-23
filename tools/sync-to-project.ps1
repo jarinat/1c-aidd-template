@@ -116,7 +116,8 @@ $syncRoots = @(
     ".claude/agents",
     ".claude/skills",
     ".claude/rules/core",
-    ".claude/scripts"
+    ".claude/scripts",
+    ".claude/docs"
 )
 
 $sourceFiles = New-Object System.Collections.Generic.List[System.IO.FileInfo]

@@ -2,7 +2,7 @@
 paths:
   - "<source-path>/**"
 ---
-# Rules for `<source-path>`
+# Правила для `<source-path>`
 
 Этот path-scoped rule применяется к указанной зоне репозитория.
 

@@ -42,6 +42,7 @@ supporting docs.
   `.claude/skills/edt-form-editing/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
+  `.claude/skills/project-onboarding/SKILL.md`
 - Роли subagent-ов:
   `.claude/agents/*.md`
 - Project entrypoint scripts:
@@ -143,4 +144,5 @@ review, интерпретации тестов, формулированию fe
 ## Supporting docs
 
 - Supporting docs:
+  `.claude/docs/onboarding-project.md`
   `.claude/docs/*.md`

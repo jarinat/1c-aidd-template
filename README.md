@@ -31,6 +31,7 @@ template/
     .claude/
       CLAUDE.md
       agents/
+      docs/
       rules/
         core/
         paths/
@@ -48,6 +49,7 @@ template/
         tasklist/
 
 tools/
+  bootstrap-project.ps1
   check-shared.ps1
   sync-to-project.ps1
   sync-all-projects.ps1
@@ -61,15 +63,61 @@ config/
 синхронизации. Если файлов еще нет, это не означает, что архитектура должна
 возвращаться к глобальному runtime в домашнем каталоге пользователя.
 
+## Быстрая локальная установка в проект
+
+Для первичной подготовки проекта используй bootstrap-сценарий:
+
+```powershell
+tools/bootstrap-project.ps1 -Project WMS
+tools/bootstrap-project.ps1 -Project WMS -Apply
+```
+
+`-Project` берется из локального `config/projects.local.json`. Если проекта нет
+в списке, можно передать путь напрямую:
+
+```powershell
+tools/bootstrap-project.ps1 -ProjectPath C:/work/project -Apply
+```
+
+Bootstrap делает только локальную механическую подготовку:
+
+- обновляет переносимый runtime-слой:
+  `.claude/CLAUDE.md`, `.claude/agents`, `.claude/skills`,
+  `.claude/rules/core`, `.claude/scripts`, `.claude/docs`;
+- создает отсутствующий локальный `AGENTS.md`;
+- создает отсутствующие `.claude/rules/project/*`;
+- создает базовые отсутствующие `.claude/rules/paths/*` без копирования
+  placeholder-примера `source-example.md`;
+- создает отсутствующий каркас `aidd/docs`.
+
+Bootstrap не делает project onboarding за агента:
+
+- не добавляет `.claude/`, `aidd/` или `AGENTS.md` в Git ignore/exclude;
+- не запускает `rlm-bsl-index build/update`;
+- не угадывает тикетные префиксы, naming policy, change policy и правила
+  комментариев;
+- не перезаписывает уже существующие project-specific rules.
+
+После bootstrap проект нужно обследовать по сценарию:
+
+```text
+.claude/docs/onboarding-project.md
+```
+
+Для Claude Code есть skill `.claude/skills/project-onboarding/SKILL.md`. Для
+Codex входом является локальный `AGENTS.md`, который ссылается на тот же общий
+onboarding-документ.
+
 ## Локальный список проектов
 
 `config/projects.example.json` содержит версионируемый пример списка проектов.
 Реальный список ведется локально в `config/projects.local.json` и не попадает в
 Git.
 
-Пока автоматической раскатки нет: список служит явной опорой для ручных
-обновлений, когда пользователь просит Codex перенести изменения шаблона в
-конкретные рабочие проекты.
+`tools/bootstrap-project.ps1` умеет использовать этот список как явную опору
+для локальной установки конкретного рабочего проекта. Низкоуровневый
+`tools/sync-to-project.ps1` остается path-based сценарием для точечного
+обновления runtime-слоя.
 
 ## Что хранится в `template/project/.claude`
 
@@ -79,9 +127,11 @@ Git.
 Подходит:
 
 - `.claude/CLAUDE.md` как project entry point;
+- `AGENTS.md` как локальная входная инструкция Codex;
 - переносимые agents;
 - переносимые skills;
 - переносимые core rules;
+- supporting docs из `.claude/docs/*`, включая общий сценарий onboarding;
 - шаблоны `.claude/rules/project/*`;
 - шаблоны `.claude/rules/paths/*`;
 - project entrypoint scripts из `.claude/scripts/*`, включая
@@ -154,6 +204,7 @@ Claude Code подхватывает agents, skills, rules и scripts из ст�
 - `.claude/agents/*`;
 - `.claude/skills/*`;
 - `.claude/rules/core/*`;
+- `.claude/docs/*`;
 - `.claude/scripts/*`.
 
 Ownership определяется на уровне файла, а не каталога. Файл считается
@@ -231,6 +282,8 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 - `skills/review-gitlab-mr/SKILL.md`: добавлен ручной read-only сценарий
   review GitLab MR по ссылке через изолированный worktree и существующий
   `review-mr` engine.
+- `skills/project-onboarding/SKILL.md`: добавлен Claude-вход в общий сценарий
+  обследования проекта без смешивания фактов и догадок.
 
 Подготовлены для `template/project/.claude/scripts`:
 
@@ -245,8 +298,13 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 - `.claude/CLAUDE.md`: нейтральный project entry point, который ссылается на
   project-local `rules/core`, `skills`, `agents`, `rules/project`,
   `rules/paths` и `scripts`.
+- `AGENTS.md`: нейтральный Codex entry point для локальной настройки рабочих
+  проектов.
+- `.claude/docs/onboarding-project.md`: общий русскоязычный сценарий
+  обследования 1С/EDT проекта и заполнения project/path rules.
 - `.claude/rules/project/*`: нейтральные шаблоны `profile`, `ticketing`,
-  `naming`, `change-policy`, `testing`, `pitfalls`.
+  `naming`, `change-policy`, `testing`, `pitfalls`,
+  `onboarding-status`.
 - `.claude/rules/paths/*`: README и нейтральный `source-example.md` без
   проектных путей.
 - `aidd/docs/*/.gitkeep`: пустой каркас тикетных артефактов без
@@ -256,13 +314,15 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 
 - `sync-to-project.ps1`: dry-run/apply раскатка файлов шаблона в один рабочий
   проект по file-level ownership без удаления project-local файлов.
+- `bootstrap-project.ps1`: локальная первичная установка проекта из
+  `config/projects.local.json` или явного `-ProjectPath`; runtime-файлы
+  обновляются, project-specific каркас создается только при отсутствии.
 
 Осталось подготовить:
 
 - `tools/check-shared.ps1`: автоматическая проверка переносимого runtime-слоя
   на случайную проектную специфику.
 - `tools/sync-all-projects.ps1`: обновление проектов из локального списка.
-- `config/projects.example.json`: пример локальной настройки списка проектов.
 
 ## Контроль переносимого слоя
 

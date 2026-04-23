@@ -1,4 +1,4 @@
-# Testing Rules
+# Правила тестирования
 
 Этот файл — project-specific source of truth по тестам и проверкам.
 

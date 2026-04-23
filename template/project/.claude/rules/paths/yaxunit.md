@@ -3,7 +3,7 @@ paths:
   - "src/cfe/yaxunit/**"
   - "tests/smoke/**"
 ---
-# Rules for tests and YAxUnit
+# Правила для тестов и YAxUnit
 
 Этот path-scoped rule применяется к YAxUnit-артефактам и связанным тестовым
 файлам. После установки шаблона адаптируй `paths` под структуру конкретного
