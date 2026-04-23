@@ -174,6 +174,13 @@ Ownership определяется на уровне файла, а не кат�
 `.claude/rules/project`, `.claude/rules/paths` или отдельный project-local
 agent/skill/rule файл, которого нет в шаблоне.
 
+В конечных проектах не следует добавлять корневой `CLAUDE.md` без отдельного
+архитектурного решения. Шаблон использует `.claude/CLAUDE.md` как единственный
+project entry point для Claude Code, чтобы не создавать два конкурирующих
+источника project memory. Личные локальные заметки пользователя должны жить в
+gitignored `CLAUDE.local.md` или локальных настройках, а проектная специфика —
+в `.claude/rules/project` и `.claude/rules/paths`.
+
 ## Что не версионируем здесь
 
 - `~/.claude/.credentials.json`;
@@ -245,12 +252,15 @@ agent/skill/rule файл, которого нет в шаблоне.
 - `aidd/docs/*/.gitkeep`: пустой каркас тикетных артефактов без
   `feedback/README.md`.
 
+Подготовлены для `tools`:
+
+- `sync-to-project.ps1`: dry-run/apply раскатка файлов шаблона в один рабочий
+  проект по file-level ownership без удаления project-local файлов.
+
 Осталось подготовить:
 
 - `tools/check-shared.ps1`: автоматическая проверка переносимого runtime-слоя
   на случайную проектную специфику.
-- `tools/sync-to-project.ps1`: установка `template/project` в один рабочий
-  проект.
 - `tools/sync-all-projects.ps1`: обновление проектов из локального списка.
 - `config/projects.example.json`: пример локальной настройки списка проектов.
 
