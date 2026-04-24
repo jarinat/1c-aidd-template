@@ -106,6 +106,38 @@ function Get-ToolOutput {
     return (Invoke-Tool -FilePath $FilePath -Arguments $Arguments -FailureMessage $FailureMessage | Out-String).Trim()
 }
 
+function Invoke-Glab {
+    param([Parameter(Mandatory = $true)][string[]]$Arguments)
+
+    $previousErrorActionPreference = $ErrorActionPreference
+    $nativePreferenceExists = Test-Path Variable:\PSNativeCommandUseErrorActionPreference
+    if ($nativePreferenceExists) {
+        $previousNativePreference = $PSNativeCommandUseErrorActionPreference
+    }
+
+    try {
+        # glab writes some successful status output to stderr. Keep strict mode
+        # for the script, but do not let native stderr bypass LASTEXITCODE here.
+        $script:ErrorActionPreference = "Continue"
+        if ($nativePreferenceExists) {
+            $script:PSNativeCommandUseErrorActionPreference = $false
+        }
+
+        $output = & glab @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+    } finally {
+        $script:ErrorActionPreference = $previousErrorActionPreference
+        if ($nativePreferenceExists) {
+            $script:PSNativeCommandUseErrorActionPreference = $previousNativePreference
+        }
+    }
+
+    [pscustomobject]@{
+        ExitCode = $exitCode
+        Output = @($output)
+    }
+}
+
 function ConvertTo-SafeName {
     param([Parameter(Mandatory = $true)][string]$Value)
 
@@ -164,25 +196,25 @@ function Invoke-GlabApiGet {
         Stop-WithMessage "glab is not available in PATH. Install glab or fix the terminal PATH, then run 'glab auth login --hostname $HostName'."
     }
 
-    $authOutput = & glab auth status --hostname $HostName 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $text = ($authOutput | Out-String).Trim()
+    $authResult = Invoke-Glab -Arguments @("auth", "status", "--hostname", $HostName)
+    if ($authResult.ExitCode -ne 0) {
+        $text = ($authResult.Output | Out-String).Trim()
         if ([string]::IsNullOrWhiteSpace($text)) {
             $text = "glab auth status failed"
         }
         Stop-WithMessage "glab is not authenticated for $HostName. Run 'glab auth login --hostname $HostName' outside Claude Code. $text"
     }
 
-    $output = & glab api --hostname $HostName $Endpoint 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $text = ($output | Out-String).Trim()
+    $apiResult = Invoke-Glab -Arguments @("api", "--hostname", $HostName, $Endpoint)
+    if ($apiResult.ExitCode -ne 0) {
+        $text = ($apiResult.Output | Out-String).Trim()
         if ([string]::IsNullOrWhiteSpace($text)) {
             $text = "glab api failed"
         }
         Stop-WithMessage "glab API request failed for $HostName/$Endpoint. Check glab auth token scopes and project access. $text"
     }
 
-    $json = ($output | Out-String).Trim()
+    $json = ($apiResult.Output | Out-String).Trim()
     if ([string]::IsNullOrWhiteSpace($json)) {
         Stop-WithMessage "glab API returned an empty response for $HostName/$Endpoint"
     }
