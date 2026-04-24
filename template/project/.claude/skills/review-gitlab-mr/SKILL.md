@@ -52,7 +52,10 @@ Source of truth:
 Обязательный путь:
 
 - используй только project-local script
-  `.claude/scripts/gitlab-mr-review.ps1`;
+  `.claude/scripts/gitlab-mr-review.cmd`;
+- `.cmd` является approval-friendly wrapper над
+  `.claude/scripts/gitlab-mr-review.ps1`; не вызывай `.ps1` напрямую, чтобы
+  Claude Code не предлагал постоянное разрешение вида `powershell *`;
 - не собирай подготовку MR ad-hoc командами `curl`, `python -c`,
   `git credential fill`, shell pipelines или временными `/tmp/*.json`;
 - если script отсутствует или завершился ошибкой, остановись и объясни причину
@@ -68,7 +71,7 @@ Script сам получает metadata через GitLab API, использу�
 2. Подготовь review context одной командой из корня целевого репозитория:
 
    ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 prepare -MrUrl "<MR_URL>"
+   .claude/scripts/gitlab-mr-review.cmd prepare -MrUrl "<MR_URL>"
    ```
 
 3. Используй JSON manifest из stdout и `manifest_path` как source of truth для:
@@ -107,7 +110,7 @@ Script сам получает metadata через GitLab API, использу�
     - в обычном успешном сценарии выполни cleanup только через script:
 
       ```powershell
-      powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 cleanup -WorktreePath "<worktree_path>"
+      .claude/scripts/gitlab-mr-review.cmd cleanup -WorktreePath "<worktree_path>"
       ```
 
     - не удаляй worktree вручную через `rm`, `Remove-Item` или shell-цепочки.
@@ -131,9 +134,11 @@ Script сам получает metadata через GitLab API, использу�
 ## Ограничения
 
 - Не меняй текущую ветку пользователя.
-- Не заменяй `.claude/scripts/gitlab-mr-review.ps1` inline-командами,
+- Не заменяй `.claude/scripts/gitlab-mr-review.cmd` inline-командами,
   самописными `curl`/`python`/`git credential` последовательностями или
   временными файлами вне manifest, созданного script.
+- Не вызывай `.claude/scripts/gitlab-mr-review.ps1` напрямую из skill: внешний
+  entrypoint для Claude Code должен оставаться `.cmd`.
 - Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
   выводов по MR. Для первого варианта review опирайся на `git diff`, `Read`,
   `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.

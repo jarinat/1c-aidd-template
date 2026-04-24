@@ -44,16 +44,20 @@ $ReviewRoot = "C:\ai-review-wt"
 function Stop-WithMessage {
     param([Parameter(Mandatory = $true)][string]$Message)
 
-    Write-Error $Message
+    [Console]::Error.WriteLine($Message)
     exit 2
 }
 
 function Show-Help {
     @"
 Usage:
-  gitlab-mr-review.ps1 help
-  gitlab-mr-review.ps1 prepare -MrUrl <gitlab-merge-request-url>
-  gitlab-mr-review.ps1 cleanup -WorktreePath <worktree-path>
+  gitlab-mr-review.cmd help
+  gitlab-mr-review.cmd prepare -MrUrl <gitlab-merge-request-url>
+  gitlab-mr-review.cmd cleanup -WorktreePath <worktree-path>
+
+Implementation:
+  gitlab-mr-review.ps1 is called by the .cmd wrapper. Claude Code should use
+  gitlab-mr-review.cmd as the external entrypoint.
 
 prepare:
   - parses the MR URL

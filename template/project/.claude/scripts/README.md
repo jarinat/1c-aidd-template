@@ -10,8 +10,10 @@ Claude не должен заменять эти скрипты inline-кома�
 - `commit-block.sh` -- сценарий подготовки commit-блока.
 - `aidd-inspect.ps1` -- универсальные read-only проверки внутри корня
   репозитория для AIDD-сценариев.
-- `gitlab-mr-review.ps1` -- подготовка GitLab MR review: metadata, fetch refs,
-  изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup.
+- `gitlab-mr-review.cmd` -- approval-friendly entrypoint для GitLab MR review.
+- `gitlab-mr-review.ps1` -- реализация GitLab MR review: metadata, fetch refs,
+  изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
+  вызывай напрямую из Claude Code, используй `.cmd` wrapper.
 
 ## Правила
 
@@ -23,4 +25,8 @@ Claude не должен заменять эти скрипты inline-кома�
   должны жить в `.claude/rules/project/*` или `.claude/rules/paths/*`.
 - GitLab MR review не должен собираться ad-hoc командами `curl`, `python -c`,
   `git credential fill` и ручными `/tmp/*.json`. Используй
-  `gitlab-mr-review.ps1` как единственный entrypoint подготовки и cleanup.
+  `gitlab-mr-review.cmd` как единственный внешний entrypoint подготовки и
+  cleanup.
+- Для постоянного approval не разрешай широкий паттерн `powershell *`; если
+  нужно запомнить разрешение, оно должно быть привязано к
+  `.claude/scripts/gitlab-mr-review.cmd`.
