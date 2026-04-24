@@ -61,9 +61,10 @@ Source of truth:
 - если script отсутствует или завершился ошибкой, остановись и объясни причину
   из вывода script.
 
-Script сам получает metadata через GitLab API, используя только уже настроенную
-среду (`GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN` или git credential manager). Не
-проси пользователя присылать token в чат.
+Script сам получает metadata через GitLab API, используя уже настроенную
+авторизацию. Основной источник токена — `glab auth` для GitLab host из
+`MR_URL`. Fallback: `GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN` или git credential
+manager. Не проси пользователя присылать token в чат.
 
 ## Алгоритм
 

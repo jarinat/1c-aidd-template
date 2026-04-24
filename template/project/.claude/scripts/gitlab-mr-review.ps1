@@ -11,10 +11,10 @@ The script intentionally does not publish comments, approve, merge, checkout
 the user's current branch, or accept arbitrary shell code.
 
 .EXAMPLE
-powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 prepare -MrUrl https://gitlab.example.com/group/project/-/merge_requests/123
+.claude/scripts/gitlab-mr-review.cmd prepare -MrUrl https://gitlab.example.com/group/project/-/merge_requests/123
 
 .EXAMPLE
-powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 cleanup -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12
+.claude/scripts/gitlab-mr-review.cmd cleanup -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12
 #>
 [CmdletBinding()]
 param(
@@ -72,8 +72,9 @@ cleanup:
   - runs git worktree prune
 
 Authentication:
-  Uses GITLAB_TOKEN, then GITLAB_ACCESS_TOKEN, then git credential manager.
-  The token is not printed or written to files.
+  Uses glab auth first. If glab is unavailable, falls back to GITLAB_TOKEN,
+  then GITLAB_ACCESS_TOKEN, then git credential manager. The token is not
+  printed or written to files.
 "@
 }
 
@@ -187,11 +188,44 @@ function Get-GitLabToken {
     return Get-GitCredentialPassword -HostName $HostName
 }
 
+function Invoke-GlabApiGet {
+    param(
+        [Parameter(Mandatory = $true)][string]$Endpoint,
+        [Parameter(Mandatory = $true)][string]$HostName
+    )
+
+    if ($null -eq (Get-Command glab -ErrorAction SilentlyContinue)) {
+        return $null
+    }
+
+    $output = & glab api --hostname $HostName $Endpoint 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        return $null
+    }
+
+    $json = ($output | Out-String).Trim()
+    if ([string]::IsNullOrWhiteSpace($json)) {
+        return $null
+    }
+
+    try {
+        return $json | ConvertFrom-Json
+    } catch {
+        return $null
+    }
+}
+
 function Invoke-GitLabGet {
     param(
+        [Parameter(Mandatory = $true)][string]$Endpoint,
         [Parameter(Mandatory = $true)][string]$Uri,
         [Parameter(Mandatory = $true)][string]$HostName
     )
+
+    $glabResult = Invoke-GlabApiGet -Endpoint $Endpoint -HostName $HostName
+    if ($null -ne $glabResult) {
+        return $glabResult
+    }
 
     $headers = @{}
     $token = Get-GitLabToken -HostName $HostName
@@ -202,7 +236,7 @@ function Invoke-GitLabGet {
     try {
         return Invoke-RestMethod -Method Get -Uri $Uri -Headers $headers
     } catch {
-        Stop-WithMessage "GitLab API request failed for $Uri. Configure glab/git credential manager or GITLAB_TOKEN/GITLAB_ACCESS_TOKEN. $($_.Exception.Message)"
+        Stop-WithMessage "GitLab API request failed for $Uri. Configure glab auth for $HostName or set GITLAB_TOKEN/GITLAB_ACCESS_TOKEN outside the chat. $($_.Exception.Message)"
     }
 }
 
@@ -328,16 +362,18 @@ function Prepare-Review {
 
     $urlInfo = Parse-MrUrl -Url $MrUrl
     $encodedProject = [System.Uri]::EscapeDataString($urlInfo.ProjectPath)
+    $mrEndpoint = "projects/$encodedProject/merge_requests/$($urlInfo.Iid)"
     $mrApiUrl = "https://$($urlInfo.Host)/api/v4/projects/$encodedProject/merge_requests/$($urlInfo.Iid)"
-    $mr = Invoke-GitLabGet -Uri $mrApiUrl -HostName $urlInfo.Host
+    $mr = Invoke-GitLabGet -Endpoint $mrEndpoint -Uri $mrApiUrl -HostName $urlInfo.Host
 
     $targetProjectId = if ($null -ne $mr.target_project_id) { $mr.target_project_id } else { $mr.project_id }
     if ($null -eq $targetProjectId) {
         Stop-WithMessage "MR metadata does not contain target project id"
     }
 
+    $targetProjectEndpoint = "projects/$targetProjectId"
     $targetProjectApiUrl = "https://$($urlInfo.Host)/api/v4/projects/$targetProjectId"
-    $targetProject = Invoke-GitLabGet -Uri $targetProjectApiUrl -HostName $urlInfo.Host
+    $targetProject = Invoke-GitLabGet -Endpoint $targetProjectEndpoint -Uri $targetProjectApiUrl -HostName $urlInfo.Host
     $targetProjectPath = $targetProject.path_with_namespace
     if ([string]::IsNullOrWhiteSpace($targetProjectPath)) {
         Stop-WithMessage "Target project metadata does not contain path_with_namespace"
@@ -447,7 +483,7 @@ function Prepare-Review {
         diff_stat_path = $statPath
         diff_name_status_path = $nameStatusPath
         diff_patch_path = $diffPath
-        cleanup_command = "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 cleanup -WorktreePath `"$resolvedWorktreePath`""
+        cleanup_command = ".claude/scripts/gitlab-mr-review.cmd cleanup -WorktreePath `"$resolvedWorktreePath`""
     }
 
     $manifestJson = $manifest | ConvertTo-Json -Depth 20
