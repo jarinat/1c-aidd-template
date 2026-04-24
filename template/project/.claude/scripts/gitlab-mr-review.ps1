@@ -84,16 +84,17 @@ function Invoke-Tool {
         [string]$FailureMessage = "Command failed"
     )
 
-    $output = & $FilePath @Arguments 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $text = ($output | Out-String).Trim()
+    $result = Invoke-NativeCommand -FilePath $FilePath -Arguments $Arguments
+
+    if ($result.ExitCode -ne 0) {
+        $text = ($result.Output | Out-String).Trim()
         if ([string]::IsNullOrWhiteSpace($text)) {
-            $text = "exit code $LASTEXITCODE"
+            $text = "exit code $($result.ExitCode)"
         }
         Stop-WithMessage "$FailureMessage`: $text"
     }
 
-    return @($output)
+    return @($result.Output)
 }
 
 function Get-ToolOutput {
@@ -106,8 +107,15 @@ function Get-ToolOutput {
     return (Invoke-Tool -FilePath $FilePath -Arguments $Arguments -FailureMessage $FailureMessage | Out-String).Trim()
 }
 
-function Invoke-Glab {
-    param([Parameter(Mandatory = $true)][string[]]$Arguments)
+function Invoke-NativeCommand {
+    param(
+        [Parameter(Mandatory = $true)][string]$FilePath,
+        [Parameter(Mandatory = $true)][string[]]$Arguments
+    )
+
+    if ($null -eq (Get-Command $FilePath -ErrorAction SilentlyContinue)) {
+        Stop-WithMessage "Command is not available in PATH: $FilePath"
+    }
 
     $previousErrorActionPreference = $ErrorActionPreference
     $nativePreferenceExists = Test-Path Variable:\PSNativeCommandUseErrorActionPreference
@@ -116,14 +124,15 @@ function Invoke-Glab {
     }
 
     try {
-        # glab writes some successful status output to stderr. Keep strict mode
-        # for the script, but do not let native stderr bypass LASTEXITCODE here.
+        # Native tools may write progress to stderr with a zero exit code.
+        # Keep strict mode for the script, but route all native status through
+        # LASTEXITCODE instead of PowerShell NativeCommandError.
         $script:ErrorActionPreference = "Continue"
         if ($nativePreferenceExists) {
             $script:PSNativeCommandUseErrorActionPreference = $false
         }
 
-        $output = & glab @Arguments 2>&1
+        $output = & $FilePath @Arguments 2>&1
         $exitCode = $LASTEXITCODE
     } finally {
         $script:ErrorActionPreference = $previousErrorActionPreference
@@ -196,7 +205,7 @@ function Invoke-GlabApiGet {
         Stop-WithMessage "glab is not available in PATH. Install glab or fix the terminal PATH, then run 'glab auth login --hostname $HostName'."
     }
 
-    $authResult = Invoke-Glab -Arguments @("auth", "status", "--hostname", $HostName)
+    $authResult = Invoke-NativeCommand -FilePath "glab" -Arguments @("auth", "status", "--hostname", $HostName)
     if ($authResult.ExitCode -ne 0) {
         $text = ($authResult.Output | Out-String).Trim()
         if ([string]::IsNullOrWhiteSpace($text)) {
@@ -205,7 +214,7 @@ function Invoke-GlabApiGet {
         Stop-WithMessage "glab is not authenticated for $HostName. Run 'glab auth login --hostname $HostName' outside Claude Code. $text"
     }
 
-    $apiResult = Invoke-Glab -Arguments @("api", "--hostname", $HostName, $Endpoint)
+    $apiResult = Invoke-NativeCommand -FilePath "glab" -Arguments @("api", "--hostname", $HostName, $Endpoint)
     if ($apiResult.ExitCode -ne 0) {
         $text = ($apiResult.Output | Out-String).Trim()
         if ([string]::IsNullOrWhiteSpace($text)) {
@@ -397,14 +406,14 @@ function Prepare-Review {
 
     $mrHeadRef = "refs/merge-requests/$($urlInfo.Iid)/head:refs/remotes/$($remote.Name)/mr/$($urlInfo.Iid)/head"
     $mrHeadFetched = $true
-    $fetchOutput = & git -C $ProjectRootFull fetch $remote.Name $mrHeadRef 2>&1
-    if ($LASTEXITCODE -ne 0) {
+    $fetchResult = Invoke-NativeCommand -FilePath "git" -Arguments @("-C", $ProjectRootFull, "fetch", $remote.Name, $mrHeadRef)
+    if ($fetchResult.ExitCode -ne 0) {
         $mrHeadFetched = $false
     }
 
     if (-not $mrHeadFetched) {
         if ($mr.source_project_id -ne $targetProjectId) {
-            $text = ($fetchOutput | Out-String).Trim()
+            $text = ($fetchResult.Output | Out-String).Trim()
             Stop-WithMessage "Cannot fetch MR head ref and MR source project differs from target project. Add a source remote or make the MR head ref available. $text"
         }
 
@@ -496,11 +505,11 @@ function Cleanup-Review {
 
     $removed = $false
     if (Test-Path -LiteralPath $resolvedPath -PathType Container) {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "worktree", "remove", "--force", $resolvedPath) -FailureMessage "git worktree remove failed" | Out-Null
+        Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "-c", "core.longpaths=true", "worktree", "remove", "--force", $resolvedPath) -FailureMessage "git worktree remove failed" | Out-Null
         $removed = $true
     }
 
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "worktree", "prune") -FailureMessage "git worktree prune failed" | Out-Null
+    Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "-c", "core.longpaths=true", "worktree", "prune") -FailureMessage "git worktree prune failed" | Out-Null
 
     [pscustomobject]@{
         schema = "gitlab-mr-review-cleanup.v1"
