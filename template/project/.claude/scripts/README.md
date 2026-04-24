@@ -10,6 +10,9 @@ Claude не должен заменять эти скрипты inline-кома�
 - `commit-block.sh` -- сценарий подготовки commit-блока.
 - `aidd-inspect.ps1` -- универсальные read-only проверки внутри корня
   репозитория для AIDD-сценариев.
+- `aidd-bootstrap-ticket.ps1` -- стандартная инициализация базовых
+  AIDD-артефактов тикета: `.active_ticket`, каталоги `aidd/docs/*` и пустой
+  `feedback`-файл, если он ещё не существует.
 - `gitlab-mr-review.cmd` -- approval-friendly entrypoint для GitLab MR review.
 - `gitlab-mr-review.ps1` -- реализация GitLab MR review: metadata, fetch refs,
   изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
@@ -19,6 +22,8 @@ Claude не должен заменять эти скрипты inline-кома�
 
 - Скрипты не принимают произвольный shell-код.
 - Read-only скрипты не изменяют файлы.
+- AIDD bootstrap не собирай inline-командами `touch`, `mkdir`, `test -f`,
+  `New-Item` или shell-комбинациями; используй `aidd-bootstrap-ticket.ps1`.
 - Скрипты должны ограничивать работу корнем репозитория и не читать пути через
   `..` за его пределами.
 - Project-specific знания не вшиваются в универсальные скрипты. Такие правила
