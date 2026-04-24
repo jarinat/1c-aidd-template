@@ -39,9 +39,9 @@ Source of truth для lifecycle артефактов и статусов:
 
 1. Определи ticket id: используй переданный аргумент или `aidd/docs/.active_ticket`.
 2. Инициализируй базовые AIDD-артефакты тикета через стандартный entrypoint:
-   `powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/aidd-bootstrap-ticket.ps1 <ticket>`.
+   `.claude/scripts/aidd-bootstrap-ticket.cmd <ticket>`.
    Не заменяй этот шаг inline-командами `touch`, `mkdir`, `test -f`,
-   `New-Item` или ad-hoc shell-комбинациями.
+   `New-Item`, `powershell -File` или ad-hoc shell-комбинациями.
 3. Выполни входной контроль контекста перед подготовкой PRD:
    - проверь согласованность текста пользователя, issue-файлов, ссылочных файлов,
      существующих PRD/research/plan и явно найденного кода;
