@@ -49,86 +49,49 @@ Source of truth:
 
 ## Требования к инструментам
 
-Предпочтительный путь:
+Обязательный путь:
 
-- `glab` установлен и авторизован для GitLab host из `MR_URL`.
+- используй только project-local script
+  `.claude/scripts/gitlab-mr-review.ps1`;
+- не собирай подготовку MR ad-hoc командами `curl`, `python -c`,
+  `git credential fill`, shell pipelines или временными `/tmp/*.json`;
+- если script отсутствует или завершился ошибкой, остановись и объясни причину
+  из вывода script.
 
-Fallback:
-
-- GitLab API через `curl` или аналогичный read-only HTTP client;
-- токен берётся только из уже настроенной среды (`GITLAB_TOKEN`,
-  `GITLAB_ACCESS_TOKEN`, credential manager, конфиг `glab`). Не проси
-  пользователя присылать token в чат.
-
-Если `glab` и API недоступны, остановись и объясни, что нужно настроить.
+Script сам получает metadata через GitLab API, используя только уже настроенную
+среду (`GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN` или git credential manager). Не
+проси пользователя присылать token в чат.
 
 ## Алгоритм
 
 1. Проверь, что пользователь передал `MR_URL`.
-2. Распарси из `MR_URL`:
-   - GitLab host;
-   - project path;
-   - MR IID.
-3. Проверь, что текущий репозиторий относится к target project из `MR_URL`.
-   Если это другой репозиторий, остановись: review должен запускаться из
-   checkout-а целевого проекта или его worktree.
-4. Получи metadata MR:
-   - title;
-   - description, если доступно и она нужна для понимания scope;
-   - `source_branch`;
-   - `target_branch`;
-   - `source_project_id`;
-   - `target_project_id` или `project_id`;
-   - `diff_refs.base_sha`;
-   - `diff_refs.head_sha`;
-   - `web_url`.
-   Предпочтительный способ через `glab`: после парсинга URL используй MR IID и
-   repo selector, например `glab mr view <iid> -R <project-url> -F json`.
-   Не полагайся на то, что все версии `glab mr view` принимают полный MR URL
-   как positional argument.
-5. Зафиксируй в контексте review конкретный `head_sha`. Если `diff_refs` ещё
-   пустой или MR не подготовлен GitLab, остановись и попроси повторить позже.
-6. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
-   Подготовь отдельный worktree:
-   - всегда размещай review worktree под единым коротким корнем
-     `C:\ai-review-wt`;
-   - путь формируй как
-     `C:\ai-review-wt\<repo-name>-review-mr-<iid>-<short-sha>`;
-   - не размещай review worktree внутри текущего репозитория, `.claude/` или
-     рядом с проектом: поведение не должно зависеть от `.gitignore` проекта;
-   - перед созданием проверь `git worktree list`;
-   - если worktree для того же MR и `head_sha` уже существует, переиспользуй
-     его;
-   - если каталог существует, но указывает на другой `head_sha`, создай новый
-     каталог с уникальным суффиксом.
-7. Получи refs без переключения текущей ветки:
-   - `git fetch origin $TARGET_BRANCH`;
-   - `git fetch origin refs/merge-requests/<iid>/head:refs/remotes/origin/mr/<iid>/head`
-     если GitLab MR head ref доступен;
-   - если head ref недоступен, fetch source branch из metadata MR. Для MR из
-     fork сначала проверь, что remote/source project доступен; если нет,
-     остановись с понятным сообщением.
-8. Создай worktree в detached/head-safe режиме от проверяемого commit:
-   - используй `git -c core.longpaths=true worktree add --detach
-     <worktree-path> <head_sha>` или эквивалент от `origin/mr/<iid>/head`;
-   - предпочтительно от `diff_refs.head_sha` или `origin/mr/<iid>/head`;
-   - не checkout-и source branch в основной рабочей копии.
-   - если создание worktree завершилось ошибкой, сразу выполни cleanup
-     частичного каталога и `git worktree prune`, затем остановись или повтори
-     только после понятного исправления причины.
-9. Внутри worktree вычисли diff:
-   - `git diff <base_sha>...<head_sha> --stat`;
-   - `git diff <base_sha>...<head_sha> --name-status --find-renames`;
-   - `git diff <base_sha>...<head_sha> --find-renames`.
-10. Запусти subagent `review-mr`, передав:
+2. Подготовь review context одной командой из корня целевого репозитория:
+
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 prepare -MrUrl "<MR_URL>"
+   ```
+
+3. Используй JSON manifest из stdout и `manifest_path` как source of truth для:
+   - `mr_url`, `title`, `description`;
+   - `source_branch`, `target_branch`;
+   - `base_sha`, `head_sha`;
+   - `worktree_path`;
+   - `diff_stat_path`, `diff_name_status_path`, `diff_patch_path`.
+4. Зафиксируй в контексте review конкретный `head_sha`. Если script сообщает,
+   что `diff_refs` ещё пустой или MR не подготовлен GitLab, остановись и
+   попроси повторить позже.
+5. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
+   Все `Read`, `Glob`, `Grep`, `git diff`, `git show`, `git log` выполняй
+   только внутри `worktree_path` из manifest.
+6. Передай subagent `review-mr`:
    - `MR_URL`, title, source/target branches;
-   - `REVIEW_WORKTREE` — абсолютный путь к worktree;
+   - `REVIEW_WORKTREE=<worktree_path>`;
    - `BASE_REF=<base_sha>`;
    - `HEAD_REF=<head_sha>`;
-   - diff stat и name-status;
+   - содержимое `diff_stat_path` и `diff_name_status_path`;
    - требование выполнять чтение файлов и `git diff` только внутри
      `REVIEW_WORKTREE`.
-11. Сформируй итоговый отчёт review:
+7. Сформируй итоговый отчёт review:
     - MR title/link;
     - проверенные `base_sha` и `head_sha`;
     - краткая статистика diff;
@@ -136,16 +99,19 @@ Fallback:
     - явная фиксация, что замечаний нет, если review чистый;
     - статус cleanup: `worktree removed: <path>` или `worktree kept: <path>`
       с причиной.
-12. До вывода итогового отчёта удали review worktree по умолчанию:
+8. До вывода итогового отчёта удали review worktree по умолчанию:
     - если пользователь заранее явно попросил оставить worktree, не удаляй его;
     - если review не удалось завершить из-за ошибки инструментов или нужно
       сохранить каталог для ручной диагностики, не удаляй его и явно объясни
       причину в отчёте;
-    - в обычном успешном сценарии выполни
-      `git worktree remove --force <worktree-path>` и затем `git worktree prune`;
-    - не удаляй произвольные каталоги: cleanup разрешён только для пути,
-      построенного под `C:\ai-review-wt`.
-13. Выведи итоговый отчёт review в текущую сессию уже с фактическим cleanup
+    - в обычном успешном сценарии выполни cleanup только через script:
+
+      ```powershell
+      powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/gitlab-mr-review.ps1 cleanup -WorktreePath "<worktree_path>"
+      ```
+
+    - не удаляй worktree вручную через `rm`, `Remove-Item` или shell-цепочки.
+9. Выведи итоговый отчёт review в текущую сессию уже с фактическим cleanup
     статусом.
 
 ## Публикация в GitLab
@@ -165,6 +131,9 @@ Fallback:
 ## Ограничения
 
 - Не меняй текущую ветку пользователя.
+- Не заменяй `.claude/scripts/gitlab-mr-review.ps1` inline-командами,
+  самописными `curl`/`python`/`git credential` последовательностями или
+  временными файлами вне manifest, созданного script.
 - Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
   выводов по MR. Для первого варианта review опирайся на `git diff`, `Read`,
   `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.
