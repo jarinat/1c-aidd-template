@@ -331,7 +331,7 @@ runtime-слое нет случайной проектной специфики
 проверки:
 
 ```text
-MPLSYS|INITKZ|PROSYS|Avtolid|Автолид|Intertop|src/cf_edt|ар_|INT_|Розница|Документооборот
+CLIENT_A|PROJECT_X|PROJECT_Y|LEGACY_PREFIX|src/cf_edt|LOCAL_PREFIX_|DOMAIN_SAMPLE
 ```
 
 Не каждое совпадение автоматически ошибка, но каждое должно быть осознанным и
