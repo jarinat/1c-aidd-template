@@ -27,9 +27,10 @@ Claude не должен заменять эти скрипты inline-кома�
   `git credential fill` и ручными `/tmp/*.json`. Используй
   `gitlab-mr-review.cmd` как единственный внешний entrypoint подготовки и
   cleanup.
-- Для GitLab API `gitlab-mr-review.ps1` сначала использует авторизацию `glab`,
-  поэтому токен должен храниться в `glab auth`, а не передаваться в prompt или
-  inline env.
+- Для GitLab API `gitlab-mr-review.ps1` использует только авторизацию `glab`.
+  Токен должен храниться в `glab auth`; fallback на `GITLAB_TOKEN`,
+  `GITLAB_ACCESS_TOKEN`, git credential manager, prompt или inline env не
+  используется.
 - Для постоянного approval не разрешай широкий паттерн `powershell *`; если
   нужно запомнить разрешение, оно должно быть привязано к
   `.claude/scripts/gitlab-mr-review.cmd`.

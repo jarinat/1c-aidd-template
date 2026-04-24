@@ -72,9 +72,8 @@ cleanup:
   - runs git worktree prune
 
 Authentication:
-  Uses glab auth first. If glab is unavailable, falls back to GITLAB_TOKEN,
-  then GITLAB_ACCESS_TOKEN, then git credential manager. The token is not
-  printed or written to files.
+  Uses only glab auth for GitLab API calls. Tokens from environment variables
+  or git credential manager are intentionally not used.
 "@
 }
 
@@ -155,39 +154,6 @@ function Parse-MrUrl {
     }
 }
 
-function Get-GitCredentialPassword {
-    param([Parameter(Mandatory = $true)][string]$HostName)
-
-    $credentialQuery = "protocol=https`nhost=$HostName`n`n"
-    try {
-        $credentialOutput = $credentialQuery | & git credential fill 2>$null
-    } catch {
-        return $null
-    }
-
-    foreach ($line in $credentialOutput) {
-        if ($line -like "password=*") {
-            return $line.Substring("password=".Length)
-        }
-    }
-
-    return $null
-}
-
-function Get-GitLabToken {
-    param([Parameter(Mandatory = $true)][string]$HostName)
-
-    if (-not [string]::IsNullOrWhiteSpace($env:GITLAB_TOKEN)) {
-        return $env:GITLAB_TOKEN
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($env:GITLAB_ACCESS_TOKEN)) {
-        return $env:GITLAB_ACCESS_TOKEN
-    }
-
-    return Get-GitCredentialPassword -HostName $HostName
-}
-
 function Invoke-GlabApiGet {
     param(
         [Parameter(Mandatory = $true)][string]$Endpoint,
@@ -195,49 +161,46 @@ function Invoke-GlabApiGet {
     )
 
     if ($null -eq (Get-Command glab -ErrorAction SilentlyContinue)) {
-        return $null
+        Stop-WithMessage "glab is not available in PATH. Install glab or fix the terminal PATH, then run 'glab auth login --hostname $HostName'."
+    }
+
+    $authOutput = & glab auth status --hostname $HostName 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        $text = ($authOutput | Out-String).Trim()
+        if ([string]::IsNullOrWhiteSpace($text)) {
+            $text = "glab auth status failed"
+        }
+        Stop-WithMessage "glab is not authenticated for $HostName. Run 'glab auth login --hostname $HostName' outside Claude Code. $text"
     }
 
     $output = & glab api --hostname $HostName $Endpoint 2>&1
     if ($LASTEXITCODE -ne 0) {
-        return $null
+        $text = ($output | Out-String).Trim()
+        if ([string]::IsNullOrWhiteSpace($text)) {
+            $text = "glab api failed"
+        }
+        Stop-WithMessage "glab API request failed for $HostName/$Endpoint. Check glab auth token scopes and project access. $text"
     }
 
     $json = ($output | Out-String).Trim()
     if ([string]::IsNullOrWhiteSpace($json)) {
-        return $null
+        Stop-WithMessage "glab API returned an empty response for $HostName/$Endpoint"
     }
 
     try {
         return $json | ConvertFrom-Json
     } catch {
-        return $null
+        Stop-WithMessage "glab API returned invalid JSON for $HostName/$Endpoint"
     }
 }
 
 function Invoke-GitLabGet {
     param(
         [Parameter(Mandatory = $true)][string]$Endpoint,
-        [Parameter(Mandatory = $true)][string]$Uri,
         [Parameter(Mandatory = $true)][string]$HostName
     )
 
-    $glabResult = Invoke-GlabApiGet -Endpoint $Endpoint -HostName $HostName
-    if ($null -ne $glabResult) {
-        return $glabResult
-    }
-
-    $headers = @{}
-    $token = Get-GitLabToken -HostName $HostName
-    if (-not [string]::IsNullOrWhiteSpace($token)) {
-        $headers["PRIVATE-TOKEN"] = $token
-    }
-
-    try {
-        return Invoke-RestMethod -Method Get -Uri $Uri -Headers $headers
-    } catch {
-        Stop-WithMessage "GitLab API request failed for $Uri. Configure glab auth for $HostName or set GITLAB_TOKEN/GITLAB_ACCESS_TOKEN outside the chat. $($_.Exception.Message)"
-    }
+    return Invoke-GlabApiGet -Endpoint $Endpoint -HostName $HostName
 }
 
 function Convert-RemoteUrl {
@@ -363,8 +326,7 @@ function Prepare-Review {
     $urlInfo = Parse-MrUrl -Url $MrUrl
     $encodedProject = [System.Uri]::EscapeDataString($urlInfo.ProjectPath)
     $mrEndpoint = "projects/$encodedProject/merge_requests/$($urlInfo.Iid)"
-    $mrApiUrl = "https://$($urlInfo.Host)/api/v4/projects/$encodedProject/merge_requests/$($urlInfo.Iid)"
-    $mr = Invoke-GitLabGet -Endpoint $mrEndpoint -Uri $mrApiUrl -HostName $urlInfo.Host
+    $mr = Invoke-GitLabGet -Endpoint $mrEndpoint -HostName $urlInfo.Host
 
     $targetProjectId = if ($null -ne $mr.target_project_id) { $mr.target_project_id } else { $mr.project_id }
     if ($null -eq $targetProjectId) {
@@ -372,8 +334,7 @@ function Prepare-Review {
     }
 
     $targetProjectEndpoint = "projects/$targetProjectId"
-    $targetProjectApiUrl = "https://$($urlInfo.Host)/api/v4/projects/$targetProjectId"
-    $targetProject = Invoke-GitLabGet -Endpoint $targetProjectEndpoint -Uri $targetProjectApiUrl -HostName $urlInfo.Host
+    $targetProject = Invoke-GitLabGet -Endpoint $targetProjectEndpoint -HostName $urlInfo.Host
     $targetProjectPath = $targetProject.path_with_namespace
     if ([string]::IsNullOrWhiteSpace($targetProjectPath)) {
         Stop-WithMessage "Target project metadata does not contain path_with_namespace"
