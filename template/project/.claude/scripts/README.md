@@ -15,6 +15,10 @@ Claude не должен заменять эти скрипты inline-кома�
 - `aidd-bootstrap-ticket.ps1` -- реализация AIDD bootstrap: `.active_ticket`,
   каталоги `aidd/docs/*` и пустой `feedback`-файл, если он ещё не существует.
   Не вызывай напрямую из Claude Code, используй `.cmd` wrapper.
+- `new-guid.cmd` -- approval-friendly entrypoint для генерации новых GUID/UUID
+  при ручной правке XML/.mdo и других 1С/EDT артефактов.
+- `new-guid.ps1` -- реализация генерации GUID/UUID. Не вызывай напрямую из
+  Claude Code, используй `.cmd` wrapper.
 - `gitlab-mr-review.cmd` -- approval-friendly entrypoint для GitLab MR review.
 - `gitlab-mr-review.ps1` -- реализация GitLab MR review: metadata, fetch refs,
   изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
@@ -27,6 +31,9 @@ Claude не должен заменять эти скрипты inline-кома�
 - AIDD bootstrap не собирай inline-командами `touch`, `mkdir`, `test -f`,
   `New-Item`, `powershell -File` или shell-комбинациями; используй
   `aidd-bootstrap-ticket.cmd`.
+- GUID/UUID для ручной правки 1С/EDT артефактов не генерируй inline-командами
+  `powershell`, `python`, `uuidgen` или похожими ad-hoc вызовами; используй
+  `new-guid.cmd`.
 - Скрипты должны ограничивать работу корнем репозитория и не читать пути через
   `..` за его пределами.
 - Project-specific знания не вшиваются в универсальные скрипты. Такие правила
@@ -42,4 +49,4 @@ Claude не должен заменять эти скрипты inline-кома�
 - Для постоянного approval не разрешай широкий паттерн `powershell *`; если
   нужно запомнить разрешение, оно должно быть привязано к конкретному `.cmd`
   wrapper в `.claude/scripts/`, например `.claude/scripts/aidd-bootstrap-ticket.cmd`
-  или `.claude/scripts/gitlab-mr-review.cmd`.
+  `.claude/scripts/new-guid.cmd` или `.claude/scripts/gitlab-mr-review.cmd`.
