@@ -14,6 +14,14 @@ Source of truth:
   - `.claude/rules/core/aidd-workflow.md`
   - `.claude/rules/core/aidd-artifacts.md`
 
+## Инструменты чтения
+
+Для поиска и чтения артефактов тикета используй встроенные `Read`/`Glob` по
+известным путям `aidd/docs/{prd,plan,tasklist,feedback,review}/<ticket>.md`.
+Не используй `Bash`, `ls`, shell brace expansion или redirect только для
+проверки наличия этих файлов: это read-only discovery, которое должно проходить
+без shell-команд и лишних permission prompt.
+
 ## Алгоритм
 
 1. Определи ticket id: используй переданный аргумент или `aidd/docs/.active_ticket`.
