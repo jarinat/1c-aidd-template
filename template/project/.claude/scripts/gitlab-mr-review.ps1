@@ -15,16 +15,28 @@ the user's current branch, or accept arbitrary shell code.
 
 .EXAMPLE
 .claude/scripts/gitlab-mr-review.cmd cleanup -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12
+
+.EXAMPLE
+.claude/scripts/gitlab-mr-review.cmd show-file -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12 -Ref abcdef1234 -RepoPath src/cf/src/CommonModules/Example/Module.bsl
+
+.EXAMPLE
+.claude/scripts/gitlab-mr-review.cmd grep-file -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12 -Ref abcdef1234 -RepoPath src/cf/src/CommonModules/Example/Module.bsl -Pattern "Процедура"
 #>
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateSet("help", "prepare", "cleanup")]
+    [ValidateSet("help", "prepare", "cleanup", "show-file", "grep-file", "list-files", "grep-tree")]
     [string]$Command,
 
     [string]$MrUrl,
 
-    [string]$WorktreePath
+    [string]$WorktreePath,
+
+    [string]$Ref,
+
+    [string]$RepoPath,
+
+    [string]$Pattern
 )
 
 Set-StrictMode -Version Latest
@@ -54,6 +66,10 @@ Usage:
   gitlab-mr-review.cmd help
   gitlab-mr-review.cmd prepare -MrUrl <gitlab-merge-request-url>
   gitlab-mr-review.cmd cleanup -WorktreePath <worktree-path>
+  gitlab-mr-review.cmd show-file -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-path>
+  gitlab-mr-review.cmd grep-file -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-path> -Pattern <regex>
+  gitlab-mr-review.cmd list-files -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-prefix>
+  gitlab-mr-review.cmd grep-tree -WorktreePath <worktree-path> -Ref <sha-or-ref> -Pattern <regex>
 
 Implementation:
   gitlab-mr-review.ps1 is called by the .cmd wrapper. Claude Code should use
@@ -70,6 +86,15 @@ prepare:
 cleanup:
   - removes only worktrees located under C:\ai-review-wt
   - runs git worktree prune
+
+read-only context:
+  - show-file prints one file from a ref
+  - grep-file prints matching lines from one file as <line>:<text>
+  - list-files lists files under a repo-relative prefix at a ref
+  - grep-tree searches text through a ref and prints git-grep style matches
+  - all read-only commands require WorktreePath under C:\ai-review-wt and
+    reject rooted paths, parent traversal, shell metachar refs, and ad-hoc
+    shell pipelines
 
 Authentication:
   Uses only glab auth for GitLab API calls. Tokens from environment variables
@@ -177,6 +202,98 @@ function Test-IsInsideDirectory {
 
     return $fullPath.StartsWith($fullRoot + [System.IO.Path]::DirectorySeparatorChar, $comparison) -or
         $fullPath.StartsWith($fullRoot + [System.IO.Path]::AltDirectorySeparatorChar, $comparison)
+}
+
+function Resolve-ReviewWorktree {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $resolvedPath = Get-FullPath $Path
+    if (-not (Test-IsInsideDirectory -Path $resolvedPath -Root $ReviewRoot)) {
+        Stop-WithMessage "Refusing to read a path that is not a child worktree under $ReviewRoot`: $resolvedPath"
+    }
+
+    if (-not (Test-Path -LiteralPath $resolvedPath -PathType Container)) {
+        Stop-WithMessage "Review worktree does not exist: $resolvedPath"
+    }
+
+    $isWorktree = Get-ToolOutput -FilePath "git" -Arguments @("-C", $resolvedPath, "rev-parse", "--is-inside-work-tree") -FailureMessage "git rev-parse failed"
+    if ($isWorktree -ne "true") {
+        Stop-WithMessage "Path is not a git worktree: $resolvedPath"
+    }
+
+    return $resolvedPath
+}
+
+function Assert-SafeRef {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        Stop-WithMessage "Ref is required"
+    }
+
+    if (
+        $Value -notmatch "^[A-Za-z0-9._/-]+$" -or
+        $Value.Contains("..") -or
+        $Value.Contains("@{") -or
+        $Value.StartsWith("/") -or
+        $Value.EndsWith("/") -or
+        $Value.Contains("\")
+    ) {
+        Stop-WithMessage "Unsupported ref syntax: $Value"
+    }
+}
+
+function Normalize-RepoPath {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [switch]$AllowEmpty
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        if ($AllowEmpty) {
+            return "."
+        }
+        Stop-WithMessage "RepoPath is required"
+    }
+
+    if ([System.IO.Path]::IsPathRooted($Path)) {
+        Stop-WithMessage "RepoPath must be relative to the repository: $Path"
+    }
+
+    $normalized = ($Path -replace "\\", "/").Trim("/")
+    if ([string]::IsNullOrWhiteSpace($normalized)) {
+        if ($AllowEmpty) {
+            return "."
+        }
+        Stop-WithMessage "RepoPath is required"
+    }
+
+    if ($normalized.Contains(":")) {
+        Stop-WithMessage "RepoPath must not contain ':': $Path"
+    }
+
+    $parts = $normalized -split "/"
+    foreach ($part in $parts) {
+        if ([string]::IsNullOrWhiteSpace($part) -or $part -eq "." -or $part -eq "..") {
+            Stop-WithMessage "RepoPath must not contain empty, current, or parent segments: $Path"
+        }
+    }
+
+    return $normalized
+}
+
+function Assert-RegexPattern {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        Stop-WithMessage "Pattern is required"
+    }
+
+    try {
+        [regex]::new($Value) | Out-Null
+    } catch {
+        Stop-WithMessage "Pattern is not a valid .NET regular expression: $Value"
+    }
 }
 
 function Parse-MrUrl {
@@ -518,6 +635,80 @@ function Cleanup-Review {
     } | ConvertTo-Json -Depth 5
 }
 
+function Show-ReviewFile {
+    if ([string]::IsNullOrWhiteSpace($WorktreePath)) {
+        Stop-WithMessage "show-file requires -WorktreePath"
+    }
+
+    Assert-SafeRef -Value $Ref
+    $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
+    $repoRelativePath = Normalize-RepoPath -Path $RepoPath
+    $objectName = "${Ref}:$repoRelativePath"
+
+    Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "show", $objectName) -FailureMessage "git show failed"
+}
+
+function Search-ReviewFile {
+    if ([string]::IsNullOrWhiteSpace($WorktreePath)) {
+        Stop-WithMessage "grep-file requires -WorktreePath"
+    }
+
+    Assert-SafeRef -Value $Ref
+    Assert-RegexPattern -Value $Pattern
+    $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
+    $repoRelativePath = Normalize-RepoPath -Path $RepoPath
+    $objectName = "${Ref}:$repoRelativePath"
+    $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "show", $objectName) -FailureMessage "git show failed"
+    $regex = [regex]::new($Pattern)
+
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        $line = [string]$lines[$index]
+        if ($regex.IsMatch($line)) {
+            "{0}:{1}" -f ($index + 1), $line
+        }
+    }
+}
+
+function Get-ReviewFiles {
+    if ([string]::IsNullOrWhiteSpace($WorktreePath)) {
+        Stop-WithMessage "list-files requires -WorktreePath"
+    }
+
+    Assert-SafeRef -Value $Ref
+    $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
+    $repoRelativePath = Normalize-RepoPath -Path $RepoPath -AllowEmpty
+
+    if ($repoRelativePath -eq ".") {
+        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "ls-tree", "-r", "--name-only", $Ref) -FailureMessage "git ls-tree failed"
+    } else {
+        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "ls-tree", "-r", "--name-only", $Ref, "--", $repoRelativePath) -FailureMessage "git ls-tree failed"
+    }
+}
+
+function Search-ReviewTree {
+    if ([string]::IsNullOrWhiteSpace($WorktreePath)) {
+        Stop-WithMessage "grep-tree requires -WorktreePath"
+    }
+
+    Assert-SafeRef -Value $Ref
+    Assert-RegexPattern -Value $Pattern
+    $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
+    $result = Invoke-NativeCommand -FilePath "git" -Arguments @("-C", $resolvedPath, "grep", "-n", "--no-color", "-e", $Pattern, $Ref)
+    if ($result.ExitCode -eq 1) {
+        return
+    }
+
+    if ($result.ExitCode -ne 0) {
+        $text = ($result.Output | Out-String).Trim()
+        if ([string]::IsNullOrWhiteSpace($text)) {
+            $text = "exit code $($result.ExitCode)"
+        }
+        Stop-WithMessage "git grep failed: $text"
+    }
+
+    $result.Output
+}
+
 switch ($Command) {
     "help" {
         Show-Help
@@ -529,5 +720,21 @@ switch ($Command) {
 
     "cleanup" {
         Cleanup-Review
+    }
+
+    "show-file" {
+        Show-ReviewFile
+    }
+
+    "grep-file" {
+        Search-ReviewFile
+    }
+
+    "list-files" {
+        Get-ReviewFiles
+    }
+
+    "grep-tree" {
+        Search-ReviewTree
     }
 }

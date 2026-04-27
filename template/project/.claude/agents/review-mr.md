@@ -84,8 +84,16 @@ skills:
 - Если задан `REVIEW_WORKTREE`, выполняй `Bash`, `Read`, `Glob` и `Grep` только
   относительно этого worktree. Не читай окружающий код из текущей рабочей копии
   пользователя.
+- Если доступен `.claude/scripts/gitlab-mr-review.cmd`, используй его
+  read-only subcommands для чтения Git-объектов из `REVIEW_WORKTREE`:
+  `show-file`, `grep-file`, `list-files`, `grep-tree`.
+- Не используй ad-hoc shell pipelines вида
+  `cd "<REVIEW_WORKTREE>" && git show ... | grep ...`; если нужно прочитать
+  файл, найти строки или перечислить файлы на `BASE_REF`/`HEAD_REF`, делай это
+  через `.claude/scripts/gitlab-mr-review.cmd`.
 - Используй `Bash` только для команд получения контекста без изменения рабочей
-  копии: `git fetch`, `git diff`, `git show`, `git log`, `git status`, `rg`.
+  копии: `git fetch`, `git diff`, `git log`, `git status`, `rg`, а `git show`
+  по файлам в MR worktree предпочитай выполнять через read-only gateway выше.
 - Не ищи AIDD `plan/tasklist` по умолчанию: MR других разработчиков может не
   иметь AIDD-артефактов. Для проверки паттернов опирайся на локальные аналоги в
   коде.

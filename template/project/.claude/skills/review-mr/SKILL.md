@@ -32,7 +32,16 @@ MR review может выполняться в отдельном worktree, а �
    - `BASE_REF` и `HEAD_REF`.
 2. Если задан `REVIEW_WORKTREE`, выполняй все `git diff`, `git show`, `rg` и
    чтение файлов только внутри этого worktree. Не используй текущую рабочую
-   копию пользователя для surrounding context.
+   копию пользователя для surrounding context. Для чтения Git-объектов по
+   `BASE_REF`/`HEAD_REF` предпочитай read-only gateway
+   `.claude/scripts/gitlab-mr-review.cmd`, если он доступен:
+   - `show-file -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>"`;
+   - `grep-file -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>" -Pattern "<regex>"`;
+   - `list-files -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-prefix>"`;
+   - `grep-tree -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -Pattern "<regex>"`.
+   Не используй ad-hoc shell pipelines вида
+   `cd "<REVIEW_WORKTREE>" && git show ... | grep ...`, если ту же информацию
+   можно получить через gateway.
 3. Получи актуальный diff:
    - для веток:
      - `git fetch origin $SOURCE_BRANCH $TARGET_BRANCH`
@@ -164,6 +173,9 @@ MR review может выполняться в отдельном worktree, а �
 - Не исправляй код автоматически в рамках review-mr.
 - Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
   выводов по MR.
+- Если задан `REVIEW_WORKTREE`, не используй `cd "<REVIEW_WORKTREE>" && git ...`
+  и shell pipelines для чтения Git-объектов, когда достаточно read-only
+  subcommands `.claude/scripts/gitlab-mr-review.cmd`.
 - Фокусируйся на логике, архитектуре, рисках и конкретных предложениях.
 - Не подменяй review личными предпочтениями без доказуемого риска.
 - Если проблем нет, зафиксируй это явно, а не придумывай замечания.
