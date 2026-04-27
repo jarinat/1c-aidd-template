@@ -20,7 +20,7 @@ the user's current branch, or accept arbitrary shell code.
 .claude/scripts/gitlab-mr-review.cmd show-file -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12 -Ref abcdef1234 -RepoPath src/cf/src/CommonModules/Example/Module.bsl
 
 .EXAMPLE
-.claude/scripts/gitlab-mr-review.cmd grep-file -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12 -Ref abcdef1234 -RepoPath src/cf/src/CommonModules/Example/Module.bsl -Pattern "Процедура"
+.claude/scripts/gitlab-mr-review.cmd grep-file -WorktreePath C:\ai-review-wt\project-review-mr-123-abcdef12 -Ref abcdef1234 -RepoPath src/cf/src/CommonModules/Example/Module.bsl -Pattern "Процедура" -First 30
 #>
 [CmdletBinding()]
 param(
@@ -36,7 +36,9 @@ param(
 
     [string]$RepoPath,
 
-    [string]$Pattern
+    [string]$Pattern,
+
+    [int]$First = 0
 )
 
 Set-StrictMode -Version Latest
@@ -67,9 +69,9 @@ Usage:
   gitlab-mr-review.cmd prepare -MrUrl <gitlab-merge-request-url>
   gitlab-mr-review.cmd cleanup -WorktreePath <worktree-path>
   gitlab-mr-review.cmd show-file -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-path>
-  gitlab-mr-review.cmd grep-file -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-path> -Pattern <regex>
+  gitlab-mr-review.cmd grep-file -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-path> -Pattern <regex> [-First <count>]
   gitlab-mr-review.cmd list-files -WorktreePath <worktree-path> -Ref <sha-or-ref> -RepoPath <repo-relative-prefix>
-  gitlab-mr-review.cmd grep-tree -WorktreePath <worktree-path> -Ref <sha-or-ref> -Pattern <regex>
+  gitlab-mr-review.cmd grep-tree -WorktreePath <worktree-path> -Ref <sha-or-ref> -Pattern <regex> [-RepoPath <repo-relative-prefix>] [-First <count>]
 
 Implementation:
   gitlab-mr-review.ps1 is called by the .cmd wrapper. Claude Code should use
@@ -92,6 +94,8 @@ read-only context:
   - grep-file prints matching lines from one file as <line>:<text>
   - list-files lists files under a repo-relative prefix at a ref
   - grep-tree searches text through a ref and prints git-grep style matches
+  - grep-file and grep-tree support -First <count> instead of shell pipes like
+    Select-Object -First or tail/head
   - all read-only commands require WorktreePath under C:\ai-review-wt and
     reject rooted paths, parent traversal, shell metachar refs, and ad-hoc
     shell pipelines
@@ -293,6 +297,14 @@ function Assert-RegexPattern {
         [regex]::new($Value) | Out-Null
     } catch {
         Stop-WithMessage "Pattern is not a valid .NET regular expression: $Value"
+    }
+}
+
+function Assert-FirstCount {
+    param([int]$Value)
+
+    if ($Value -lt 0) {
+        Stop-WithMessage "First must be greater than or equal to zero"
     }
 }
 
@@ -655,16 +667,22 @@ function Search-ReviewFile {
 
     Assert-SafeRef -Value $Ref
     Assert-RegexPattern -Value $Pattern
+    Assert-FirstCount -Value $First
     $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
     $objectName = "${Ref}:$repoRelativePath"
     $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "show", $objectName) -FailureMessage "git show failed"
     $regex = [regex]::new($Pattern)
+    $matchCount = 0
 
     for ($index = 0; $index -lt $lines.Count; $index++) {
         $line = [string]$lines[$index]
         if ($regex.IsMatch($line)) {
             "{0}:{1}" -f ($index + 1), $line
+            $matchCount++
+            if (($First -gt 0) -and ($matchCount -ge $First)) {
+                break
+            }
         }
     }
 }
@@ -692,8 +710,17 @@ function Search-ReviewTree {
 
     Assert-SafeRef -Value $Ref
     Assert-RegexPattern -Value $Pattern
+    Assert-FirstCount -Value $First
     $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
-    $result = Invoke-NativeCommand -FilePath "git" -Arguments @("-C", $resolvedPath, "grep", "-n", "--no-color", "-e", $Pattern, $Ref)
+    $arguments = @("-C", $resolvedPath, "grep", "-n", "-E", "--no-color", "-e", $Pattern, $Ref)
+    if (-not [string]::IsNullOrWhiteSpace($RepoPath)) {
+        $repoRelativePath = Normalize-RepoPath -Path $RepoPath -AllowEmpty
+        if ($repoRelativePath -ne ".") {
+            $arguments += @("--", $repoRelativePath)
+        }
+    }
+
+    $result = Invoke-NativeCommand -FilePath "git" -Arguments $arguments
     if ($result.ExitCode -eq 1) {
         return
     }
@@ -706,7 +733,11 @@ function Search-ReviewTree {
         Stop-WithMessage "git grep failed: $text"
     }
 
-    $result.Output
+    if ($First -gt 0) {
+        $result.Output | Select-Object -First $First
+    } else {
+        $result.Output
+    }
 }
 
 switch ($Command) {

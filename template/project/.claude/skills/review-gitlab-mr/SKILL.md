@@ -59,14 +59,18 @@ Source of truth:
 - после `prepare` используй этот же `.cmd` wrapper как read-only gateway для
   чтения Git-объектов из review worktree:
   - `show-file -WorktreePath "<worktree_path>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>"`;
-  - `grep-file -WorktreePath "<worktree_path>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>" -Pattern "<regex>"`;
+  - `grep-file -WorktreePath "<worktree_path>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>" -Pattern "<regex>" -First <count>`;
   - `list-files -WorktreePath "<worktree_path>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-prefix>"`;
-  - `grep-tree -WorktreePath "<worktree_path>" -Ref "<sha-or-ref>" -Pattern "<regex>"`;
+  - `grep-tree -WorktreePath "<worktree_path>" -Ref "<sha-or-ref>" -Pattern "<regex>" -RepoPath "<repo-relative-prefix>" -First <count>`;
 - не собирай подготовку MR ad-hoc командами `curl`, `python -c`,
   `git credential fill`, shell pipelines или временными `/tmp/*.json`;
 - не собирай чтение MR context ad-hoc командами вида
   `cd "<worktree_path>" && git show ... | grep ...`; используй read-only
   subcommands wrapper-а выше;
+- если read-only subcommand не покрывает нужный тип чтения, остановись и
+  сообщи, какой subcommand нужно добавить; не используй fallback на
+  `powershell -Command`, `cmd /c`, `git show | Select-String`, `Select-Object`,
+  `head`, `tail`, `grep` или другие shell pipelines;
 - если script отсутствует или завершился ошибкой, остановись и объясни причину
   из вывода script.
 
@@ -98,6 +102,8 @@ inline env. Не проси пользователя присылать token в
    только внутри `worktree_path` из manifest. Для чтения Git-объектов по
    `base_sha`/`head_sha` используй read-only subcommands
    `.claude/scripts/gitlab-mr-review.cmd`, а не shell pipelines с `cd`.
+   Используй `-First <count>` в `grep-file`/`grep-tree`, если нужно ограничить
+   количество совпадений.
 6. Передай subagent `review-mr`:
    - `MR_URL`, title, source/target branches;
    - `REVIEW_WORKTREE=<worktree_path>`;
@@ -155,9 +161,10 @@ inline env. Не проси пользователя присылать token в
 - Не вызывай `.claude/scripts/gitlab-mr-review.ps1` напрямую из skill: внешний
   entrypoint для Claude Code должен оставаться `.cmd`.
 - Не используй `cd "<worktree_path>" && git ...`, `git -C "<worktree_path>" ...`
-  или shell pipelines для чтения файлов из `base_sha`/`head_sha`, если ту же
-  информацию можно получить через read-only subcommands
-  `.claude/scripts/gitlab-mr-review.cmd`.
+  или shell pipelines для чтения файлов из `base_sha`/`head_sha`. Не используй
+  `powershell -Command`, `cmd /c`, `Select-String`, `Select-Object`, `head`,
+  `tail` или `grep` как fallback для чтения MR-context; расширяй или запрашивай
+  расширение read-only subcommands `.claude/scripts/gitlab-mr-review.cmd`.
 - Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
   выводов по MR. Для первого варианта review опирайся на `git diff`, `Read`,
   `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.

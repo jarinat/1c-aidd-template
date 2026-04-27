@@ -33,15 +33,17 @@ MR review может выполняться в отдельном worktree, а �
 2. Если задан `REVIEW_WORKTREE`, выполняй все `git diff`, `git show`, `rg` и
    чтение файлов только внутри этого worktree. Не используй текущую рабочую
    копию пользователя для surrounding context. Для чтения Git-объектов по
-   `BASE_REF`/`HEAD_REF` предпочитай read-only gateway
-   `.claude/scripts/gitlab-mr-review.cmd`, если он доступен:
+   `BASE_REF`/`HEAD_REF` используй только read-only gateway
+   `.claude/scripts/gitlab-mr-review.cmd`:
    - `show-file -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>"`;
-   - `grep-file -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>" -Pattern "<regex>"`;
+   - `grep-file -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-path>" -Pattern "<regex>" -First <count>`;
    - `list-files -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -RepoPath "<repo-relative-prefix>"`;
-   - `grep-tree -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -Pattern "<regex>"`.
-   Не используй ad-hoc shell pipelines вида
-   `cd "<REVIEW_WORKTREE>" && git show ... | grep ...`, если ту же информацию
-   можно получить через gateway.
+   - `grep-tree -WorktreePath "<REVIEW_WORKTREE>" -Ref "<sha-or-ref>" -Pattern "<regex>" -RepoPath "<repo-relative-prefix>" -First <count>`.
+   Не используй ad-hoc shell pipelines вида `cd "<REVIEW_WORKTREE>" && git
+   show ... | grep ...`, `powershell -Command "cd ...; git show ... |
+   Select-String ..."`, `cmd /c`, `Select-Object -First`, `head` или `tail`.
+   Если gateway не покрывает нужный тип чтения, остановись и явно скажи, какой
+   read-only subcommand нужно добавить.
 3. Получи актуальный diff:
    - для веток:
      - `git fetch origin $SOURCE_BRANCH $TARGET_BRANCH`
@@ -173,9 +175,11 @@ MR review может выполняться в отдельном worktree, а �
 - Не исправляй код автоматически в рамках review-mr.
 - Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
   выводов по MR.
-- Если задан `REVIEW_WORKTREE`, не используй `cd "<REVIEW_WORKTREE>" && git ...`
-  и shell pipelines для чтения Git-объектов, когда достаточно read-only
-  subcommands `.claude/scripts/gitlab-mr-review.cmd`.
+- Если задан `REVIEW_WORKTREE`, не используй `cd "<REVIEW_WORKTREE>" && git ...`,
+  `powershell -Command`, `cmd /c`, `git show | Select-String`, `Select-Object`,
+  `head`, `tail` и другие shell pipelines для чтения Git-объектов. Используй
+  read-only subcommands `.claude/scripts/gitlab-mr-review.cmd`; если их не
+  хватает, остановись и сообщи, какого subcommand не хватает.
 - Фокусируйся на логике, архитектуре, рисках и конкретных предложениях.
 - Не подменяй review личными предпочтениями без доказуемого риска.
 - Если проблем нет, зафиксируй это явно, а не придумывай замечания.

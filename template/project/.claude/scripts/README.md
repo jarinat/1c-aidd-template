@@ -44,8 +44,10 @@ Claude не должен заменять эти скрипты inline-кома�
   cleanup.
 - Для дополнительного чтения MR context из review worktree используй read-only
   subcommands `gitlab-mr-review.cmd`: `show-file`, `grep-file`, `list-files`,
-  `grep-tree`. Не собирай команды вида
-  `cd "<worktree_path>" && git show ... | grep ...`.
+  `grep-tree`. `grep-file` и `grep-tree` поддерживают `-First <count>`, чтобы
+  не собирать `Select-Object -First`, `head` или `tail` через shell pipeline.
+  Не собирай команды вида `cd "<worktree_path>" && git show ... | grep ...`
+  или `powershell -Command "cd ...; git show ... | Select-String ..."`.
 - Для GitLab API `gitlab-mr-review.ps1` использует только авторизацию `glab`.
   Токен должен храниться в `glab auth`; fallback на `GITLAB_TOKEN`,
   `GITLAB_ACCESS_TOKEN`, git credential manager, prompt или inline env не
