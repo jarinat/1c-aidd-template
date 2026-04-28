@@ -1,7 +1,7 @@
 ---
 name: review-mr
 description: "Проводит code review merge request между двумя refs Git."
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep
 model: sonnet
 skills:
   - 1c-query
@@ -81,25 +81,19 @@ skills:
   поиска ссылок, callers или выводов по MR.
 - Для пошагового алгоритма и checklist ориентируйся на
   `.claude/skills/review-mr/SKILL.md`.
-- Если задан `REVIEW_WORKTREE`, выполняй `Bash`, `Read`, `Glob` и `Grep` только
-  относительно этого worktree. Не читай окружающий код из текущей рабочей копии
-  пользователя.
-- Если задан `REVIEW_WORKTREE`, используй `.claude/scripts/gitlab-mr-review.cmd`
-  как обязательный read-only gateway для чтения Git-объектов из
-  `BASE_REF`/`HEAD_REF`: `show-file`, `grep-file`, `list-files`, `grep-tree`.
-  Для ограничения числа совпадений используй `-First <count>` в `grep-file` и
-  `grep-tree`.
-- Не используй ad-hoc shell pipelines вида
-  `cd "<REVIEW_WORKTREE>" && git show ... | grep ...`; если нужно прочитать
-  файл, найти строки или перечислить файлы на `BASE_REF`/`HEAD_REF`, делай это
-  через `.claude/scripts/gitlab-mr-review.cmd`.
-- Не используй `powershell -Command`, `cmd /c`, `git show | Select-String`,
-  `Select-Object -First`, `head`, `tail` или прямой `grep` как fallback для
-  чтения MR-context. Если wrapper не покрывает нужный тип чтения, остановись и
-  явно сообщи, какой read-only subcommand нужно добавить.
-- Используй `Bash` только для команд получения контекста без изменения рабочей
-  копии: `git fetch`, `git diff`, `git log`, `git status`, `rg`, а `git show`
-  по файлам в MR worktree выполняй через read-only gateway выше.
+- Если задан `REVIEW_WORKTREE`, не используй shell-команды для чтения MR-context.
+  У agent нет `Bash` tool намеренно: не пытайся запускать `cmd`, `powershell`,
+  `git`, `.cmd`, `.ps1`, pipelines или wrapper-ы любым способом.
+- Для review используй только подготовленные файлы manifest:
+  `diff_stat_path`, `diff_name_status_path`, `diff_patch_path`,
+  `changed_files_path`, `base_snapshot_root`, `head_snapshot_root`, а также
+  `Read`, `Glob` и `Grep` по `REVIEW_WORKTREE` для текущего `HEAD` checkout.
+- Для версии `HEAD` предпочитай чтение файла из `REVIEW_WORKTREE` или
+  `head_snapshot_root`. Для версии `BASE` используй только файлы из
+  `base_snapshot_root` и записи `changed_files_path`.
+- Если нужного surrounding context нет ни в `REVIEW_WORKTREE`, ни в snapshot
+  files, остановись и явно укажи, какой repo-relative path или base/head context
+  не был материализован в `prepare`. Не придумывай shell fallback.
 - Не ищи AIDD `plan/tasklist` по умолчанию: MR других разработчиков может не
   иметь AIDD-артефактов. Для проверки паттернов опирайся на локальные аналоги в
   коде.

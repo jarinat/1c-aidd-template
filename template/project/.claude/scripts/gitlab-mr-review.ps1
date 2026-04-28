@@ -82,7 +82,8 @@ prepare:
   - reads GitLab metadata through the GitLab API
   - fetches target branch and MR head ref without switching the current branch
   - creates or reuses a detached worktree under C:\ai-review-wt
-  - writes manifest.json, mr.json, diff-stat.txt, diff-name-status.txt, diff.patch
+  - writes manifest.json, mr.json, diff-stat.txt, diff-name-status.txt, diff.patch,
+    changed-files.json, and text snapshots for changed files
   - prints manifest JSON to stdout
 
 cleanup:
@@ -476,6 +477,58 @@ function Write-Utf8File {
     [System.IO.File]::WriteAllText($Path, $Content, (New-Object System.Text.UTF8Encoding $false))
 }
 
+function Ensure-Directory {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+        New-Item -ItemType Directory -Path $Path -Force | Out-Null
+    }
+}
+
+function Join-ManifestRepoPath {
+    param(
+        [Parameter(Mandatory = $true)][string]$Root,
+        [Parameter(Mandatory = $true)][string]$RepoPath
+    )
+
+    $repoRelativePath = Normalize-RepoPath -Path $RepoPath
+    $parts = $repoRelativePath -split "/"
+    $result = $Root
+    foreach ($part in $parts) {
+        $result = Join-Path -Path $result -ChildPath $part
+    }
+
+    return $result
+}
+
+function Test-ReviewTextPath {
+    param([Parameter(Mandatory = $true)][string]$RepoPath)
+
+    $extension = [System.IO.Path]::GetExtension($RepoPath).ToLowerInvariant()
+    $textExtensions = @(
+        ".bsl", ".mdo", ".form", ".xml", ".json", ".txt", ".md", ".yml",
+        ".yaml", ".dcss", ".css", ".html", ".htm", ".sql", ".os", ".properties"
+    )
+
+    return $textExtensions -contains $extension
+}
+
+function Save-GitObjectText {
+    param(
+        [Parameter(Mandatory = $true)][string]$Worktree,
+        [Parameter(Mandatory = $true)][string]$Ref,
+        [Parameter(Mandatory = $true)][string]$RepoPath,
+        [Parameter(Mandatory = $true)][string]$OutputPath
+    )
+
+    $repoRelativePath = Normalize-RepoPath -Path $RepoPath
+    $objectName = "${Ref}:$repoRelativePath"
+    $content = Invoke-Tool -FilePath "git" -Arguments @("-C", $Worktree, "-c", "core.quotePath=false", "show", $objectName) -FailureMessage "git show failed"
+    $parent = Split-Path -Parent $OutputPath
+    Ensure-Directory -Path $parent
+    Write-Utf8File -Path $OutputPath -Content (($content | Out-String).TrimEnd() + "`n")
+}
+
 function Save-GitOutput {
     param(
         [Parameter(Mandatory = $true)][string]$Worktree,
@@ -484,8 +537,97 @@ function Save-GitOutput {
         [Parameter(Mandatory = $true)][string]$FailureMessage
     )
 
-    $output = Invoke-Tool -FilePath "git" -Arguments (@("-C", $Worktree) + $Arguments) -FailureMessage $FailureMessage
+    $output = Invoke-Tool -FilePath "git" -Arguments (@("-C", $Worktree, "-c", "core.quotePath=false") + $Arguments) -FailureMessage $FailureMessage
     Write-Utf8File -Path $OutputPath -Content (($output | Out-String).TrimEnd() + "`n")
+}
+
+function Get-ChangedFiles {
+    param(
+        [Parameter(Mandatory = $true)][string]$Worktree,
+        [Parameter(Mandatory = $true)][string]$BaseSha,
+        [Parameter(Mandatory = $true)][string]$HeadSha
+    )
+
+    $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $Worktree, "-c", "core.quotePath=false", "diff", "$BaseSha...$HeadSha", "--name-status", "--find-renames") -FailureMessage "git diff --name-status failed"
+    $items = @()
+    foreach ($line in $lines) {
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            continue
+        }
+
+        $columns = $line -split "`t"
+        if ($columns.Count -lt 2) {
+            continue
+        }
+
+        $status = $columns[0]
+        if ($status.StartsWith("R") -or $status.StartsWith("C")) {
+            if ($columns.Count -lt 3) {
+                continue
+            }
+
+            $items += [pscustomobject]@{
+                status = $status
+                old_path = Normalize-RepoPath -Path $columns[1]
+                path = Normalize-RepoPath -Path $columns[2]
+            }
+        } else {
+            $items += [pscustomobject]@{
+                status = $status
+                old_path = $null
+                path = Normalize-RepoPath -Path $columns[1]
+            }
+        }
+    }
+
+    return $items
+}
+
+function Save-ReviewSnapshots {
+    param(
+        [Parameter(Mandatory = $true)][string]$Worktree,
+        [Parameter(Mandatory = $true)][string]$BaseSha,
+        [Parameter(Mandatory = $true)][string]$HeadSha,
+        [Parameter(Mandatory = $true)][object[]]$ChangedFiles,
+        [Parameter(Mandatory = $true)][string]$SnapshotRoot
+    )
+
+    $baseRoot = Join-Path -Path $SnapshotRoot -ChildPath "base"
+    $headRoot = Join-Path -Path $SnapshotRoot -ChildPath "head"
+    Ensure-Directory -Path $baseRoot
+    Ensure-Directory -Path $headRoot
+
+    $results = @()
+    foreach ($file in $ChangedFiles) {
+        $status = [string]$file.status
+        $path = [string]$file.path
+        $oldPath = if ($null -ne $file.old_path) { [string]$file.old_path } else { $null }
+        $baseRepoPath = if ($oldPath) { $oldPath } else { $path }
+        $isText = (Test-ReviewTextPath -RepoPath $path) -or ($oldPath -and (Test-ReviewTextPath -RepoPath $oldPath))
+        $baseSnapshotPath = $null
+        $headSnapshotPath = $null
+
+        if ($isText -and -not $status.StartsWith("A")) {
+            $baseSnapshotPath = Join-ManifestRepoPath -Root $baseRoot -RepoPath $baseRepoPath
+            Save-GitObjectText -Worktree $Worktree -Ref $BaseSha -RepoPath $baseRepoPath -OutputPath $baseSnapshotPath
+        }
+
+        if ($isText -and -not $status.StartsWith("D")) {
+            $headSnapshotPath = Join-ManifestRepoPath -Root $headRoot -RepoPath $path
+            Save-GitObjectText -Worktree $Worktree -Ref $HeadSha -RepoPath $path -OutputPath $headSnapshotPath
+        }
+
+        $results += [pscustomobject]@{
+            status = $status
+            path = $path
+            old_path = $oldPath
+            is_text_snapshot = $isText
+            base_snapshot_path = $baseSnapshotPath
+            head_snapshot_path = $headSnapshotPath
+        }
+    }
+
+    return $results
 }
 
 function Prepare-Review {
@@ -585,12 +727,21 @@ function Prepare-Review {
     $statPath = Join-Path -Path $manifestDirectory -ChildPath "diff-stat.txt"
     $nameStatusPath = Join-Path -Path $manifestDirectory -ChildPath "diff-name-status.txt"
     $diffPath = Join-Path -Path $manifestDirectory -ChildPath "diff.patch"
+    $changedFilesPath = Join-Path -Path $manifestDirectory -ChildPath "changed-files.json"
+    $snapshotRoot = Join-Path -Path $manifestDirectory -ChildPath "files"
     $manifestPath = Join-Path -Path $manifestDirectory -ChildPath "manifest.json"
+
+    if (Test-Path -LiteralPath $snapshotRoot -PathType Container) {
+        Remove-Item -LiteralPath $snapshotRoot -Recurse -Force
+    }
 
     Write-Utf8File -Path $mrJsonPath -Content (($mr | ConvertTo-Json -Depth 20) + "`n")
     Save-GitOutput -Worktree $resolvedWorktreePath -Arguments @("diff", "$baseSha...$headSha", "--stat") -OutputPath $statPath -FailureMessage "git diff --stat failed"
     Save-GitOutput -Worktree $resolvedWorktreePath -Arguments @("diff", "$baseSha...$headSha", "--name-status", "--find-renames") -OutputPath $nameStatusPath -FailureMessage "git diff --name-status failed"
     Save-GitOutput -Worktree $resolvedWorktreePath -Arguments @("diff", "$baseSha...$headSha", "--find-renames") -OutputPath $diffPath -FailureMessage "git diff failed"
+    $changedFiles = Get-ChangedFiles -Worktree $resolvedWorktreePath -BaseSha $baseSha -HeadSha $headSha
+    $snapshotFiles = Save-ReviewSnapshots -Worktree $resolvedWorktreePath -BaseSha $baseSha -HeadSha $headSha -ChangedFiles $changedFiles -SnapshotRoot $snapshotRoot
+    Write-Utf8File -Path $changedFilesPath -Content (($snapshotFiles | ConvertTo-Json -Depth 10) + "`n")
 
     $manifest = [pscustomobject]@{
         schema = "gitlab-mr-review.v1"
@@ -614,6 +765,10 @@ function Prepare-Review {
         diff_stat_path = $statPath
         diff_name_status_path = $nameStatusPath
         diff_patch_path = $diffPath
+        changed_files_path = $changedFilesPath
+        snapshot_root = $snapshotRoot
+        base_snapshot_root = (Join-Path -Path $snapshotRoot -ChildPath "base")
+        head_snapshot_root = (Join-Path -Path $snapshotRoot -ChildPath "head")
         cleanup_command = ".claude/scripts/gitlab-mr-review.cmd cleanup -WorktreePath `"$resolvedWorktreePath`""
     }
 
@@ -657,7 +812,7 @@ function Show-ReviewFile {
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
     $objectName = "${Ref}:$repoRelativePath"
 
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "show", $objectName) -FailureMessage "git show failed"
+    Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "show", $objectName) -FailureMessage "git show failed"
 }
 
 function Search-ReviewFile {
@@ -671,7 +826,7 @@ function Search-ReviewFile {
     $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
     $objectName = "${Ref}:$repoRelativePath"
-    $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "show", $objectName) -FailureMessage "git show failed"
+    $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "show", $objectName) -FailureMessage "git show failed"
     $regex = [regex]::new($Pattern)
     $matchCount = 0
 
@@ -697,9 +852,9 @@ function Get-ReviewFiles {
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath -AllowEmpty
 
     if ($repoRelativePath -eq ".") {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "ls-tree", "-r", "--name-only", $Ref) -FailureMessage "git ls-tree failed"
+        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "ls-tree", "-r", "--name-only", $Ref) -FailureMessage "git ls-tree failed"
     } else {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "ls-tree", "-r", "--name-only", $Ref, "--", $repoRelativePath) -FailureMessage "git ls-tree failed"
+        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "ls-tree", "-r", "--name-only", $Ref, "--", $repoRelativePath) -FailureMessage "git ls-tree failed"
     }
 }
 
@@ -712,7 +867,7 @@ function Search-ReviewTree {
     Assert-RegexPattern -Value $Pattern
     Assert-FirstCount -Value $First
     $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
-    $arguments = @("-C", $resolvedPath, "grep", "-n", "-E", "--no-color", "-e", $Pattern, $Ref)
+    $arguments = @("-C", $resolvedPath, "-c", "core.quotePath=false", "grep", "-n", "-E", "--no-color", "-e", $Pattern, $Ref)
     if (-not [string]::IsNullOrWhiteSpace($RepoPath)) {
         $repoRelativePath = Normalize-RepoPath -Path $RepoPath -AllowEmpty
         if ($repoRelativePath -ne ".") {
