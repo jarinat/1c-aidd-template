@@ -34,8 +34,9 @@ Source of truth:
 - не публикует комментарии в GitLab;
 - не approve/revoke/merge MR;
 - не переключает текущую рабочую ветку пользователя.
-- не использует `rlm-tools-bsl`/MCP discovery, потому что MR проверяется в
-  отдельном worktree, а индекс RLM может относиться к другой рабочей копии.
+- не использует workspace-bound MCP discovery, потому что MR проверяется в
+  отдельном worktree, а MCP-серверы, привязанные к EDT workspace или локальному
+  индексу, могут смотреть на другую рабочую копию.
 
 ## Вход
 
@@ -166,9 +167,9 @@ inline env. Не проси пользователя присылать token в
   `Select-String`, `Select-Object`, `head`, `tail` или `grep` как fallback для
   чтения MR-context; если контекста нет в snapshots, остановись и сообщи, что
   нужно материализовать в `prepare`.
-- Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
-  выводов по MR. Для review опирайся на manifest-файлы, materialized snapshots,
-  `Read`, `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.
+- Не используй workspace-bound MCP discovery для discovery или выводов по MR.
+  Для review опирайся на manifest-файлы, materialized snapshots, `Read`,
+  `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.
 - Не делай `git checkout`, `git switch`, `git pull`, `git merge` или `git
   rebase` в основной рабочей копии.
 - Не оставляй review worktree автоматически после успешного review. Оставлять

@@ -38,7 +38,6 @@ supporting docs.
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
   `.claude/skills/1c-rsv-tools/SKILL.md`
-  `.claude/skills/rlm-tools-bsl/SKILL.md`
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/edt-form-editing/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
@@ -75,6 +74,9 @@ supporting docs.
 
 - discovery (`list_metadata_objects`, `get_object_details`,
   `code_search`, `ai_context`, `read_method_source`, `get_form_image`);
+- смысловое discovery по 1С/EDT-кодовой базе: поиск объектов, методов, форм,
+  ссылок, callers, подписок, движений, интеграций и локальных reference
+  patterns;
 - редактирование метаданных, СКД и ролей через `edit_metadata`;
 - редактирование BSL через `write_module_source` с `dryRun=true` на спорных
   правках и встроенной EDT-валидацией;
@@ -87,23 +89,6 @@ gap/баге MCP, с явным решением пользователя и ф�
 Запуски `sync_database`, `rebuild_project`, `yaxunit_tests` и
 `launch_debugger` принимает только основная сессия по решению пользователя;
 subagent их не вызывает.
-
-### rlm-tools-bsl
-
-Все 1С/EDT проекты этого шаблона по умолчанию считаются большими кодовыми
-базами.
-
-Для смыслового discovery по 1С/EDT-кодовой базе сначала примени
-`.claude/skills/rlm-tools-bsl/SKILL.md`, если MCP `rlm-tools-bsl` доступен.
-
-Это относится к `/aidd-idea`, preliminary technical reconnaissance, подготовке
-research, поиску точек использования, ссылок на метаданные, форм, движений,
-подписок, callers, интеграций и локальных reference patterns.
-
-В основной сессии не собирай большие фрагменты 1С-кода вручную до запуска
-subagent. Сначала сузь область через AIDD-артефакты и `rlm-tools-bsl`, затем
-передавай в agent краткую discovery-сводку: project/path, состояние индекса,
-найденные объекты, методы, формы, узкие файлы-кандидаты и ограничения проверки.
 
 `Read` известного файла и `Glob` узкого известного пути допустимы без skill.
 Широкий `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` для поиска 1С-сущностей

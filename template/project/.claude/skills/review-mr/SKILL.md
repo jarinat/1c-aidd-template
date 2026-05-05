@@ -20,11 +20,12 @@ Source of truth:
   - `edt-form-editing`
   - `yaxunit-tests`
 
-Важно: в `review-mr` не используй `rlm-tools-bsl` и связанные MCP-инструменты.
-MR review может выполняться в отдельном worktree, а индекс RLM может относиться
-к другой рабочей копии. Для discovery используй `Read`, `Glob`, `Grep`,
-manifest snapshots и локальное чтение файлов в правильном worktree. Не запускай
-shell-команды для чтения MR-context.
+Важно: в `review-mr` не используй workspace-bound MCP discovery. MR review
+может выполняться в отдельном worktree, а MCP-серверы, привязанные к EDT
+workspace или локальному индексу, могут смотреть на другую рабочую копию. Для
+discovery используй `Read`, `Glob`, `Grep`, manifest snapshots и локальное
+чтение файлов в правильном worktree. Не запускай shell-команды для чтения
+MR-context.
 
 ## Алгоритм
 
@@ -174,8 +175,7 @@ shell-команды для чтения MR-context.
 
 - Не дублируй проверки Сонара.
 - Не исправляй код автоматически в рамках review-mr.
-- Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery или
-  выводов по MR.
+- Не используй workspace-bound MCP discovery для discovery или выводов по MR.
 - Если задан `REVIEW_WORKTREE`, не используй shell для чтения Git-объектов или
   MR-context: `Bash`, `cd "<REVIEW_WORKTREE>" && git ...`, `.cmd`, `.ps1`,
   `powershell -Command`, `cmd /c`, `git show | Select-String`,

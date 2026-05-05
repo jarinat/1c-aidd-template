@@ -8,8 +8,8 @@ local project scaffolding without overwriting project-specific rules.
 
 Run without -Apply to preview operations.
 
-This script does not edit Git ignore/exclude files and does not build or update
-rlm-tools-bsl indexes.
+This script does not edit Git ignore/exclude files, build external indexes, or
+run EDT actions.
 
 .EXAMPLE
 tools/bootstrap-project.ps1 -Project WMS
@@ -166,6 +166,30 @@ function Get-TemplateFiles {
     }
 }
 
+function Get-ObsoleteTargetFiles {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$TargetRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string[]]$Roots
+    )
+
+    foreach ($root in $Roots) {
+        $targetPath = Join-TemplatePath -Root $TargetRoot -RelativePath $root
+
+        if (Test-Path -LiteralPath $targetPath) {
+            [pscustomobject]@{
+                SourcePath = $null
+                RelativePath = $root
+                Mode = "RemoveObsolete"
+                GeneratedContent = $null
+                TargetPath = $targetPath
+            }
+        }
+    }
+}
+
 function Resolve-ProjectPathFromConfig {
     param(
         [Parameter(Mandatory = $true)]
@@ -224,6 +248,10 @@ $createIfMissingRoots = @(
     "aidd"
 )
 
+$removeObsoleteRoots = @(
+    ".claude/skills/rlm-tools-bsl"
+)
+
 $sourceFiles = @()
 $sourceFiles += Get-TemplateFiles -TemplateRoot $templateProject -Roots $overwriteRoots -Mode "Overwrite"
 $sourceFiles += Get-TemplateFiles -TemplateRoot $templateProject -Roots $createIfMissingRoots -Mode "CreateIfMissing"
@@ -236,11 +264,15 @@ $sourceFiles += [pscustomobject]@{
     Mode = "CreateIfMissing"
     GeneratedContent = ""
 }
+$sourceFiles += Get-ObsoleteTargetFiles -TargetRoot $targetProject -Roots $removeObsoleteRoots
 
 $operations = foreach ($sourceFile in $sourceFiles) {
     $targetPath = Join-TemplatePath -Root $targetProject -RelativePath $sourceFile.RelativePath
 
-    if ($null -ne $sourceFile.GeneratedContent) {
+    if ($sourceFile.Mode -eq "RemoveObsolete") {
+        $status = "Remove"
+    }
+    elseif ($null -ne $sourceFile.GeneratedContent) {
         $status = if (Test-Path -LiteralPath $targetPath -PathType Leaf) { "Exists" } else { "Add" }
     }
     else {
@@ -261,12 +293,13 @@ $addCount = @($operations | Where-Object { $_.Status -eq "Add" }).Count
 $updateCount = @($operations | Where-Object { $_.Status -eq "Update" }).Count
 $unchangedCount = @($operations | Where-Object { $_.Status -eq "Unchanged" }).Count
 $existsCount = @($operations | Where-Object { $_.Status -eq "Exists" }).Count
+$removeCount = @($operations | Where-Object { $_.Status -eq "Remove" }).Count
 
 Write-Host "Template: $templateProject"
 Write-Host "Target:   $targetProject"
 Write-Host "Mode:     $(if ($Apply) { "apply" } else { "dry-run" })"
 Write-Host ""
-Write-Host "Summary: Add=$addCount Update=$updateCount Unchanged=$unchangedCount Exists=$existsCount Remove=0"
+Write-Host "Summary: Add=$addCount Update=$updateCount Unchanged=$unchangedCount Exists=$existsCount Remove=$removeCount"
 Write-Host ""
 
 foreach ($operation in ($operations | Sort-Object Path)) {
@@ -281,6 +314,12 @@ if (-not $Apply) {
     Write-Host ""
     Write-Host "Dry-run only. Re-run with -Apply to copy Add/Update files and create missing local scaffold."
     exit 0
+}
+
+foreach ($operation in ($operations | Where-Object { $_.Status -eq "Remove" })) {
+    $resolvedTargetPath = (Resolve-Path -LiteralPath $operation.TargetPath).Path
+    [void](Get-RelativePath -Root $targetProject -FullPath $resolvedTargetPath)
+    Remove-Item -LiteralPath $resolvedTargetPath -Recurse -Force
 }
 
 foreach ($operation in ($operations | Where-Object { $_.Status -in @("Add", "Update") })) {

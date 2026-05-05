@@ -29,9 +29,9 @@ skills:
   - `yaxunit-tests`
   - `edt-form-editing`
 
-Важно: не используй `rlm-tools-bsl` и связанные MCP-инструменты. Этот agent
-может работать в отдельном `REVIEW_WORKTREE`, а RLM-индекс может относиться к
-другой рабочей копии.
+Важно: не используй workspace-bound MCP discovery. Этот agent может работать в
+отдельном `REVIEW_WORKTREE`, а MCP-серверы, привязанные к EDT workspace или
+локальному индексу, могут смотреть на другую рабочую копию.
 
 ## Зона ответственности
 
@@ -77,8 +77,8 @@ skills:
 
 - Не исправляй код автоматически.
 - Не дублируй проверки Сонара.
-- Не используй `rlm-tools-bsl` и связанные MCP-инструменты для discovery,
-  поиска ссылок, callers или выводов по MR.
+- Не используй workspace-bound MCP discovery для поиска ссылок, callers или
+  выводов по MR.
 - Для пошагового алгоритма и checklist ориентируйся на
   `.claude/skills/review-mr/SKILL.md`.
 - Если задан `REVIEW_WORKTREE`, не используй shell-команды для чтения MR-context.

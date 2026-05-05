@@ -1,10 +1,9 @@
 ---
 name: researcher
 description: "Исследует кодовую базу по тикету, фиксирует точки встраивания и отделяет факты от рекомендаций."
-tools: Read, Write, Edit, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end, mcp__rlm-tools-bsl__rlm_index, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module
+tools: Read, Write, Edit, Glob, Grep, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module
 model: opus
 skills:
-  - rlm-tools-bsl
   - 1c-rsv-tools
   - 1c-query
   - 1c-metadata-removal-impact
@@ -35,10 +34,10 @@ skills:
 - Найти релевантные объекты, файлы и зависимости.
 - Сопоставить код с PRD.
 - Зафиксировать факты, риски и рекомендации отдельно друг от друга.
-- Для больших 1С/EDT-кодовых баз при доступном MCP `rlm-tools-bsl` использовать
-  `.claude/skills/rlm-tools-bsl/SKILL.md` как первичный read-only discovery
-  слой: найти объекты, методы, формы, зависимости, ссылки, движения, подписки и
-  локальные reference patterns. Критичные выводы подтверждать чтением исходников.
+- Для больших 1С/EDT-кодовых баз при доступном MCP `1c-rsv` использовать
+  `.claude/skills/1c-rsv-tools/SKILL.md` как первичный discovery слой: найти
+  объекты, методы, формы, зависимости, ссылки, движения, подписки и локальные
+  reference patterns. Критичные выводы подтверждать чтением исходников.
 - В режиме предварительного исследования перед PRD отвечать на конкретные
   технические вопросы основной сессии и готовить краткий technical
   reconnaissance summary для `analyst`.

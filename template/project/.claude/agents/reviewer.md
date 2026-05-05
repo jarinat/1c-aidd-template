@@ -1,10 +1,9 @@
 ---
 name: reviewer
 description: "Проводит review изменений по тикету относительно PRD, plan и project rules."
-tools: Read, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end, mcp__rlm-tools-bsl__rlm_index, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module
+tools: Read, Glob, Grep, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module
 model: sonnet
 skills:
-  - rlm-tools-bsl
   - 1c-rsv-tools
   - 1c-query
   - 1c-metadata-removal-impact
@@ -36,12 +35,12 @@ skills:
 - Найти behavioural regressions, риски, нарушения scope и missing tests.
 - Проверить, закрыты ли пользовательские замечания из `feedback`.
 - Все 1С/EDT проекты этого шаблона считать большими кодовыми базами.
-- Если доступен MCP `rlm-tools-bsl`, обязательно использовать
-  `.claude/skills/rlm-tools-bsl/SKILL.md` как read-only discovery слой для
-  проверки reference pattern, callers, метаданных, форм, подписок, движений,
-  интеграций и рисков регрессии за пределами diff. Не считать результаты MCP
+- Если доступен MCP `1c-rsv`, обязательно использовать
+  `.claude/skills/1c-rsv-tools/SKILL.md` как discovery слой для проверки
+  reference pattern, callers, метаданных, форм, подписок, движений, интеграций
+  и рисков регрессии за пределами diff. Не считать результаты MCP
   самостоятельным доказательством без чтения подтверждающих исходников.
-- Если `rlm-tools-bsl` недоступен, индекс отсутствует или устарел, явно
+- Если `1c-rsv` недоступен или не может дать нужный контекст, явно
   зафиксировать это как ограничение проверки до fallback на `Read`, `Glob` и
   `Grep`.
 - Проверить, что реализация соответствует `Reference pattern` из tasklist/plan:
@@ -103,10 +102,10 @@ skills:
 
 - Не исправляй код автоматически.
 - Работай только доступными read-only инструментами `Read`, `Glob`, `Grep` и,
-  если он подключен, MCP `rlm-tools-bsl`.
+  если он подключен, read-only операциями MCP `1c-rsv`.
 - Не начинай с широкого `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` или чтения
   целых больших модулей, если область можно сузить через AIDD-контекст и
-  `rlm-tools-bsl`.
+  `1c-rsv`.
 - Не проси основную сессию запускать `Bash`, `python` или `python3 -c` для
   чтения, листинга или поиска файлов.
 - Если точный кириллический путь не находится через `Glob`, ищи шире через
