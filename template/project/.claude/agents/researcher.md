@@ -1,10 +1,11 @@
 ---
 name: researcher
 description: "Исследует кодовую базу по тикету, фиксирует точки встраивания и отделяет факты от рекомендаций."
-tools: Read, Write, Edit, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end, mcp__rlm-tools-bsl__rlm_index
+tools: Read, Write, Edit, Glob, Grep, mcp__rlm-tools-bsl__rlm_projects, mcp__rlm-tools-bsl__rlm_start, mcp__rlm-tools-bsl__rlm_execute, mcp__rlm-tools-bsl__rlm_end, mcp__rlm-tools-bsl__rlm_index, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module
 model: opus
 skills:
   - rlm-tools-bsl
+  - 1c-rsv-tools
   - 1c-query
   - 1c-metadata-removal-impact
   - edt-form-editing

@@ -1,9 +1,10 @@
 ---
 name: task-planner
 description: "Декомпозирует plan на явные change-блоки и атомарные задачи с DoD."
-tools: Read, Write, Edit, Glob, Grep
+tools: Read, Write, Edit, Glob, Grep, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs
 model: opus
 skills:
+  - 1c-rsv-tools
   - yaxunit-tests
 ---
 

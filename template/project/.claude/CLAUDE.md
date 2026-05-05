@@ -37,6 +37,7 @@ supporting docs.
 - Специализированные skills:
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
+  `.claude/skills/1c-rsv-tools/SKILL.md`
   `.claude/skills/rlm-tools-bsl/SKILL.md`
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/edt-form-editing/SKILL.md`
@@ -63,6 +64,29 @@ supporting docs.
   а не "сразу внести правку в код".
 
 ## Обязательный routing skills
+
+### 1c-rsv-tools
+
+Если MCP `1c-rsv` доступен, работа с метаданными, СКД, формами, ролями,
+подсистемами и BSL-модулями выполняется через
+`.claude/skills/1c-rsv-tools/SKILL.md`.
+
+Это включает:
+
+- discovery (`list_metadata_objects`, `get_object_details`,
+  `code_search`, `ai_context`, `read_method_source`, `get_form_image`);
+- редактирование метаданных, СКД и ролей через `edit_metadata`;
+- редактирование BSL через `write_module_source` с `dryRun=true` на спорных
+  правках и встроенной EDT-валидацией;
+- проверку маркеров через `get_validation_errors`.
+
+Прямая правка `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit` запрещена, если
+есть соответствующая операция `edit_metadata`. Исключения допустимы только при
+gap/баге MCP, с явным решением пользователя и фиксацией причины.
+
+Запуски `sync_database`, `rebuild_project`, `yaxunit_tests` и
+`launch_debugger` принимает только основная сессия по решению пользователя;
+subagent их не вызывает.
 
 ### rlm-tools-bsl
 

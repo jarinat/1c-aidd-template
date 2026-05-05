@@ -1,10 +1,11 @@
 ---
 name: implementer
 description: "Use proactively for AIDD implement 1C/EDT source edits. Разработчик 1С/БСП: реализует одну задачу из tasklist в пределах разрешённого scope."
-tools: Read, Write, Edit, Glob, Grep, Bash
+tools: Read, Write, Edit, Glob, Grep, Bash, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module, mcp__1c-rsv__edit_metadata, mcp__1c-rsv__write_module_source, mcp__1c-rsv__export_object
 disallowedTools: AskUserQuestion
 model: sonnet
 skills:
+  - 1c-rsv-tools
   - 1c-query
   - edt-form-editing
   - yaxunit-tests
