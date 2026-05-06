@@ -12,7 +12,8 @@ description: >
 Source of truth для lifecycle артефактов и статусов:
 
 - `.claude/rules/core/aidd-artifacts.md`
-- `.claude/rules/core/aidd-workflow.md`
+- `.claude/rules/core/aidd-workflow.md`, включая раздел
+  `Autonomy and question gate`
 - `.claude/rules/core/tool-usage.md`
 - `.claude/rules/core/code-style.md`
 
@@ -47,6 +48,8 @@ Source of truth для lifecycle артефактов и статусов:
      пользователя;
    - если деталь есть только в аналоге или reference pattern, не превращай ее в
      задачу, DoD или acceptance-критерий;
+   - если недостающая деталь является проверяемым `repository fact`, верни
+     blocker на targeted research, а не на пользователя;
    - если без такой детали нельзя безопасно декомпозировать блок, верни blocker
      на plan/research/пользователя, а не заполняй пробел по аналогии.
 8. Для каждого change-блока перенеси из plan `Implementation pattern` в

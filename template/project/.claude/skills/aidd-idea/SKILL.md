@@ -34,7 +34,8 @@ reference patterns, основная сессия сначала применя�
 Source of truth для lifecycle артефактов и статусов:
 
 - `.claude/rules/core/aidd-artifacts.md`
-- `.claude/rules/core/aidd-workflow.md`
+- `.claude/rules/core/aidd-workflow.md`, включая раздел
+  `Autonomy and question gate`
 
 ## Алгоритм
 
@@ -74,8 +75,19 @@ Source of truth для lifecycle артефактов и статусов:
 7. После возврата PRD самостоятельно проверь `Blocking questions` и `Open questions`:
    - если есть `Blocking questions`, оставь PRD в draft-состоянии и не выводи
      требования/план по заблокированной части как готовые;
+   - классифицируй каждый вопрос по `Autonomy and question gate`: repository
+     fact, business/scope decision, external fact или tooling blocker;
+   - для вопросов класса `repository fact` выполни targeted follow-up research
+     до обращения к пользователю: найди объект 1С, реквизит, поле, метод, СКД,
+     форму, роль, тест или AIDD-источник через `1c-rsv`, `Read`, точечный
+     `Grep` или другой разрешенный discovery-инструмент;
    - если вопрос можно закрыть из уже известного контекста, перенеси решение в
      `Resolved decisions` с пометкой источника `context`;
+   - если после targeted research найден один уверенный технический кандидат,
+     зафиксируй его как решение с evidence, а не задавай пользователю вопрос;
+   - если найдено несколько кандидатов или источники противоречат друг другу,
+     подготовь вопрос с вариантами, evidence и точным решением, которое нужно
+     от пользователя;
    - пользователю задавай только те вопросы, которые нельзя разрешить без его
      участия.
 8. Проверь атрибуцию решений:

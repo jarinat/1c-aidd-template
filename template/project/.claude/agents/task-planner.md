@@ -21,7 +21,8 @@ skills:
   - `.claude/skills/aidd-tasks/SKILL.md`
 - lifecycle артефактов:
   - `.claude/rules/core/aidd-artifacts.md`
-  - `.claude/rules/core/aidd-workflow.md`
+  - `.claude/rules/core/aidd-workflow.md`, включая раздел
+    `Autonomy and question gate`
 - выбор инструментов и tooling gaps:
   - `.claude/rules/core/tool-usage.md`
 - стиль кода:
@@ -41,6 +42,10 @@ skills:
 - Если контрактная, data, UI, rights, transport, testing или другая scope-деталь
   не подтверждена источником, вернуть blocker на plan/research/пользователя, а
   не заполнять tasklist по аналогии.
+- Если неподтвержденная деталь является проверяемым `repository fact`
+  (реквизит, поле, объект метаданных, СКД-настройка, форма, роль, метод,
+  тестовый паттерн), возвращать blocker на targeted research, а не вопрос
+  пользователю.
 - Наследовать имена полей, колонок и реквизитов из PRD/plan без повторной
   нормализации и без новых сокращений.
 - Наследовать переименования объектов и элементов метаданных как изменения
