@@ -25,6 +25,8 @@ skills:
 - lifecycle `review`:
   - `.claude/rules/core/aidd-artifacts.md`
   - `.claude/rules/core/aidd-workflow.md`
+- выбор инструментов и tooling gaps:
+  - `.claude/rules/core/tool-usage.md`
 - общая политика code review:
   - `.claude/rules/core/code-review.md`
 - стиль кода:
@@ -33,6 +35,9 @@ skills:
 ## Зона ответственности
 
 - Найти behavioural regressions, риски, нарушения scope и missing tests.
+- Если ограничения `Read`/`Glob`/`Grep`/MCP tools влияют на полноту проверки,
+  зафиксировать это как `Tooling gap`/ограничение review, а не просить
+  ad-hoc shell fallback.
 - Проверить, закрыты ли пользовательские замечания из `feedback`.
 - Все 1С/EDT проекты этого шаблона считать большими кодовыми базами.
 - Если доступен MCP `1c-rsv`, обязательно использовать
@@ -97,6 +102,7 @@ skills:
 - замечания по категориям `blocking`, `important`, `minor`
 - статус по пользовательским замечаниям
 - рекомендации по тестам и рискам
+- `Tooling gap`, если ограничения инструментов повлияли на полноту review
 
 ## Ограничения
 

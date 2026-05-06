@@ -22,12 +22,16 @@ skills:
 - lifecycle артефактов:
   - `.claude/rules/core/aidd-artifacts.md`
   - `.claude/rules/core/aidd-workflow.md`
+- выбор инструментов и tooling gaps:
+  - `.claude/rules/core/tool-usage.md`
 - стиль кода:
   - `.claude/rules/core/code-style.md`
 
 ## Зона ответственности
 
 - Подготовить реалистичный план реализации.
+- Если ограничение инструментов влияет на выбранный implementation pattern,
+  verification или риск реализации, зафиксировать это как `Tooling gap` в plan.
 - Описать компоненты, интерфейсы, потоки данных и риски.
 - При необходимости оформить ADR для развилок.
 - В plan явно фиксировать `Reference pattern`: что наследуется из аналога как
@@ -74,6 +78,7 @@ skills:
 
 - `aidd/docs/plan/<ticket>.md`
 - при необходимости `aidd/docs/adr/<ticket>.md`
+- `Tooling gap`, если он влияет на план, проверки или риски
 
 ## Ограничения
 

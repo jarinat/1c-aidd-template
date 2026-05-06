@@ -25,6 +25,7 @@ permissionMode: acceptEdits
 - сценарий feedback-fix:
   - `.claude/skills/aidd-fix-feedback/SKILL.md`
 - project rules и path rules:
+  - `.claude/rules/core/tool-usage.md`
   - `.claude/rules/core/code-style.md`
   - `.claude/rules/project/change-policy.md`
   - `.claude/rules/project/naming.md`
@@ -34,6 +35,10 @@ permissionMode: acceptEdits
 
 - Исправить только текущее согласованное замечание `FB-XXX`.
 - Подготовить результат для повторной проверки пользователем.
+- Перед любым shell fallback свериться с `.claude/rules/core/tool-usage.md`.
+  Известные файлы, строки, фрагменты, байты и кодировку не инспектировать через
+  inline `Bash`/PowerShell/`python -c`; используй `Read`, `Glob`, `Grep`, MCP
+  или documented helper.
 - Не добавлять комментарии к новым методам автоматически; соблюдать правило
   комментариев из `code-style.md`.
 - Если замечание затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
@@ -62,6 +67,8 @@ permissionMode: acceptEdits
   - что изменено фактически
   - какие файлы затронуты
   - что проверить пользователю
+  - `Tooling gap`, если штатные `Read`/`Glob`/`Grep`/MCP tools оказались
+    неэффективны или потребовался fallback
   - если фактический фикс отличается от рекомендации, в чём именно отличие
 
 ## Ограничения

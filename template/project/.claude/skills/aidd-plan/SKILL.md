@@ -14,6 +14,7 @@ Source of truth для lifecycle артефактов и статусов:
 
 - `.claude/rules/core/aidd-artifacts.md`
 - `.claude/rules/core/aidd-workflow.md`
+- `.claude/rules/core/tool-usage.md`
 - `.claude/rules/core/code-style.md`
 
 ## Алгоритм
@@ -87,8 +88,10 @@ Source of truth для lifecycle артефактов и статусов:
 13. Спроектируй решение и создай `aidd/docs/plan/<ticket>.md`.
 14. Если есть значимая развилка, создай `aidd/docs/adr/<ticket>.md` с вариантами
    и принятым решением.
-15. Не ставь `PLAN_APPROVED` без явного подтверждения пользователя.
-16. После подтверждения пользователя переведи план в готовый статус по правилам
+15. Если `planner` сообщил `Tooling gap`, добавь его в plan отдельным разделом
+   только если gap влияет на implementation pattern, verification или риски.
+16. Не ставь `PLAN_APPROVED` без явного подтверждения пользователя.
+17. После подтверждения пользователя переведи план в готовый статус по правилам
    AIDD.
 
 ## Структура plan
@@ -103,6 +106,7 @@ Source of truth для lifecycle артефактов и статусов:
 - Data flows
 - NFR
 - Risks
+- Tooling gaps, если они влияют на план, проверки или риски
 - Decisions по `USED` и `UNCLEAR` точкам удаления, если задача удаляет элементы
   метаданных
 - Open questions

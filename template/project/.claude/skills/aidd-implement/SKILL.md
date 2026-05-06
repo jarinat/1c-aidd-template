@@ -17,6 +17,7 @@ Source of truth для lifecycle этапов, статусов и change-бло
 
 - `.claude/rules/core/aidd-workflow.md`
 - `.claude/rules/core/aidd-artifacts.md`
+- `.claude/rules/core/tool-usage.md`
 - `.claude/rules/core/git-workflow.md`
 - `.claude/rules/project/naming.md`
 
@@ -86,12 +87,16 @@ Source of truth для lifecycle этапов, статусов и change-бло
 8. После каждой задачи проверь результат и отсутствие выхода за scope.
    Отдельно проверь, что diff задачи не ввел новые смысловые сокращения для
    объектов метаданных в локальных именах кода.
+   Если `implementer` сообщил `Tooling gap`, проверь, что это не скрывает риск
+   реализации, и подготовь запись для `tasklist` текущего блока.
 9. После завершения всего блока:
    - если есть файловые изменения, сделай один commit change-блока;
    - если это verification-only блок без файловых изменений, отдельный commit не
      нужен.
 10. Сразу после успешного commit блока или успешной verification-only проверки
    обнови `tasklist` для завершённого блока.
+   Если были `Tooling gap`, добавь их в итог текущего блока отдельным пунктом
+   `Tooling gaps`, не меняя scope и acceptance criteria задним числом.
 11. Проверь, что `tasklist` действительно отражает завершение блока. Только после
    этого повтори цикл для следующего незакрытого блока.
 12. В конце выведи итог: выполненные задачи, выполненные блоки, перечень commit.

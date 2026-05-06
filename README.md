@@ -277,6 +277,12 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
   заменены на нейтральные.
 - `skills/aidd-commit-block/SKILL.md`: hardcode ticket prefix и default staged
   path заменены на project rules contract.
+- `skills/aidd-fast-implement/SKILL.md`: добавлен короткий путь для простых
+  `PRD_READY` defect-fix задач без создания `plan` и `tasklist`, с явным
+  Fast path gate и одним запуском `implementer`.
+- `rules/core/tool-usage.md`: добавлена общая политика выбора инструментов,
+  запрет ad-hoc shell для file inspection и правило фиксации `Tooling gap`,
+  если штатные `Read`/`Glob`/`Grep`/MCP tools неэффективны.
 - `skills/1c-metadata-removal-impact/SKILL.md`: добавлена переносимая
   диагностика удаления элементов метаданных с gate для `USED` и `UNCLEAR`.
 - `skills/review-gitlab-mr/SKILL.md`: добавлен ручной read-only сценарий
@@ -297,7 +303,17 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 
 - `.claude/CLAUDE.md`: нейтральный project entry point, который ссылается на
   project-local `rules/core`, `skills`, `agents`, `rules/project`,
-  `rules/paths` и `scripts`.
+  `rules/paths` и `scripts`; добавлен always-loaded инвариант чтения
+  AIDD-артефактов активного тикета через точные repo-relative пути без shell
+  listing.
+- `.claude/rules/core/aidd-artifacts.md`: добавлен общий протокол чтения
+  AIDD-артефактов активного тикета через `Read`/`Glob`, без `Bash`/`ls`/`dir`
+  для проверки наличия файлов.
+- `.claude/rules/core/tool-usage.md`: общий source of truth для выбора между
+  `Read`, `Glob`, `Grep`, MCP, helper scripts и shell; отдельной будущей
+  доработкой стоит добавить `PreToolUse` hook, который блокирует inline shell
+  для file inspection и возвращает агенту подсказку использовать
+  `tool-usage.md`.
 - `AGENTS.md`: нейтральный Codex entry point для локальной настройки рабочих
   проектов.
 - `.claude/docs/onboarding-project.md`: общий русскоязычный сценарий

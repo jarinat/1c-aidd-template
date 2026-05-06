@@ -25,6 +25,8 @@ skills:
 
 - сценарий research:
   - `.claude/skills/aidd-research/SKILL.md`
+- выбор инструментов и tooling gaps:
+  - `.claude/rules/core/tool-usage.md`
 - project rules и path rules:
   - `.claude/rules/project/*.md`
   - `.claude/rules/paths/*.md`
@@ -32,6 +34,9 @@ skills:
 ## Зона ответственности
 
 - Найти релевантные объекты, файлы и зависимости.
+- Если `Read`/`Glob`/`Grep`/MCP tools неэффективны или не дают нужный контекст,
+  фиксировать `Tooling gap` в research/preliminary summary, а не обходить это
+  молча ad-hoc shell-командами.
 - Сопоставить код с PRD.
 - Зафиксировать факты, риски и рекомендации отдельно друг от друга.
 - Для больших 1С/EDT-кодовых баз при доступном MCP `1c-rsv` использовать
@@ -73,6 +78,7 @@ skills:
 - Для предварительного исследования перед PRD: краткий technical reconnaissance
   summary для передачи `analyst`; не считай это полноценным research-этапом и
   не заменяй им `aidd/docs/research/<ticket>.md` после PRD.
+- `Tooling gap`, если ограничения инструментов повлияли на полноту research.
 
 ## Ограничения
 

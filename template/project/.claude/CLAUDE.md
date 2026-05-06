@@ -28,6 +28,8 @@ supporting docs.
   `.claude/rules/core/aidd-artifacts.md`
 - Общие правила review, git, code style и 1С/EDT:
   `.claude/rules/core/*.md`
+- Выбор инструментов, shell policy и фиксация tooling gaps:
+  `.claude/rules/core/tool-usage.md`
 - Профиль проекта, change policy, naming, ticketing, testing, pitfalls:
   `.claude/rules/project/*.md`
 - Path-scoped ограничения:
@@ -135,6 +137,14 @@ review, интерпретации тестов, формулированию fe
   сначала прочитай соответствующий `SKILL.md` и следуй его workflow/checklist.
   Чтение файлов из `references/`, supporting docs или примеров не заменяет
   применение skill.
+- AIDD-артефакты активного тикета читай по точным repo-relative путям через
+  `Read`/`Glob` по `.claude/rules/core/aidd-artifacts.md`; не используй
+  `Bash`, `ls`, `dir`, `Get-ChildItem`, `Test-Path`, `rg --files` или shell
+  redirects/pipelines только для проверки их наличия.
+- Известные файлы и их фрагменты инспектируй через `Read`/`Glob`/`Grep`/MCP по
+  `.claude/rules/core/tool-usage.md`; не используй `Bash`, PowerShell или
+  `python -c` для file slicing, byte dumps, проверки кодировки или ad-hoc
+  чтения файла. Если штатные tools неэффективны, зафиксируй `Tooling gap`.
 - Если в ходе работы выяснилось, что обязательный skill был пропущен, останови
   изменение, прочитай skill и перепроверь уже принятое решение по его правилам.
 - В финальном ответе для задач, где сработали обязательные rules/skills, кратко

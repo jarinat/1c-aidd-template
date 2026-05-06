@@ -13,6 +13,7 @@ Source of truth для lifecycle артефактов и статусов:
 
 - `.claude/rules/core/aidd-artifacts.md`
 - `.claude/rules/core/aidd-workflow.md`
+- `.claude/rules/core/tool-usage.md`
 - `.claude/rules/core/code-style.md`
 
 ## Алгоритм
@@ -58,6 +59,8 @@ Source of truth для lifecycle артефактов и статусов:
      причину отклонения из plan;
    - если в plan нет implementation pattern для затронутой зоны, верни блокер
      на уточнение plan, а не создавай tasklist с неявным паттерном.
+   - если в plan/research есть `Tooling gap`, влияющий на выполнение блока,
+     перенеси его в tasklist как note или verification-пункт.
 9. Не добавляй в tasklist задачи или DoD на добавление комментариев к новым
    методам. Исключение — полноценная EDT-документация экспортного метода, если
    это явно требуется программным интерфейсом или пользователем.
@@ -85,6 +88,7 @@ Source of truth для lifecycle артефактов и статусов:
 - DoD для задач
 - DoD-проверка соответствия `Reference pattern` или явно описанного отклонения
 - verification-only блоки
+- Tooling gaps, если они нужны для выполнения или развития tooling
 - отдельная verification-проверка именования новых полей, колонок и
   реквизитов относительно таблицы соответствия PRD, если они есть
 - отдельная verification-проверка, что переименования объектов и элементов

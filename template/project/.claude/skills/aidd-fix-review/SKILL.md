@@ -14,6 +14,7 @@ Source of truth для lifecycle `review` и статусов:
 
 - `.claude/rules/core/aidd-workflow.md`
 - `.claude/rules/core/aidd-artifacts.md`
+- `.claude/rules/core/tool-usage.md`
 
 ## Ключевые правила
 
@@ -48,6 +49,8 @@ Source of truth для lifecycle `review` и статусов:
 8. Обнови запись в `aidd/docs/review/<ticket>.md` по правилам AIDD:
    - зафиксируй, что изменено;
    - перечисли затронутые файлы;
+   - если `review-fixer` сообщил `Tooling gap`, зафиксируй его в записи
+     `RV-XXX` отдельным полем или подпунктом;
    - переведи статус замечания в целевой статус.
 9. Сообщи пользователю, что изменено, и отдельно укажи, что повторный review
    запускается только вручную по его команде.

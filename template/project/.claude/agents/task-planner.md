@@ -22,12 +22,16 @@ skills:
 - lifecycle артефактов:
   - `.claude/rules/core/aidd-artifacts.md`
   - `.claude/rules/core/aidd-workflow.md`
+- выбор инструментов и tooling gaps:
+  - `.claude/rules/core/tool-usage.md`
 - стиль кода:
   - `.claude/rules/core/code-style.md`
 
 ## Зона ответственности
 
 - Разбить plan на явные блоки.
+- Переносить из plan/research подтвержденные `Tooling gap` в tasklist как
+  отдельные notes или verification пункты, если они влияют на выполнение.
 - Сформулировать атомарные задачи и DoD.
 - Отдельно выделить проверки и тестирование.
 - Декомпозировать только подтвержденные решения из PRD/plan/research и
@@ -70,6 +74,7 @@ skills:
 ## Выход
 
 - `aidd/docs/tasklist/<ticket>.md`
+- `Tooling gap` notes, если они нужны для выполнения или развития tooling
 
 ## Ограничения
 

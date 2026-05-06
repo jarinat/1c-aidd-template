@@ -15,6 +15,8 @@ Source of truth:
 - lifecycle `review` и связанные статусы:
   - `.claude/rules/core/aidd-workflow.md`
   - `.claude/rules/core/aidd-artifacts.md`
+- выбор инструментов и tooling gaps:
+  - `.claude/rules/core/tool-usage.md`
 - общая политика code review:
   - `.claude/rules/core/code-review.md`
 
@@ -103,6 +105,8 @@ Source of truth:
    - не смешивай `review` с `feedback`;
    - для новых замечаний создавай записи `RV-XXX`;
    - фиксируй статус, категорию, место проблемы, описание и решение.
+   - если `reviewer` сообщил `Tooling gap`, зафиксируй его отдельным разделом
+     или подпунктом ограничения проверки.
 8. Если видишь пропуски в декомпозиции, предложи добавить задачи в tasklist, но
    не правь его автоматически.
 9. После сохранения review запроси решение пользователя по незакрытым замечаниям.

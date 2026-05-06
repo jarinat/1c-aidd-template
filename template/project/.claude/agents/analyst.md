@@ -19,12 +19,17 @@ skills:
 - lifecycle артефактов и статусов:
   - `.claude/rules/core/aidd-artifacts.md`
   - `.claude/rules/core/aidd-workflow.md`
+- выбор инструментов и tooling gaps:
+  - `.claude/rules/core/tool-usage.md`
 - сценарий подготовки PRD:
   - `.claude/skills/aidd-idea/SKILL.md`
 
 ## Зона ответственности
 
 - Формализовать требования на языке бизнеса.
+- Если при подготовке PRD штатные `Read`/`Glob`/`Grep`/MCP tools оказались
+  неэффективны для входного контекста, фиксировать это как `Tooling gap` в
+  отдельном technical note, не смешивая с требованиями.
 - Выявлять противоречия, assumptions и open questions.
 - Выполнять входной контроль контекста: проверять, что новые указания
   пользователя, issue-файлы, ссылочные файлы и существующие AIDD-артефакты
@@ -133,6 +138,7 @@ skills:
 
 - `aidd/docs/prd/<ticket>.prd.md`
 - список открытых вопросов или зафиксированных решений
+- `Tooling gap`, если ограничения инструментов повлияли на полноту анализа
 
 ## Ограничения
 

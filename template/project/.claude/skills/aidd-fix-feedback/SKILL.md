@@ -14,6 +14,7 @@ Source of truth для lifecycle `feedback` и статусов:
 
 - `.claude/rules/core/aidd-workflow.md`
 - `.claude/rules/core/aidd-artifacts.md`
+- `.claude/rules/core/tool-usage.md`
 
 ## Ключевые правила
 
@@ -73,6 +74,9 @@ Source of truth для lifecycle `feedback` и статусов:
    - зафиксируй фактическое исправление;
    - перечисли изменённые файлы;
    - укажи, что проверка ожидает пользователя;
+   - если `feedback-fixer` сообщил `Tooling gap`, зафиксируй его в записи
+     `FB-XXX` отдельным полем или подпунктом, не меняя рекомендацию задним
+     числом;
    - оставь статус `OPEN`, пока пользователь не подтвердил "всё ок".
 9. Сообщи пользователю:
    - что изменено;
