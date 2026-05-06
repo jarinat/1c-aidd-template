@@ -5,6 +5,7 @@ description: >
   review-gitlab-mr: получить MR metadata из GitLab, подготовить изолированный
   git worktree, проверить diff через review-mr и вывести отчёт в текущую
   сессию без публикации комментариев в GitLab.
+disable-model-invocation: true
 ---
 
 # Review GitLab Merge Request

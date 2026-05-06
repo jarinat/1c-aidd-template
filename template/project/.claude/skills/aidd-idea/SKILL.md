@@ -4,6 +4,7 @@ description: >
   Создание и уточнение PRD по тикету в рамках AIDD. Используй для сценария
   idea: подготовить или обновить PRD, зафиксировать active ticket и подготовить
   базовые артефакты ticket-а.
+disable-model-invocation: true
 ---
 
 # AIDD Idea
