@@ -18,6 +18,8 @@ supporting docs.
 - `paths`: path-scoped правила для отдельных зон дерева.
 - `skills`: пошаговые исполняемые сценарии из `.claude/skills`.
 - `agents`: роли subagent-ов с узкой зоной ответственности из `.claude/agents`.
+- `hooks`: deterministic runtime guard-ы из `.claude/hooks`, подключенные через
+  `.claude/settings.json`.
 - `scripts`: project-local entrypoint scripts из `.claude/scripts`.
 - `docs`: supporting docs.
 
@@ -48,6 +50,9 @@ supporting docs.
   `.claude/agents/*.md`
 - Project entrypoint scripts:
   `.claude/scripts/*`
+- Project hooks:
+  `.claude/settings.json`
+  `.claude/hooks/*`
 - Артефакты активного тикета:
   `aidd/docs/.active_ticket`
   `aidd/docs/{prd,plan,tasklist,research,feedback,review}/*`
@@ -148,6 +153,10 @@ review, интерпретации тестов, формулированию fe
   чтения файла. Если штатные tools неэффективны, зафиксируй `Tooling gap`.
 - Если в ходе работы выяснилось, что обязательный skill был пропущен, останови
   изменение, прочитай skill и перепроверь уже принятое решение по его правилам.
+- `.claude/settings.json` содержит `PreToolUse` guard для `Bash`, который
+  блокирует inline shell file inspection. Если hook вернул отказ, перестрой
+  действие по `.claude/rules/core/tool-usage.md`, а не проси пользователя
+  разрешить blocked command.
 - В финальном ответе для задач, где сработали обязательные rules/skills, кратко
   укажи применённые skills и ключевые rules.
 - Новые длинные инструкции добавляй в подходящий `rule`, `skill`, `agent` или

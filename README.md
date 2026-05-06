@@ -22,6 +22,9 @@ Claude Code и AIDD workflow для 1С/EDT/YAxUnit проектов. Цель �
 - Локальные и машинозависимые настройки не версионируем.
 - `~/.claude/settings.json` может оставаться локальной пользовательской
   настройкой машины, но не является частью этого шаблона.
+- `.claude/settings.json` в шаблоне допускается только для переносимых
+  deterministic hooks без secrets, machine-specific путей и локальных
+  permission rules.
 
 ## Целевая структура
 
@@ -30,8 +33,10 @@ template/
   project/
     .claude/
       CLAUDE.md
+      settings.json
       agents/
       docs/
+      hooks/
       rules/
         core/
         paths/
@@ -82,8 +87,9 @@ tools/bootstrap-project.ps1 -ProjectPath C:/work/project -Apply
 Bootstrap делает только локальную механическую подготовку:
 
 - обновляет переносимый runtime-слой:
-  `.claude/CLAUDE.md`, `.claude/agents`, `.claude/skills`,
-  `.claude/rules/core`, `.claude/scripts`, `.claude/docs`;
+  `.claude/CLAUDE.md`, `.claude/settings.json`, `.claude/agents`,
+  `.claude/hooks`, `.claude/skills`, `.claude/rules/core`,
+  `.claude/scripts`, `.claude/docs`;
 - создает отсутствующий локальный `AGENTS.md`;
 - создает отсутствующие `.claude/rules/project/*`;
 - создает базовые отсутствующие `.claude/rules/paths/*` без копирования
@@ -136,12 +142,15 @@ Git.
 - шаблоны `.claude/rules/paths/*`;
 - project entrypoint scripts из `.claude/scripts/*`, включая
   `commit-block.sh` и read-only helpers вроде `aidd-inspect.ps1`.
+- deterministic hooks из `.claude/hooks/*`, подключенные через
+  `.claude/settings.json`.
 
 Не подходит:
 
 - реальные PRD, plan, tasklist, research, feedback и review конкретных тикетов;
 - secrets, credentials, локальные пути;
 - `.claude/settings.local.json`;
+- локальные permission rules в `.claude/settings.json`;
 - machine-specific permissions;
 - project-specific детали внутри переносимых `agents`, `skills` и `rules/core`.
 
@@ -151,6 +160,8 @@ Git.
 
 - `.claude/agents` — роли subagent-ов и границы ответственности;
 - `.claude/skills` — исполняемые пошаговые сценарии;
+- `.claude/hooks` и `.claude/settings.json` — переносимые deterministic
+  runtime guard-ы без локальных разрешений и machine-specific деталей;
 - `.claude/rules/core` — общий AIDD workflow, review, git, code style и
   1С/EDT/YAxUnit правила.
 
@@ -171,7 +182,9 @@ Project-specific слой:
 В каждом рабочем проекте остаются:
 
 - `.claude/CLAUDE.md`;
+- `.claude/settings.json`;
 - `.claude/agents/*`;
+- `.claude/hooks/*`;
 - `.claude/skills/*`;
 - `.claude/rules/core/*`;
 - `.claude/rules/project/*`;
@@ -180,10 +193,10 @@ Project-specific слой:
 - `aidd/docs/<type>/<ticket>.md`;
 - `aidd/docs/.active_ticket`.
 
-Если проекту позже понадобятся версионируемые project-level permissions,
-`.claude/settings.json` можно добавить как project-specific файл. Локальные
-разрешения пользователя и машины должны оставаться в `.claude/settings.local.json`
-или `~/.claude/settings.json` и не попадать в этот шаблон.
+Версионируемый `.claude/settings.json` используется только для переносимых
+guard hooks. Локальные разрешения пользователя и машины должны оставаться в
+`.claude/settings.local.json` или `~/.claude/settings.json` и не попадать в
+этот шаблон.
 
 ## Правило для `.claude/scripts`
 
@@ -196,12 +209,14 @@ agents/skills обращаются к нему через `.claude/scripts/*`.
 
 ## Правило синхронизации шаблона
 
-Claude Code подхватывает agents, skills, rules и scripts из стандартных
-каталогов `.claude`. Поэтому в рабочих проектах в одних и тех же каталогах
-могут находиться и файлы шаблона, и project-local файлы:
+Claude Code подхватывает agents, skills, rules, hooks, settings и scripts из
+стандартных каталогов `.claude`. Поэтому в рабочих проектах в одних и тех же
+каталогах могут находиться и файлы шаблона, и project-local файлы:
 
 - `.claude/CLAUDE.md`;
+- `.claude/settings.json`;
 - `.claude/agents/*`;
+- `.claude/hooks/*`;
 - `.claude/skills/*`;
 - `.claude/rules/core/*`;
 - `.claude/docs/*`;
@@ -306,14 +321,17 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
   `rules/paths` и `scripts`; добавлен always-loaded инвариант чтения
   AIDD-артефактов активного тикета через точные repo-relative пути без shell
   listing.
+- `.claude/settings.json` и `.claude/hooks/*`: добавлен deterministic
+  `PreToolUse` guard против inline shell file inspection.
 - `.claude/rules/core/aidd-artifacts.md`: добавлен общий протокол чтения
   AIDD-артефактов активного тикета через `Read`/`Glob`, без `Bash`/`ls`/`dir`
   для проверки наличия файлов.
 - `.claude/rules/core/tool-usage.md`: общий source of truth для выбора между
-  `Read`, `Glob`, `Grep`, MCP, helper scripts и shell; отдельной будущей
-  доработкой стоит добавить `PreToolUse` hook, который блокирует inline shell
-  для file inspection и возвращает агенту подсказку использовать
-  `tool-usage.md`.
+  `Read`, `Glob`, `Grep`, MCP, helper scripts и shell.
+- `.claude/settings.json` и `.claude/hooks/block-inline-file-inspection.*`:
+  добавлен `PreToolUse` hook, который блокирует inline shell для file
+  inspection и возвращает агенту подсказку использовать
+  `.claude/rules/core/tool-usage.md`.
 - `AGENTS.md`: нейтральный Codex entry point для локальной настройки рабочих
   проектов.
 - `.claude/docs/onboarding-project.md`: общий русскоязычный сценарий

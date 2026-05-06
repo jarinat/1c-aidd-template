@@ -113,7 +113,9 @@ $targetProject = Resolve-Directory -Path $ProjectPath -Name "Target project"
 
 $syncRoots = @(
     ".claude/CLAUDE.md",
+    ".claude/settings.json",
     ".claude/agents",
+    ".claude/hooks",
     ".claude/skills",
     ".claude/rules/core",
     ".claude/scripts",

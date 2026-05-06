@@ -5,6 +5,9 @@
 Claude не должен заменять эти скрипты inline-командами вида `python -c`,
 `python3 -c`, `for ...; do ...`, `find | grep | head` или произвольным shell.
 
+Deterministic блокировки shell-паттернов живут отдельно в `.claude/hooks` и
+подключаются через `.claude/settings.json`.
+
 ## Разрешенные скрипты
 
 - `commit-block.sh` -- сценарий подготовки commit-блока.
