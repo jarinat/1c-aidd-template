@@ -41,7 +41,6 @@ supporting docs.
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
   `.claude/skills/1c-rsv-tools/SKILL.md`
   `.claude/skills/yaxunit-tests/SKILL.md`
-  `.claude/skills/edt-form-editing/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
   `.claude/skills/project-onboarding/SKILL.md`

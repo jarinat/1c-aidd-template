@@ -19,7 +19,6 @@ Source of truth:
   - `.claude/rules/core/code-review.md`
 - специализированные проверки:
   - `1c-query`
-  - `edt-form-editing`
   - `yaxunit-tests`
 
 ## Назначение

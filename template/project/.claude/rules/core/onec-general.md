@@ -37,8 +37,9 @@
 - Не генерируй GUID/UUID inline-командами вроде `powershell -Command
   "[guid]::NewGuid()"`, `python -c`, `uuidgen` или через произвольный shell.
 - Числовые `<id>` внутри `Form.form` не являются GUID/UUID. Для них применяй
-  правила `.claude/skills/edt-form-editing/SKILL.md`: следующий свободный `id`
-  по всей форме и без переиспользования существующих значений.
+  правила `.claude/skills/1c-rsv-tools/SKILL.md`: редактируй форму через
+  `edit_metadata`, а при documented gap используй следующий свободный `id` по
+  всей форме и не переиспользуй существующие значения.
 
 ## Выбор инструмента для 1С discovery
 

@@ -7,7 +7,6 @@ model: sonnet
 skills:
   - 1c-rsv-tools
   - 1c-query
-  - edt-form-editing
   - yaxunit-tests
 permissionMode: acceptEdits
 ---

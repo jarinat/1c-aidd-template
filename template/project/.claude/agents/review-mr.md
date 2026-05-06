@@ -5,7 +5,6 @@ tools: Read, Glob, Grep
 model: sonnet
 skills:
   - 1c-query
-  - edt-form-editing
   - yaxunit-tests
 ---
 
@@ -27,7 +26,6 @@ skills:
 - специализированные проверки:
   - `1c-query`
   - `yaxunit-tests`
-  - `edt-form-editing`
 
 Важно: не используй workspace-bound MCP discovery. Этот agent может работать в
 отдельном `REVIEW_WORKTREE`, а MCP-серверы, привязанные к EDT workspace или

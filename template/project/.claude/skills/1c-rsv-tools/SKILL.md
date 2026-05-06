@@ -204,9 +204,11 @@ description: >
 - Если запрос/выражение СКД требует проверки и оптимизации, переходи на skill
   `1c-query`.
 - Если задача затрагивает форму как UI (`Form.form` элементы и обработчики),
-  переходи на skill `edt-form-editing`; редактирование делай через
-  `edit_metadata` (`addField`, `addButton`, `setProperty`, `moveItem`,
-  `removeItem`, `addCommandHandler`, `addEventHandler`).
+  оставайся в этом skill; редактирование делай через `edit_metadata`
+  (`addField`, `addButton`, `setProperty`, `moveItem`, `removeItem`,
+  `addCommandHandler`, `addEventHandler`). Если нужная операция не покрыта MCP,
+  зафиксируй `Tooling gap` и получи явное решение пользователя перед прямой
+  правкой `Form.form`.
 - Если задача - YAxUnit, переходи на skill `yaxunit-tests`. Запуск тестов
   оставляй основной сессии.
 - Если задача - удаление элемента метаданных, обязательно используй

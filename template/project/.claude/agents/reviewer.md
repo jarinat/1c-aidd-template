@@ -7,7 +7,6 @@ skills:
   - 1c-rsv-tools
   - 1c-query
   - 1c-metadata-removal-impact
-  - edt-form-editing
   - yaxunit-tests
 ---
 
