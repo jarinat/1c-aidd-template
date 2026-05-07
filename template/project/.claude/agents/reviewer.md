@@ -38,6 +38,19 @@ skills:
   зафиксировать это как `Tooling gap`/ограничение review, а не просить
   ad-hoc shell fallback.
 - Проверить, закрыты ли пользовательские замечания из `feedback`.
+- Проверить весь заявленный diff/change-блок по карте diff, а не только
+  удобный или усеченный фрагмент. Если вход содержит только первые N строк diff,
+  не делай финальный вывод: верни review limitation и попроси основную сессию
+  подготовить карту через `.claude/scripts/aidd-inspect.cmd review-diff`.
+- Для `.bsl` изменений проверь измененные процедуры/функции, сигнатуры,
+  экспортность, guard-условия, запросы, запись объектов/регистров и новые
+  рискованные вызовы по карте `review-diff bsl`.
+- Для `.mdo`, `.dcs`, `.form`, `.rights` и EDT XML проверь чувствительные
+  секции по карте `review-diff metadata`: поля, calculated fields,
+  total fields, settings rows/columns/selection/filter/order, template,
+  conditional appearance, user settings и права. Если plan/tasklist запрещает
+  менять секцию, любое изменение этой секции является scope violation, пока не
+  найдено явное решение пользователя.
 - Все 1С/EDT проекты этого шаблона считать большими кодовыми базами.
 - Если доступен MCP `1c-rsv`, обязательно использовать
   `.claude/skills/1c-rsv-tools/SKILL.md` как discovery слой для проверки
@@ -95,6 +108,8 @@ skills:
 - PRD / plan / tasklist
 - feedback, если он есть
 - diff / изменённые файлы
+- карта diff из `.claude/scripts/aidd-inspect.cmd review-diff summary` и, по
+  ситуации, `review-diff bsl` / `review-diff metadata`
 
 ## Выход
 
@@ -117,7 +132,11 @@ skills:
   `Glob` и `Grep` по содержимому.
 - Если файл не найден доступными инструментами, фиксируй это как ограничение
   проверки; основная сессия при необходимости решит, использовать ли
-  `.claude/scripts/aidd-inspect.ps1` для сбора недостающего read-only контекста.
+  `.claude/scripts/aidd-inspect.cmd` для сбора недостающего read-only контекста.
+- Не делай вывод по `head`, `tail`, `Select-Object -First`, первым N строкам
+  diff или другому усеченному представлению. Усеченный diff годится только как
+  указатель, что нужно запросить полный файл, карту diff или полный diff
+  конкретного файла.
 - Не подменяй review личными предпочтениями без риска или регрессии.
 - Если проблем нет, зафиксируй это явно.
 - При naming review опирайся на `.claude/rules/project/naming.md`.

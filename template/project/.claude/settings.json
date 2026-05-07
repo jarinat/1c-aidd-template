@@ -1,4 +1,16 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(.claude/scripts/aidd-bootstrap-ticket.cmd:*)",
+      "Bash(.claude\\scripts\\aidd-bootstrap-ticket.cmd:*)",
+      "Bash(.claude/scripts/aidd-inspect.cmd:*)",
+      "Bash(.claude\\scripts\\aidd-inspect.cmd:*)",
+      "Bash(.claude/scripts/gitlab-mr-review.cmd:*)",
+      "Bash(.claude\\scripts\\gitlab-mr-review.cmd:*)",
+      "Bash(.claude/scripts/new-guid.cmd:*)",
+      "Bash(.claude\\scripts\\new-guid.cmd:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

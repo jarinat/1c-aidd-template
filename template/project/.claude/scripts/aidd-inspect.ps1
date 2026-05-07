@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateSet("help", "list", "read", "find-files", "grep", "changed-files")]
+    [ValidateSet("help", "list", "read", "find-files", "grep", "changed-files", "review-diff")]
     [string]$Command,
 
     [Parameter(Position = 1, ValueFromRemainingArguments = $true)]
@@ -95,12 +95,192 @@ Usage:
   aidd-inspect.ps1 find-files <repo-relative-path> <file-glob>
   aidd-inspect.ps1 grep <repo-relative-path> <regex> [file-glob]
   aidd-inspect.ps1 changed-files
+  aidd-inspect.ps1 review-diff summary [<git-diff-refspec>]
+  aidd-inspect.ps1 review-diff file <repo-relative-file> [<git-diff-refspec>]
+  aidd-inspect.ps1 review-diff bsl [<git-diff-refspec>]
+  aidd-inspect.ps1 review-diff metadata [<git-diff-refspec>]
 
 Examples:
-  powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/aidd-inspect.ps1 list src
-  powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/aidd-inspect.ps1 find-files src *.rights
-  powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/aidd-inspect.ps1 grep src "OldName|NewName" *.bsl
+  .claude/scripts/aidd-inspect.cmd list src
+  .claude/scripts/aidd-inspect.cmd find-files src *.rights
+  .claude/scripts/aidd-inspect.cmd grep src "OldName|NewName" *.bsl
+  .claude/scripts/aidd-inspect.cmd review-diff summary
+  .claude/scripts/aidd-inspect.cmd review-diff metadata HEAD~1..HEAD
 "@
+}
+
+function Invoke-Git {
+    param([Parameter(Mandatory = $true)][string[]]$GitArgs)
+
+    $Output = & git -C $ProjectRootFull @GitArgs
+    if ($LASTEXITCODE -ne 0) {
+        Stop-WithMessage "git $($GitArgs -join ' ') failed"
+    }
+
+    return @($Output)
+}
+
+function Get-GitDiffOutput {
+    param(
+        [string[]]$DiffArgs,
+        [string]$Path
+    )
+
+    $Result = @()
+    if ($DiffArgs.Count -gt 0) {
+        $ArgsList = @("diff") + $DiffArgs
+        if (-not [string]::IsNullOrWhiteSpace($Path)) {
+            $ArgsList += @("--", $Path)
+        }
+        return Invoke-Git $ArgsList
+    }
+
+    $UnstagedArgs = @("diff", "--")
+    $StagedArgs = @("diff", "--cached", "--")
+    if (-not [string]::IsNullOrWhiteSpace($Path)) {
+        $UnstagedArgs += $Path
+        $StagedArgs += $Path
+    }
+
+    $Unstaged = Invoke-Git $UnstagedArgs
+    $Staged = Invoke-Git $StagedArgs
+
+    if ($Staged.Count -gt 0) {
+        $Result += "## staged diff"
+        $Result += $Staged
+    }
+    if ($Unstaged.Count -gt 0) {
+        $Result += "## unstaged diff"
+        $Result += $Unstaged
+    }
+
+    return $Result
+}
+
+function Get-ReviewDiffArgs {
+    param([string[]]$RawArgs)
+
+    if ($RawArgs.Count -eq 0) {
+        return @()
+    }
+
+    return @($RawArgs[0])
+}
+
+function Get-ChangedFilesFromDiffNameStatus {
+    param([string[]]$DiffArgs)
+
+    $Output = if ($DiffArgs.Count -gt 0) {
+        Invoke-Git (@("diff", "--name-status", "--find-renames") + $DiffArgs)
+    } else {
+        (Invoke-Git @("diff", "--cached", "--name-status", "--find-renames")) +
+            (Invoke-Git @("diff", "--name-status", "--find-renames"))
+    }
+
+    $Files = @()
+    foreach ($Line in $Output) {
+        if ([string]::IsNullOrWhiteSpace($Line)) {
+            continue
+        }
+        $Parts = $Line -split "`t"
+        if ($Parts.Count -ge 3 -and $Parts[0] -match "^R") {
+            $Files += $Parts[2]
+        } elseif ($Parts.Count -ge 2) {
+            $Files += $Parts[1]
+        }
+    }
+
+    return @($Files | Sort-Object -Unique)
+}
+
+function Show-ReviewDiffSummary {
+    param([string[]]$DiffArgs)
+
+    "## name-status"
+    if ($DiffArgs.Count -gt 0) {
+        Invoke-Git (@("diff", "--name-status", "--find-renames") + $DiffArgs)
+        ""
+        "## stat"
+        Invoke-Git (@("diff", "--stat") + $DiffArgs)
+        return
+    }
+
+    "### staged"
+    Invoke-Git @("diff", "--cached", "--name-status", "--find-renames")
+    "### unstaged"
+    Invoke-Git @("diff", "--name-status", "--find-renames")
+    ""
+    "## stat"
+    "### staged"
+    Invoke-Git @("diff", "--cached", "--stat")
+    "### unstaged"
+    Invoke-Git @("diff", "--stat")
+}
+
+function Show-ReviewDiffFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoPath,
+        [string[]]$DiffArgs
+    )
+
+    $ResolvedPath = Get-RepoPath $RepoPath $false
+    $Relative = ConvertTo-RepoRelative $ResolvedPath
+    Get-GitDiffOutput -DiffArgs $DiffArgs -Path $Relative
+}
+
+function Show-ReviewDiffBsl {
+    param([string[]]$DiffArgs)
+
+    $Files = Get-ChangedFilesFromDiffNameStatus $DiffArgs |
+        Where-Object { $_ -match "\.bsl$" }
+
+    if ($Files.Count -eq 0) {
+        "No changed .bsl files."
+        return
+    }
+
+    foreach ($File in $Files) {
+        "## $File"
+        $Diff = Get-GitDiffOutput -DiffArgs $DiffArgs -Path $File
+        $Interesting = $Diff | Where-Object {
+            $_ -match "^(diff --git|@@|[+-]\s*(Процедура|Функция|КонецПроцедуры|КонецФункции)\b|[+-].*(ОбщегоНазначения\.ЗначениеРеквизитаОбъекта|Выполнить\(|Запрос\.Текст|Записать\(|УстановитьПривилегированныйРежим|Новый\s+Запрос))"
+        }
+        if ($Interesting.Count -gt 0) {
+            $Interesting
+        } else {
+            "Changed, but no procedure/function signature or high-risk BSL pattern matched. Use `review-diff file $File` for the full diff."
+        }
+        ""
+    }
+}
+
+function Show-ReviewDiffMetadata {
+    param([string[]]$DiffArgs)
+
+    $Files = Get-ChangedFilesFromDiffNameStatus $DiffArgs |
+        Where-Object { $_ -match "\.(mdo|dcs|form|rights|xml)$" }
+
+    if ($Files.Count -eq 0) {
+        "No changed metadata/XML files."
+        return
+    }
+
+    $SensitivePattern = "(<(/)?(totalField|field|calculatedField|dataSet|query|template|rights|right|object|childObject)|<(/)?dcsset:(row|column|selection|filter|order|settings|item|groupItem|outputParameters|conditionalAppearance|userSettings|parameter)|<(/)?dcscor:(item|parameter)|<(/)?form:|<(/)?mdclass:|<(/)?xr:|Enum\.|Configuration\.)"
+
+    foreach ($File in $Files) {
+        "## $File"
+        $Diff = Get-GitDiffOutput -DiffArgs $DiffArgs -Path $File
+        $Interesting = $Diff | Where-Object {
+            $_ -match "^(diff --git|@@)" -or
+                ($_ -match "^[+-]" -and $_ -match $SensitivePattern)
+        }
+        if ($Interesting.Count -gt 0) {
+            $Interesting
+        } else {
+            "Changed, but no known sensitive metadata/XML section matched. Use `review-diff file $File` for the full diff."
+        }
+        ""
+    }
 }
 
 switch ($Command) {
@@ -179,6 +359,38 @@ switch ($Command) {
         & git -C $ProjectRootFull status --short
         if ($LASTEXITCODE -ne 0) {
             Stop-WithMessage "git status failed"
+        }
+    }
+
+    "review-diff" {
+        if ($Args.Count -lt 1) {
+            Stop-WithMessage "review-diff requires summary|file|bsl|metadata"
+        }
+
+        $Subcommand = $Args[0]
+        switch ($Subcommand) {
+            "summary" {
+                $DiffArgs = Get-ReviewDiffArgs @($Args | Select-Object -Skip 1)
+                Show-ReviewDiffSummary $DiffArgs
+            }
+            "file" {
+                if ($Args.Count -lt 2) {
+                    Stop-WithMessage "review-diff file requires <repo-relative-file> [<git-diff-refspec>]"
+                }
+                $DiffArgs = Get-ReviewDiffArgs @($Args | Select-Object -Skip 2)
+                Show-ReviewDiffFile -RepoPath $Args[1] -DiffArgs $DiffArgs
+            }
+            "bsl" {
+                $DiffArgs = Get-ReviewDiffArgs @($Args | Select-Object -Skip 1)
+                Show-ReviewDiffBsl $DiffArgs
+            }
+            "metadata" {
+                $DiffArgs = Get-ReviewDiffArgs @($Args | Select-Object -Skip 1)
+                Show-ReviewDiffMetadata $DiffArgs
+            }
+            default {
+                Stop-WithMessage "Unknown review-diff subcommand: $Subcommand"
+            }
         }
     }
 }

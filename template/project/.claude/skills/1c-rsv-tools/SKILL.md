@@ -38,8 +38,9 @@ description: >
 - Для прямой правки `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit`. Это
   обходит EDT-API и может сломать целостность ссылок и GUID.
 - Для генерации новых GUID/UUID. См. `.claude/rules/core/onec-general.md`:
-  GUID создаются через `.claude/scripts/new-guid.cmd`, а `1c-rsv` сам
-  управляет GUID при создании объектов через `edit_metadata`.
+  при ручном XML fallback GUID создаются через `.claude/scripts/new-guid.cmd`,
+  а `1c-rsv` сам управляет GUID при создании и изменении объектов через
+  `edit_metadata`.
 
 ## Доступные инструменты
 
@@ -171,9 +172,16 @@ description: >
 - Никогда не редактируй `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit`,
   если есть соответствующая операция `edit_metadata`. Исключение допустимо
   только при gap/баге MCP, после фиксации причины и с явным решением
-  пользователя.
-- При создании объектов метаданных не подставляй GUID/UUID вручную:
-  `edit_metadata` сам управляет идентификаторами.
+  пользователя на конкретный fallback.
+- При работе через `edit_metadata` не подставляй GUID/UUID вручную и не
+  вызывай `.claude/scripts/new-guid.cmd`: `edit_metadata` сам управляет
+  идентификаторами. Не включай `new-guid.cmd` в prompt subagent-а, если
+  выбран MCP-путь.
+- `.claude/scripts/new-guid.cmd` допустим только для явно разрешенного ручного
+  fallback через `Edit`/`Write` EDT XML, `.mdo`, `.dcs`, `.form`, `.rights` или
+  похожих артефактов. Если wrapper не запустился или не разрешен, остановись и
+  попроси решение пользователя; не пробуй прямой `PowerShell -File
+  new-guid.ps1` или inline GUID-команды.
 - Для роли используй `setRoleRight` с массивом `rights`, а не поштучно.
 - Не назначай явные права на `Enum.*`: платформа 1С не поддерживает такие
   права в роли на уровне сборки конфигурации. MCP `setRoleRight` в `dryRun`

@@ -13,6 +13,8 @@ Deterministic блокировки shell-паттернов живут отде�
 - `commit-block.sh` -- сценарий подготовки commit-блока.
 - `aidd-inspect.ps1` -- универсальные read-only проверки внутри корня
   репозитория для AIDD-сценариев.
+- `aidd-inspect.cmd` -- approval-friendly entrypoint для `aidd-inspect.ps1`.
+  Не вызывай `.ps1` напрямую из Claude Code, используй `.cmd` wrapper.
 - `aidd-bootstrap-ticket.cmd` -- approval-friendly entrypoint для стандартной
   инициализации базовых AIDD-артефактов тикета.
 - `aidd-bootstrap-ticket.ps1` -- реализация AIDD bootstrap: `.active_ticket`,
@@ -55,7 +57,16 @@ Deterministic блокировки shell-паттернов живут отде�
   Токен должен храниться в `glab auth`; fallback на `GITLAB_TOKEN`,
   `GITLAB_ACCESS_TOKEN`, git credential manager, prompt или inline env не
   используется.
-- Для постоянного approval не разрешай широкий паттерн `powershell *`; если
-  нужно запомнить разрешение, оно должно быть привязано к конкретному `.cmd`
-  wrapper в `.claude/scripts/`, например `.claude/scripts/aidd-bootstrap-ticket.cmd`
-  `.claude/scripts/new-guid.cmd` или `.claude/scripts/gitlab-mr-review.cmd`.
+- Для review diff используй read-only subcommands
+  `.claude/scripts/aidd-inspect.cmd review-diff summary|bsl|metadata|file`.
+  Не делай выводы по усеченному diff через `head`, `Select-Object -First` или
+  похожие ограничения.
+- Для постоянного approval не разрешай широкий паттерн `powershell *` или
+  `.claude/scripts/*`. Если нужно запомнить разрешение, оно должно быть
+  привязано к конкретному `.cmd` wrapper в `.claude/scripts/`, например
+  `.claude/scripts/aidd-bootstrap-ticket.cmd`,
+  `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd` или
+  `.claude/scripts/gitlab-mr-review.cmd`.
+- При добавлении нового переносимого `.cmd` entrypoint в этот каталог проверь,
+  нужно ли добавить для него точечное разрешение в `.claude/settings.json`.
+  Не добавляй разрешение автоматически для `.ps1` реализации.
