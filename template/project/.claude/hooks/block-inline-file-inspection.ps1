@@ -89,6 +89,21 @@ function Test-AllowedReadOnlyGitCommand {
     return Test-Regex -Text $Command -Pattern $readOnlyGitCommandPattern
 }
 
+function Test-BslSourcePath {
+    param(
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [string]$Path
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return $false
+    }
+
+    $normalizedPath = $Path -replace "\\", "/"
+    return Test-Regex -Text $normalizedPath -Pattern "(^|/)src/.+\.bsl$"
+}
+
 $inputJson = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrWhiteSpace($inputJson)) {
     exit 0
@@ -137,7 +152,7 @@ Latin Dok_ is blocked in 1C/YAxUnit paths and object names. Use the Cyrillic pro
 "@.Trim()
 
 $bslFilesystemEditReason = @"
-Direct filesystem Write/Edit of BSL under src/cf or src/cfe is blocked. Use 1c-rsv write_module_source; fallback needs an explicit user decision and literal tooling evidence.
+Direct filesystem Write/Edit of BSL under the project source tree is blocked. Use 1c-rsv write_module_source; fallback needs an explicit user decision and literal tooling evidence.
 "@.Trim()
 
 if (Test-Regex -Text $inputText -Pattern "\bDok_") {
@@ -183,7 +198,8 @@ if ($toolName -eq "Bash") {
 }
 
 if ($toolName -match "^(Write|Edit|MultiEdit)$") {
-    if (Test-Regex -Text $inputText -Pattern "([A-Za-z]:(\\\\|\\|/)+)[\s\S]*src(\\\\|\\|/)+(cf|cfe)(\\\\|\\|/)+[\s\S]*\.bsl") {
+    $filePath = [string](Get-JsonProperty -Object $toolInput -Name "file_path")
+    if (Test-BslSourcePath -Path $filePath) {
         Write-Deny -Reason $bslFilesystemEditReason
         exit 0
     }
