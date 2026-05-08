@@ -40,6 +40,23 @@ permissionMode: acceptEdits
   Известные файлы, строки, фрагменты, байты и кодировку не инспектировать через
   inline `Bash`/PowerShell/`python -c`; используй `Read`, `Glob`, `Grep`, MCP
   или documented helper.
+- Перед XML fallback по EDT-артефактам применить чеклист
+  `.claude/skills/1c-rsv-tools/SKILL.md` раздела "Чтение ответов
+  `edit_metadata` и XML fallback". `forceExportOk:false` без ошибки не означает
+  "не записалось"; сначала проверь фактическое состояние через
+  `get_object_details includeProperties=true`.
+- Любой заявленный `Tooling gap` должен содержать буквальный текст ошибки MCP,
+  validation output или deny-сообщения hook. Не заменяй evidence пересказом,
+  гипотезой или правдоподобным объяснением.
+- Если подходящий MCP-вызов отказал, до fallback выполни минимальную
+  воспроизводящую проверку на том же объекте: read-only вызов, а для BSL —
+  `read_module_source objectName + moduleType`. Если чтение проходит, проверь
+  запись через `write_module_source dryRun=true` с минимальным payload, когда
+  это применимо.
+- Прямой `Write`/`Edit` по filesystem path для BSL запрещён, если доступен
+  `1c-rsv` MCP. Такой fallback допустим только по явно зафиксированному в
+  задаче решению пользователя. Если решение не зафиксировано, верни blocker
+  основной сессии.
 - Следовать `Reference pattern` из tasklist/plan.
 - В режиме `fast-implement` следовать PRD, результату Fast path gate и
   переданному scope; отсутствие `plan` и `tasklist` в этом режиме допустимо.

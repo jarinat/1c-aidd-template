@@ -8,17 +8,30 @@
       "Bash(.claude/scripts/gitlab-mr-review.cmd:*)",
       "Bash(.claude\\scripts\\gitlab-mr-review.cmd:*)",
       "Bash(.claude/scripts/new-guid.cmd:*)",
-      "Bash(.claude\\scripts\\new-guid.cmd:*)"
+      "Bash(.claude\\scripts\\new-guid.cmd:*)",
+      "Bash(.claude/scripts/commit-block.sh:*)",
+      "Bash(.claude\\scripts\\commit-block.sh:*)"
     ]
   },
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Read|Write|Edit|MultiEdit|Glob|Grep",
         "hooks": [
           {
             "type": "command",
-            "command": "cmd /c call \"%CLAUDE_PROJECT_DIR%\\.claude\\hooks\\block-inline-file-inspection.cmd\""
+            "command": ".claude\\hooks\\block-inline-file-inspection.ps1",
+            "shell": "powershell"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__1c-rsv__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude\\hooks\\block-inline-file-inspection.ps1",
+            "shell": "powershell"
           }
         ]
       }
