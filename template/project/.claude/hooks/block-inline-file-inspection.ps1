@@ -73,6 +73,22 @@ function Test-Regex {
     return [regex]::IsMatch($Text, $Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 }
 
+function Test-AllowedReadOnlyGitCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Command
+    )
+
+    $readOnlyGitCommandPattern = @(
+        "^\s*git(\.exe)?\s+",
+        "(status|diff|log|show|branch|rev-parse|merge-base|remote|ls-files|describe|name-rev|for-each-ref)",
+        "(\s+[^;&|()`<>]*)?",
+        "(\s*\|\s*(head|tail)(\s+-n?\s*\d+|\s+-\d+)?\s*)?$"
+    ) -join ""
+
+    return Test-Regex -Text $Command -Pattern $readOnlyGitCommandPattern
+}
+
 $inputJson = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrWhiteSpace($inputJson)) {
     exit 0
@@ -147,6 +163,10 @@ if ($toolName -eq "Bash") {
 
     if (Test-Regex -Text $command -Pattern "(^|[^\w])([A-Za-z]:\\|\\\\)") {
         Write-Deny -Reason $windowsPathReason
+        exit 0
+    }
+
+    if (Test-AllowedReadOnlyGitCommand -Command $command) {
         exit 0
     }
 
