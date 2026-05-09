@@ -90,7 +90,8 @@ supporting docs.
 
 Прямая правка `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit` запрещена, если
 есть соответствующая операция `edit_metadata`. Исключения допустимы только при
-gap/баге MCP, с явным решением пользователя и фиксацией причины.
+gap/баге MCP, с фиксацией причины и fallback-решением по
+`.claude/rules/core/tool-usage.md`.
 
 Запуски `sync_database`, `rebuild_project`, `yaxunit_tests` и
 `launch_debugger` принимает только основная сессия по решению пользователя;

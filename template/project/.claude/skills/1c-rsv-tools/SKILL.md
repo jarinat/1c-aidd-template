@@ -186,21 +186,24 @@ description: >
   3. прочитай `edit_metadata operation=help topic=<operation>` или профильный
      `topic=...Workflow`, чтобы исключить другую штатную операцию;
   4. зафиксируй `Tooling gap` с буквальным ответом инструмента, а не пересказом;
-  5. получи явное решение пользователя на конкретный fallback.
+  5. прими fallback-решение по `.claude/rules/core/tool-usage.md`: основная
+     сессия может разрешить fallback сама в рамках утвержденного scope, но
+     обязана спросить пользователя, если fallback меняет scope, риск или смысл
+     согласованной работы.
 - Для регистров используй актуальный workflow MCP: `createObject` с массивами
   `dimensions`/`resources`/`attributes`/`recorders` или последующий
   `addRegisterField`. Не переходи к прямой правке `.mdo` только из-за
   непонимания блока `exportSync`.
 - При `edit_metadata` не запрашивай и не подставляй GUID/UUID вручную. GUID
-  нужен только для явно разрешённого XML fallback и создаётся через
+  нужен только для разрешенного XML fallback и создаётся через
   `.claude/scripts/new-guid.cmd`.
 
 ## Правила безопасности и качества
 
 - Никогда не редактируй `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit`,
   если есть соответствующая операция `edit_metadata`. Исключение допустимо
-  только при gap/баге MCP, после фиксации причины и с явным решением
-  пользователя на конкретный fallback.
+  только при gap/баге MCP, после фиксации причины и fallback-решения по
+  `.claude/rules/core/tool-usage.md`.
 - При работе через `edit_metadata` не подставляй GUID/UUID вручную и не
   вызывай `.claude/scripts/new-guid.cmd`: `edit_metadata` сам управляет
   идентификаторами. Не включай `new-guid.cmd` в prompt subagent-а, если
@@ -243,8 +246,8 @@ description: >
   оставайся в этом skill; редактирование делай через `edit_metadata`
   (`addField`, `addButton`, `setProperty`, `moveItem`, `removeItem`,
   `addCommandHandler`, `addEventHandler`). Если нужная операция не покрыта MCP,
-  зафиксируй `Tooling gap` и получи явное решение пользователя перед прямой
-  правкой `Form.form`.
+  зафиксируй `Tooling gap` и прими fallback-решение по
+  `.claude/rules/core/tool-usage.md` перед прямой правкой `Form.form`.
 - Если задача - YAxUnit, переходи на skill `yaxunit-tests`. Запуск тестов
   оставляй основной сессии.
 - Если задача - удаление элемента метаданных, обязательно используй
