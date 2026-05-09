@@ -22,7 +22,8 @@
       "Bash(git ls-files:*)",
       "Bash(git describe:*)",
       "Bash(git name-rev:*)",
-      "Bash(git for-each-ref:*)"
+      "Bash(git for-each-ref:*)",
+      "mcp__1c-rsv__*"
     ]
   },
   "hooks": {
