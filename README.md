@@ -47,6 +47,7 @@ template/
       docs/
         adr/
         feedback/
+        debug/
         plan/
         prd/
         research/
@@ -147,7 +148,8 @@ Git.
 
 Не подходит:
 
-- реальные PRD, plan, tasklist, research, feedback и review конкретных тикетов;
+- реальные PRD, plan, tasklist, research, feedback, debug и review конкретных
+  тикетов;
 - secrets, credentials, локальные пути;
 - `.claude/settings.local.json`;
 - локальные permission rules в `.claude/settings.json`;
@@ -305,6 +307,9 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
   `review-mr` engine.
 - `skills/project-onboarding/SKILL.md`: добавлен Claude-вход в общий сценарий
   обследования проекта без смешивания фактов и догадок.
+- `skills/aidd-debug-loop/SKILL.md` и `agents/debug-fixer.md`: добавлен
+  автономный test/debug-loop без commit с trace в
+  `aidd/docs/debug/<ticket>.md`, лимитами итераций и project-specific runners.
 
 Подготовлены для `template/project/.claude/scripts`:
 

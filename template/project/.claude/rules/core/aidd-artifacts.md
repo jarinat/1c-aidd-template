@@ -16,6 +16,8 @@
   Статус: `TASKLIST_READY`
 - Feedback: `aidd/docs/feedback/<ticket>.md`  
   Содержит замечания пользователя и их решения
+- Debug: `aidd/docs/debug/<ticket>.md`
+  Содержит trace автономных test/debug-loop итераций
 - Review: `aidd/docs/review/<ticket>.md`  
   Содержит замечания внутреннего review и решения по ним
 
@@ -34,6 +36,7 @@
    - `aidd/docs/plan/<ticket>.md`
    - `aidd/docs/tasklist/<ticket>.md`
    - `aidd/docs/feedback/<ticket>.md`
+   - `aidd/docs/debug/<ticket>.md`
    - `aidd/docs/review/<ticket>.md`
 3. Required-артефакты читай прямым `Read` точного файла. Если required-файл
    отсутствует, это blocker или основание выбрать другой AIDD-сценарий.
@@ -83,14 +86,35 @@ PRD нельзя переводить в `PRD_READY`, если в нём ест�
 - `review` — отдельный артефакт для замечаний внутреннего review.
 - `feedback` и `review` не смешиваются в одном файле и не заменяют друг друга.
 
+## Debug
+
+- `debug` — отдельный артефакт для автономных проверок, которые запускает
+  основная сессия: YAxUnit, HTTP-smoke, project-local script, MCP/log
+  диагностика или другой явно заданный runner.
+- `debug` хранит машинный trace: запуск, результат, evidence, диагноз,
+  рекомендацию, decision, фактическое исправление и следующий шаг.
+- `debug` не заменяет `feedback`: пользовательские замечания не записываются в
+  `debug`, а машинные падения runner-а не требуют пользовательского согласия,
+  если они остаются в заранее заданном test/debug scope.
+- Диагноз и рекомендация по итерации должны быть записаны в
+  `aidd/docs/debug/<ticket>.md` до правок по этой итерации.
+- Для `debug` используются статусы `DEBUG_IN_PROGRESS`, `DEBUG_PASS` и
+  `DEBUG_BLOCKED`.
+- `DEBUG_PASS` допустим только когда все проверки, заданные текущим
+  test/debug plan, вернули PASS, а diff не вышел за allowed changes.
+- `DEBUG_BLOCKED` ставится при исчерпании лимитов, неготовом окружении,
+  невозможности безопасной диагностики, необходимости business/scope решения
+  или отсутствии явно заданного runner-а.
+- Debug-loop не делает `git commit`.
+
 ## Использование в работе
 
 Перед любой работой по активному тикету нужно прочитать:
 
 1. `aidd/docs/.active_ticket`
 2. PRD, plan и tasklist по тикету
-3. `aidd/docs/feedback/<ticket>.md` и `aidd/docs/review/<ticket>.md`, если эти
-   файлы уже существуют
+3. `aidd/docs/feedback/<ticket>.md`, `aidd/docs/debug/<ticket>.md` и
+   `aidd/docs/review/<ticket>.md`, если эти файлы уже существуют
 4. Перед планированием или реализацией проверь, нет ли в PRD раздела
    `Blocking questions`. Если он не пустой, не продолжай затронутую часть без
    явного решения пользователя.

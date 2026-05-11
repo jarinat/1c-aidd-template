@@ -87,6 +87,7 @@ trailing `\` перед пробелом.
 - `fast-implement`: в PRD отдельным разделом `Implementation notes / Tooling
   gaps`, не меняя требования, статус, решения и acceptance criteria;
 - `feedback-fix`: в соответствующей записи `FB-XXX`;
+- `debug-loop`: в текущей итерации `aidd/docs/debug/<ticket>.md`;
 - `review-fix`: в соответствующей записи `RV-XXX`;
 - review/research: в `review` или `research` как наблюдение, если gap влияет
   на полноту проверки.
@@ -101,7 +102,8 @@ fallback, а только когда fallback меняет риск или см�
 Основная сессия может сама разрешить fallback, если одновременно верно:
 
 - изменение уже входит в утвержденный `PRD`, `plan`, `tasklist`,
-  `feedback`/`review` decision или явно согласованный scope текущей задачи;
+  `feedback`/`debug`/`review` decision или явно согласованный scope текущей
+  задачи;
 - fallback реализует тот же смысл, который был согласован, и не подменяет
   требования новым инженерным дизайном;
 - затронуты только ожидаемые файлы, объекты или блоки текущей задачи;

@@ -55,7 +55,7 @@ supporting docs.
   `.claude/hooks/*`
 - Артефакты активного тикета:
   `aidd/docs/.active_ticket`
-  `aidd/docs/{prd,plan,tasklist,research,feedback,review}/*`
+  `aidd/docs/{prd,plan,tasklist,research,feedback,debug,review}/*`
 
 ## Роутинг сценариев
 
@@ -67,6 +67,12 @@ supporting docs.
   `tasklist`, `review` и другие артефакты реализации.
 - Слово "фиксируем" в контексте замечаний означает "зафиксировать в feedback",
   а не "сразу внести правку в код".
+- Если пользователь просит автономно запускать тест, smoke, HTTP-проверку,
+  YAxUnit, project-local script или другой runner и исправлять до PASS без
+  участия пользователя, это сценарий `aidd-debug-loop`.
+- В таком случае сначала прочитай `.claude/skills/aidd-debug-loop/SKILL.md`.
+- `debug-loop` не заменяет `feedback-fix`: пользовательские замечания идут в
+  `feedback`, машинный trace runner-ов идёт в `aidd/docs/debug/<ticket>.md`.
 
 ## Обязательный routing skills
 
