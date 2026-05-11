@@ -1,0 +1,26 @@
+{
+  "defaultProfile": "dev",
+  "profiles": {
+    "dev": {
+      "baseUrl": "http://localhost/<publication>/hs",
+      "auth": {
+        "type": "none"
+      },
+      "defaultHeaders": {
+        "Accept": "application/json"
+      }
+    },
+    "stage": {
+      "baseUrl": "https://example-stage.invalid/<publication>/hs",
+      "auth": {
+        "type": "basic",
+        "usernameEnv": "HTTP_SMOKE_USER",
+        "passwordEnv": "HTTP_SMOKE_PASS"
+      },
+      "defaultHeaders": {
+        "Accept": "application/json"
+      }
+    }
+  }
+}
+

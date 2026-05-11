@@ -28,6 +28,14 @@ Deterministic блокировки shell-паттернов живут отде�
 - `gitlab-mr-review.ps1` -- реализация GitLab MR review: metadata, fetch refs,
   изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
   вызывай напрямую из Claude Code, используй `.cmd` wrapper.
+- `http-smoke.cmd` -- approval-friendly entrypoint для HTTP-smoke runner-а,
+  разрешённого только когда `aidd-debug-loop` или test/debug plan явно
+  указывает этот runner.
+- `http-smoke.ps1` -- реализация HTTP-smoke runner-а: одиночный HTTP-вызов,
+  profile/config resolution, body из файла или inline, expected
+  status/substring, structured JSON output, exit codes (0=PASS, 1=FAIL,
+  3=NETWORK, 4=ENV, 5=USAGE). Поддерживает `{{TIMESTAMP}}` в body. Не
+  вызывай напрямую из Claude Code, используй `.cmd` wrapper.
 
 ## Правила
 
@@ -43,6 +51,10 @@ Deterministic блокировки shell-паттернов живут отде�
   `..` за его пределами.
 - Project-specific знания не вшиваются в универсальные скрипты. Такие правила
   должны жить в `.claude/rules/project/*` или `.claude/rules/paths/*`.
+- Настройки HTTP-smoke живут в `.claude/config/http-smoke.local.json`
+  (machine-local, не коммитится) или в явно переданном `-ConfigFile`.
+  Версионируемый `.claude/config/http-smoke.example.json` содержит только
+  пример профилей без секретов.
 - GitLab MR review не должен собираться ad-hoc командами `curl`, `python -c`,
   `git credential fill` и ручными `/tmp/*.json`. Используй
   `gitlab-mr-review.cmd` как единственный внешний entrypoint подготовки и
@@ -65,8 +77,14 @@ Deterministic блокировки shell-паттернов живут отде�
   `.claude/scripts/*`. Если нужно запомнить разрешение, оно должно быть
   привязано к конкретному `.cmd` wrapper в `.claude/scripts/`, например
   `.claude/scripts/aidd-bootstrap-ticket.cmd`,
-  `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd` или
-  `.claude/scripts/gitlab-mr-review.cmd`.
+  `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd`,
+  `.claude/scripts/gitlab-mr-review.cmd` или
+  `.claude/scripts/http-smoke.cmd`.
+- HTTP-smoke runner используется только в рамках `aidd-debug-loop`, когда
+  test plan в `aidd/docs/debug/<ticket>.md` его явно указывает. URL стендов
+  и профили — через `.claude/config/http-smoke.local.json`; креды и токены —
+  только через env vars, на которые ссылается config (`usernameEnv`,
+  `passwordEnv`) или через одноразовый `-Header` в текущей сессии.
 - При добавлении нового переносимого `.cmd` entrypoint в этот каталог проверь,
   нужно ли добавить для него точечное разрешение в `.claude/settings.json`.
   Не добавляй разрешение автоматически для `.ps1` реализации.

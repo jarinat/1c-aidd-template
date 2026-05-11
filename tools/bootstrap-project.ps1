@@ -236,6 +236,7 @@ $overwriteRoots = @(
     ".claude/CLAUDE.md",
     ".claude/settings.json",
     ".claude/agents",
+    ".claude/config",
     ".claude/hooks",
     ".claude/skills",
     ".claude/rules/core",

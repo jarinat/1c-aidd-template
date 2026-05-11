@@ -95,6 +95,35 @@ Started: <date>
 ## Iterations
 ```
 
+Для HTTP-smoke сценариев расширь структуру перед `Iterations`:
+
+```markdown
+## Scope
+
+- Runner: `.claude/scripts/http-smoke.cmd`.
+- Config/Profile: `.claude/config/http-smoke.local.json`, profile `<name>`.
+- EndpointPath:
+- Fixtures: `aidd/fixtures/<ticket>/`.
+- PASS criteria:
+- Allowed changes:
+- Limits:
+
+## Pre-flight
+
+1. Локальный config/profile существует и не содержит секретов.
+2. Dev/test стенд синхронизирован пользователем.
+3. Секреты, если нужны, заданы через env vars из config.
+
+## Test plan
+
+| # | Fixture | Method | Expected status | Expected substring | AC |
+| --- | --- | --- | --- | --- | --- |
+```
+
+Запуск HTTP-smoke должен использовать `-Profile <name>` и
+`-EndpointPath <path>`; `-Url` и `-BaseUrl` допустимы как разовый override,
+но не как основной способ хранения стендов в AIDD-артефактах.
+
 Для каждой итерации добавляй запись:
 
 ```markdown

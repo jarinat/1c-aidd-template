@@ -35,6 +35,7 @@ template/
       CLAUDE.md
       settings.json
       agents/
+      config/
       docs/
       hooks/
       rules/
@@ -89,7 +90,7 @@ Bootstrap делает только локальную механическую 
 
 - обновляет переносимый runtime-слой:
   `.claude/CLAUDE.md`, `.claude/settings.json`, `.claude/agents`,
-  `.claude/hooks`, `.claude/skills`, `.claude/rules/core`,
+  `.claude/config`, `.claude/hooks`, `.claude/skills`, `.claude/rules/core`,
   `.claude/scripts`, `.claude/docs`;
 - создает отсутствующий локальный `AGENTS.md`;
 - создает отсутствующие `.claude/rules/project/*`;
@@ -164,6 +165,8 @@ Git.
 - `.claude/skills` — исполняемые пошаговые сценарии;
 - `.claude/hooks` и `.claude/settings.json` — переносимые deterministic
   runtime guard-ы без локальных разрешений и machine-specific деталей;
+- `.claude/config` — версионируемые example-конфиги без секретов и
+  gitignored local-конфиги для project-local runner-ов;
 - `.claude/rules/core` — общий AIDD workflow, review, git, code style и
   1С/EDT/YAxUnit правила.
 
@@ -187,6 +190,7 @@ Project-specific слой:
 - `.claude/settings.json`;
 - `.claude/agents/*`;
 - `.claude/hooks/*`;
+- `.claude/config/*`;
 - `.claude/skills/*`;
 - `.claude/rules/core/*`;
 - `.claude/rules/project/*`;
@@ -219,6 +223,7 @@ Claude Code подхватывает agents, skills, rules, hooks, settings и s
 - `.claude/settings.json`;
 - `.claude/agents/*`;
 - `.claude/hooks/*`;
+- `.claude/config/*`;
 - `.claude/skills/*`;
 - `.claude/rules/core/*`;
 - `.claude/docs/*`;

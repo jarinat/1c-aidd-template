@@ -115,11 +115,13 @@ $syncRoots = @(
     ".claude/CLAUDE.md",
     ".claude/settings.json",
     ".claude/agents",
+    ".claude/config",
     ".claude/hooks",
     ".claude/skills",
     ".claude/rules/core",
     ".claude/scripts",
-    ".claude/docs"
+    ".claude/docs",
+    "aidd/fixtures"
 )
 
 $sourceFiles = New-Object System.Collections.Generic.List[System.IO.FileInfo]

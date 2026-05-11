@@ -20,6 +20,9 @@
   Содержит trace автономных test/debug-loop итераций
 - Review: `aidd/docs/review/<ticket>.md`  
   Содержит замечания внутреннего review и решения по ним
+- Fixtures: `aidd/fixtures/<ticket>/`
+  Опциональные test payloads и данные для debug-loop, HTTP-smoke, smoke или
+  других явно заданных runner-ов
 
 ## Протокол чтения AIDD-артефактов
 
@@ -91,6 +94,10 @@ PRD нельзя переводить в `PRD_READY`, если в нём ест�
 - `debug` — отдельный артефакт для автономных проверок, которые запускает
   основная сессия: YAxUnit, HTTP-smoke, project-local script, MCP/log
   диагностика или другой явно заданный runner.
+- Если debug-loop использует test data, они должны лежать в
+  `aidd/fixtures/<ticket>/` и быть описаны в `README.md` или в таблице
+  test plan debug-артефакта. Machine-specific URL, креды и токены в fixtures
+  не записываются.
 - `debug` хранит машинный trace: запуск, результат, evidence, диагноз,
   рекомендацию, decision, фактическое исправление и следующий шаг.
 - `debug` не заменяет `feedback`: пользовательские замечания не записываются в
