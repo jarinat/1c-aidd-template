@@ -25,7 +25,14 @@
       "Bash(git describe:*)",
       "Bash(git name-rev:*)",
       "Bash(git for-each-ref:*)",
-      "mcp__1c-rsv__*"
+      "mcp__1c-rsv__*",
+      "mcp__1c-debug-info__get_configuration_info",
+      "mcp__1c-debug-info__get_event_log",
+      "mcp__1c-debug-info__get_metadata_tree",
+      "mcp__1c-debug-info__get_object_structure",
+      "mcp__1c-debug-info__get_form_structure",
+      "mcp__1c-debug-info__validate_query",
+      "mcp__1c-debug-info__bsl_syntax_help"
     ]
   },
   "hooks": {

@@ -21,6 +21,9 @@ Shell не является универсальным fallback для чтен�
   `.claude/rules/core/aidd-artifacts.md`.
 - 1С/EDT metadata, BSL, формы, СКД, роли и подсистемы: сначала
   `.claude/skills/1c-rsv-tools/SKILL.md` и доступные MCP tools.
+- Runtime-диагностика живой 1С базы, журнал регистрации, структура объектов в
+  опубликованной ИБ: `.claude/skills/1c-debug-info-tools/SKILL.md`, если MCP
+  `1c-debug-info` доступен.
 - Редактирование metadata, СКД, форм и ролей: `edit_metadata`, если операция
   покрыта MCP; прямой `Edit`/`Write` только при documented gap/баге MCP, с
   явной фиксацией причины и решением по fallback policy ниже.

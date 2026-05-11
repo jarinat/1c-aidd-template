@@ -26,6 +26,8 @@ Source of truth:
 - `.claude/rules/project/change-policy.md`
 - `.claude/rules/project/naming.md`
 - `.claude/rules/paths/*.md`
+- `.claude/skills/1c-debug-info-tools/SKILL.md` — только если доступен
+  `1c-debug-info` и runtime/log диагностика входит в scope проверки.
 
 ## Назначение
 
@@ -158,7 +160,9 @@ Started: <date>
    - project-local script из `.claude/scripts/*`;
    - YAxUnit runner, если он доступен и разрешён;
    - HTTP-smoke runner, если он явно задан;
-   - MCP/log/read-only диагностику, если она указана как часть проверки.
+   - MCP/log/read-only диагностику, если она указана как часть проверки;
+   - для runtime-ошибок 1С используй `1c-debug-info-tools`, если MCP
+     `1c-debug-info` доступен и это не расширяет scope проверки.
 6. Если результат PASS:
    - запиши PASS-итерацию;
    - проверь, что diff не вышел за allowed changes;
@@ -196,8 +200,9 @@ Started: <date>
 - Если runner нестабилен или окружение не готово, не маскируй это правкой кода:
   запиши environment/tooling blocker.
 - MCP/БД/журнал регистрации являются опциональными источниками диагностики,
-  только если они явно доступны и указаны в плане проверки. Не подключай
-  generic SQL или новые внешние инструменты самовольно.
+  только если они явно доступны и указаны в плане проверки. Для журнала
+  регистрации и структуры живой ИБ предпочитай `1c-debug-info-tools`, но не
+  подключай generic SQL или новые внешние инструменты самовольно.
 
 ## Завершение
 

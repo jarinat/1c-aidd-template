@@ -39,6 +39,7 @@ supporting docs.
 - Исполняемые AIDD-сценарии:
   `.claude/skills/aidd-*/SKILL.md`
 - Специализированные skills:
+  `.claude/skills/1c-debug-info-tools/SKILL.md`
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
   `.claude/skills/1c-rsv-tools/SKILL.md`
@@ -107,6 +108,19 @@ subagent их не вызывает.
 Широкий `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` для поиска 1С-сущностей
 используй только как fallback, если MCP недоступен, или для подтверждения уже
 найденных MCP-кандидатов.
+
+### 1c-debug-info-tools
+
+Если MCP `1c-debug-info` доступен и задача связана с runtime-диагностикой
+живой 1С базы, журналом регистрации, HTTP-smoke/YAxUnit падением или
+расхождением между EDT-исходниками и фактической ИБ, используй
+`.claude/skills/1c-debug-info-tools/SKILL.md` как дополнительный источник
+evidence.
+
+`1c-debug-info` не заменяет `1c-rsv`: код, метаданные EDT, формы, СКД, роли и
+BSL-правки остаются в зоне `1c-rsv-tools`. Runtime evidence из
+`1c-debug-info` нужно связывать с исходниками через `1c-rsv`, `Read` или
+другой разрешенный discovery.
 
 ### YAxUnit
 

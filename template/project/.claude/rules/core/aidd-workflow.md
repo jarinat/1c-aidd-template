@@ -181,6 +181,9 @@ PRD уже содержит достаточный scope, а отдельные 
 - Debug-loop обрабатывает машинные результаты проверок, а не пользовательские
   замечания: test output, HTTP response, smoke script result, YAxUnit result,
   MCP/log evidence или другой явно заданный runner.
+- Если MCP `1c-debug-info` доступен и падение связано с runtime-ошибкой 1С,
+  журнал регистрации и структуру живой ИБ используй как дополнительное
+  evidence по `.claude/skills/1c-debug-info-tools/SKILL.md`.
 - Способ проверки должен быть задан в PRD, plan, tasklist, debug-артефакте или
   прямой команде пользователя. Если runner, PASS-критерии или allowed changes
   не заданы, debug-loop останавливается с blocker.
