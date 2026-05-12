@@ -2,17 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(.claude/scripts/aidd-bootstrap-ticket.cmd:*)",
-      "Bash(.claude\\scripts\\aidd-bootstrap-ticket.cmd:*)",
       "Bash(.claude/scripts/aidd-inspect.cmd:*)",
-      "Bash(.claude\\scripts\\aidd-inspect.cmd:*)",
       "Bash(.claude/scripts/gitlab-mr-review.cmd:*)",
-      "Bash(.claude\\scripts\\gitlab-mr-review.cmd:*)",
       "Bash(.claude/scripts/http-smoke.cmd:*)",
-      "Bash(.claude\\scripts\\http-smoke.cmd:*)",
       "Bash(.claude/scripts/new-guid.cmd:*)",
-      "Bash(.claude\\scripts\\new-guid.cmd:*)",
       "Bash(.claude/scripts/commit-block.sh:*)",
-      "Bash(.claude\\scripts\\commit-block.sh:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -33,6 +27,14 @@
       "mcp__1c-debug-info__get_form_structure",
       "mcp__1c-debug-info__validate_query",
       "mcp__1c-debug-info__bsl_syntax_help"
+    ],
+    "deny": [
+      "Bash(.claude\\scripts\\aidd-bootstrap-ticket.cmd:*)",
+      "Bash(.claude\\scripts\\aidd-inspect.cmd:*)",
+      "Bash(.claude\\scripts\\gitlab-mr-review.cmd:*)",
+      "Bash(.claude\\scripts\\http-smoke.cmd:*)",
+      "Bash(.claude\\scripts\\new-guid.cmd:*)",
+      "Bash(.claude\\scripts\\commit-block.sh:*)"
     ]
   },
   "hooks": {

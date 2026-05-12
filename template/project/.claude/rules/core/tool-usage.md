@@ -68,6 +68,8 @@ Shell допустим, когда он запускает внешний инс
 На Windows для shell-команд используй repo-relative пути с `/` или quoted
 project-local paths. Не используй абсолютные `C:\...` пути в Bash и не ставь
 trailing `\` перед пробелом.
+Project-local helpers из `.claude/scripts` в `Bash` вызывай только через `/`;
+форма `.claude\scripts\...` запрещена, потому что Bash трактует `\` как escape.
 
 ## Tooling gaps
 

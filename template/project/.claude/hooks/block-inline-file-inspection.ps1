@@ -142,6 +142,12 @@ Project scripts must be called by their canonical repo-relative wrapper from .cl
 Do not wrap them with cmd /c, cmd.exe /c, powershell -File, powershell -Command, or absolute paths.
 "@.Trim()
 
+$scriptBackslashReason = @"
+Bash command calls a project script with backslashes. Use the canonical
+repo-relative wrapper path with forward slashes, for example:
+.claude/scripts/aidd-bootstrap-ticket.cmd <ticket>
+"@.Trim()
+
 $gitCommitReason = @"
 Direct git add/git commit is blocked. Use .claude/skills/aidd-commit-block/SKILL.md
 and the canonical helper: bash .claude/scripts/commit-block.sh ...
@@ -163,6 +169,11 @@ if (Test-Regex -Text $inputText -Pattern "\bDok_") {
 if ($toolName -eq "Bash") {
     $command = [string](Get-JsonProperty -Object $toolInput -Name "command")
     if ([string]::IsNullOrWhiteSpace($command)) {
+        exit 0
+    }
+
+    if (Test-Regex -Text $command -Pattern '(^|[;&|()`"''\s])(\./)?\.claude\\scripts\\') {
+        Write-Deny -Reason $scriptBackslashReason
         exit 0
     }
 
