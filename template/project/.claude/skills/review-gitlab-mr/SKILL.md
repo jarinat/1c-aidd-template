@@ -96,9 +96,11 @@ inline env. Не проси пользователя присылать token в
    попроси повторить позже.
 5. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
    После `prepare` не запускай shell-команды для чтения MR context. Для `HEAD`
-   читай файлы из `worktree_path` или `head_snapshot_root`; для `BASE` читай
-   только файлы из `base_snapshot_root`. Используй `changed_files_path` как
-   карту materialized snapshots.
+   читай файлы из `worktree_path` или из конкретных `head_snapshot_path` в
+   `changed_files_path`; для `BASE` читай только конкретные
+   `base_snapshot_path` из `changed_files_path`. Не реконструируй snapshot path
+   как `base_snapshot_root/head_snapshot_root + repo-relative path`: snapshot
+   files могут храниться под короткими hash-именами.
 6. Передай subagent `review-mr`:
    - `MR_URL`, title, source/target branches;
    - `REVIEW_WORKTREE=<worktree_path>`;
@@ -169,7 +171,9 @@ inline env. Не проси пользователя присылать token в
   нужно материализовать в `prepare`.
 - Не используй workspace-bound MCP discovery для discovery или выводов по MR.
   Для review опирайся на manifest-файлы, materialized snapshots, `Read`,
-  `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`.
+  `Glob`, `Grep` и локальное чтение файлов внутри `REVIEW_WORKTREE`. Snapshot
+  files открывай только по `base_snapshot_path`/`head_snapshot_path` из
+  `changed_files_path`, без ручной сборки пути от repo-relative path.
 - Не делай `git checkout`, `git switch`, `git pull`, `git merge` или `git
   rebase` в основной рабочей копии.
 - Не оставляй review worktree автоматически после успешного review. Оставлять

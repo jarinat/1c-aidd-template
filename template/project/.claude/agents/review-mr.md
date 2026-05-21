@@ -87,8 +87,10 @@ skills:
   `changed_files_path`, `base_snapshot_root`, `head_snapshot_root`, а также
   `Read`, `Glob` и `Grep` по `REVIEW_WORKTREE` для текущего `HEAD` checkout.
 - Для версии `HEAD` предпочитай чтение файла из `REVIEW_WORKTREE` или
-  `head_snapshot_root`. Для версии `BASE` используй только файлы из
-  `base_snapshot_root` и записи `changed_files_path`.
+  конкретного `head_snapshot_path` из `changed_files_path`. Для версии `BASE`
+  используй только конкретный `base_snapshot_path` из `changed_files_path`.
+  Не реконструируй snapshot path как `base_snapshot_root/head_snapshot_root` +
+  repo-relative path: snapshot files могут храниться под короткими hash-именами.
 - Если нужного surrounding context нет ни в `REVIEW_WORKTREE`, ни в snapshot
   files, остановись и явно укажи, какой repo-relative path или base/head context
   не был материализован в `prepare`. Не придумывай shell fallback.

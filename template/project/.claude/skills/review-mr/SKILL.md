@@ -38,8 +38,11 @@ MR-context.
    Используй подготовленные manifest-файлы:
    `diff_stat_path`, `diff_name_status_path`, `diff_patch_path`,
    `changed_files_path`, `base_snapshot_root`, `head_snapshot_root`.
-   Для `HEAD` можно читать файлы из `REVIEW_WORKTREE` или `head_snapshot_root`;
-   для `BASE` используй только `base_snapshot_root`.
+   Для `HEAD` можно читать файлы из `REVIEW_WORKTREE` или по конкретным
+   `head_snapshot_path` из `changed_files_path`; для `BASE` используй только
+   конкретные `base_snapshot_path` из `changed_files_path`. Не реконструируй
+   snapshot path как `base_snapshot_root/head_snapshot_root + repo-relative
+   path`: snapshot files могут храниться под короткими hash-именами.
    Если нужный base/head context не материализован, остановись и явно скажи,
    какого repo-relative path не хватает в snapshots.
 3. Получи актуальный diff:
@@ -179,8 +182,9 @@ MR-context.
   MR-context: `Bash`, `cd "<REVIEW_WORKTREE>" && git ...`, `.cmd`, `.ps1`,
   `powershell -Command`, `cmd /c`, `git show | Select-String`,
   `Select-Object`, `head`, `tail`, `grep` и другие pipelines запрещены.
-  Используй только manifest snapshots; если их не хватает, остановись и сообщи,
-  какого repo-relative path не хватает в `prepare`.
+  Используй только manifest snapshots по `base_snapshot_path` и
+  `head_snapshot_path` из `changed_files_path`; если их не хватает, остановись
+  и сообщи, какого repo-relative path не хватает в `prepare`.
 - Фокусируйся на логике, архитектуре, рисках и конкретных предложениях.
 - Не подменяй review личными предпочтениями без доказуемого риска.
 - Если проблем нет, зафиксируй это явно, а не придумывай замечания.

@@ -137,6 +137,21 @@ function Get-ToolOutput {
     return (Invoke-Tool -FilePath $FilePath -Arguments $Arguments -FailureMessage $FailureMessage | Out-String).Trim()
 }
 
+function New-GitArguments {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepositoryPath,
+        [Parameter(Mandatory = $true)][string[]]$Arguments,
+        [switch]$QuotePath
+    )
+
+    $gitArguments = @("-C", $RepositoryPath, "-c", "core.longpaths=true")
+    if ($QuotePath) {
+        $gitArguments += @("-c", "core.quotePath=false")
+    }
+
+    return @($gitArguments + $Arguments)
+}
+
 function Invoke-NativeCommand {
     param(
         [Parameter(Mandatory = $true)][string]$FilePath,
@@ -221,7 +236,7 @@ function Resolve-ReviewWorktree {
         Stop-WithMessage "Review worktree does not exist: $resolvedPath"
     }
 
-    $isWorktree = Get-ToolOutput -FilePath "git" -Arguments @("-C", $resolvedPath, "rev-parse", "--is-inside-work-tree") -FailureMessage "git rev-parse failed"
+    $isWorktree = Get-ToolOutput -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $resolvedPath -Arguments @("rev-parse", "--is-inside-work-tree")) -FailureMessage "git rev-parse failed"
     if ($isWorktree -ne "true") {
         Stop-WithMessage "Path is not a git worktree: $resolvedPath"
     }
@@ -412,7 +427,7 @@ function Get-MatchingRemote {
         [Parameter(Mandatory = $true)][string]$ProjectPath
     )
 
-    $remoteLines = Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "remote", "-v") -FailureMessage "git remote -v failed"
+    $remoteLines = Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("remote", "-v")) -FailureMessage "git remote -v failed"
     foreach ($line in $remoteLines) {
         if ($line -notmatch "^(?<name>\S+)\s+(?<url>\S+)\s+\(fetch\)$") {
             continue
@@ -445,7 +460,7 @@ function Get-WorktreeHead {
     }
 
     try {
-        return Get-ToolOutput -FilePath "git" -Arguments @("-C", $Path, "rev-parse", "HEAD") -FailureMessage "git rev-parse failed"
+        return Get-ToolOutput -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $Path -Arguments @("rev-parse", "HEAD")) -FailureMessage "git rev-parse failed"
     } catch {
         return $null
     }
@@ -485,20 +500,31 @@ function Ensure-Directory {
     }
 }
 
-function Join-ManifestRepoPath {
+function Get-Sha256Hex {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($Value)
+        $hashBytes = $sha.ComputeHash($bytes)
+        return -join ($hashBytes | ForEach-Object { $_.ToString("x2") })
+    } finally {
+        $sha.Dispose()
+    }
+}
+
+function Join-SnapshotPath {
     param(
         [Parameter(Mandatory = $true)][string]$Root,
+        [Parameter(Mandatory = $true)][int]$Index,
         [Parameter(Mandatory = $true)][string]$RepoPath
     )
 
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
-    $parts = $repoRelativePath -split "/"
-    $result = $Root
-    foreach ($part in $parts) {
-        $result = Join-Path -Path $result -ChildPath $part
-    }
+    $hash = (Get-Sha256Hex -Value $repoRelativePath).Substring(0, 16)
+    $fileName = "{0:D4}-{1}.txt" -f $Index, $hash
 
-    return $result
+    return Join-Path -Path $Root -ChildPath $fileName
 }
 
 function Test-ReviewTextPath {
@@ -523,7 +549,7 @@ function Save-GitObjectText {
 
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
     $objectName = "${Ref}:$repoRelativePath"
-    $content = Invoke-Tool -FilePath "git" -Arguments @("-C", $Worktree, "-c", "core.quotePath=false", "show", $objectName) -FailureMessage "git show failed"
+    $content = Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $Worktree -QuotePath -Arguments @("show", $objectName)) -FailureMessage "git show failed"
     $parent = Split-Path -Parent $OutputPath
     Ensure-Directory -Path $parent
     Write-Utf8File -Path $OutputPath -Content (($content | Out-String).TrimEnd() + "`n")
@@ -537,7 +563,7 @@ function Save-GitOutput {
         [Parameter(Mandatory = $true)][string]$FailureMessage
     )
 
-    $output = Invoke-Tool -FilePath "git" -Arguments (@("-C", $Worktree, "-c", "core.quotePath=false") + $Arguments) -FailureMessage $FailureMessage
+    $output = Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $Worktree -QuotePath -Arguments $Arguments) -FailureMessage $FailureMessage
     Write-Utf8File -Path $OutputPath -Content (($output | Out-String).TrimEnd() + "`n")
 }
 
@@ -548,7 +574,7 @@ function Get-ChangedFiles {
         [Parameter(Mandatory = $true)][string]$HeadSha
     )
 
-    $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $Worktree, "-c", "core.quotePath=false", "diff", "$BaseSha...$HeadSha", "--name-status", "--find-renames") -FailureMessage "git diff --name-status failed"
+    $lines = Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $Worktree -QuotePath -Arguments @("diff", "$BaseSha...$HeadSha", "--name-status", "--find-renames")) -FailureMessage "git diff --name-status failed"
     $items = @()
     foreach ($line in $lines) {
         if ([string]::IsNullOrWhiteSpace($line)) {
@@ -598,7 +624,9 @@ function Save-ReviewSnapshots {
     Ensure-Directory -Path $headRoot
 
     $results = @()
+    $index = 0
     foreach ($file in $ChangedFiles) {
+        $index++
         $status = [string]$file.status
         $path = [string]$file.path
         $oldPath = if ($null -ne $file.old_path) { [string]$file.old_path } else { $null }
@@ -608,12 +636,12 @@ function Save-ReviewSnapshots {
         $headSnapshotPath = $null
 
         if ($isText -and -not $status.StartsWith("A")) {
-            $baseSnapshotPath = Join-ManifestRepoPath -Root $baseRoot -RepoPath $baseRepoPath
+            $baseSnapshotPath = Join-SnapshotPath -Root $baseRoot -Index $index -RepoPath $baseRepoPath
             Save-GitObjectText -Worktree $Worktree -Ref $BaseSha -RepoPath $baseRepoPath -OutputPath $baseSnapshotPath
         }
 
         if ($isText -and -not $status.StartsWith("D")) {
-            $headSnapshotPath = Join-ManifestRepoPath -Root $headRoot -RepoPath $path
+            $headSnapshotPath = Join-SnapshotPath -Root $headRoot -Index $index -RepoPath $path
             Save-GitObjectText -Worktree $Worktree -Ref $HeadSha -RepoPath $path -OutputPath $headSnapshotPath
         }
 
@@ -673,11 +701,11 @@ function Prepare-Review {
         Stop-WithMessage "MR metadata does not contain source_branch or target_branch"
     }
 
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "fetch", $remote.Name, $targetBranch) -FailureMessage "git fetch target branch failed" | Out-Null
+    Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("fetch", $remote.Name, $targetBranch)) -FailureMessage "git fetch target branch failed" | Out-Null
 
     $mrHeadRef = "refs/merge-requests/$($urlInfo.Iid)/head:refs/remotes/$($remote.Name)/mr/$($urlInfo.Iid)/head"
     $mrHeadFetched = $true
-    $fetchResult = Invoke-NativeCommand -FilePath "git" -Arguments @("-C", $ProjectRootFull, "fetch", $remote.Name, $mrHeadRef)
+    $fetchResult = Invoke-NativeCommand -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("fetch", $remote.Name, $mrHeadRef))
     if ($fetchResult.ExitCode -ne 0) {
         $mrHeadFetched = $false
     }
@@ -688,11 +716,11 @@ function Prepare-Review {
             Stop-WithMessage "Cannot fetch MR head ref and MR source project differs from target project. Add a source remote or make the MR head ref available. $text"
         }
 
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "fetch", $remote.Name, $sourceBranch) -FailureMessage "git fetch source branch failed" | Out-Null
+        Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("fetch", $remote.Name, $sourceBranch)) -FailureMessage "git fetch source branch failed" | Out-Null
     }
 
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "cat-file", "-e", "$baseSha^{commit}") -FailureMessage "base_sha is not available locally after fetch" | Out-Null
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "cat-file", "-e", "$headSha^{commit}") -FailureMessage "head_sha is not available locally after fetch" | Out-Null
+    Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("cat-file", "-e", "$baseSha^{commit}")) -FailureMessage "base_sha is not available locally after fetch" | Out-Null
+    Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("cat-file", "-e", "$headSha^{commit}")) -FailureMessage "head_sha is not available locally after fetch" | Out-Null
 
     if (-not (Test-Path -LiteralPath $ReviewRoot -PathType Container)) {
         New-Item -ItemType Directory -Path $ReviewRoot -Force | Out-Null
@@ -714,7 +742,7 @@ function Prepare-Review {
     }
 
     if (-not $reused) {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "-c", "core.longpaths=true", "worktree", "add", "--detach", $resolvedWorktreePath, $headSha) -FailureMessage "git worktree add failed" | Out-Null
+        Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("worktree", "add", "--detach", $resolvedWorktreePath, $headSha)) -FailureMessage "git worktree add failed" | Out-Null
     }
 
     $manifestRoot = Join-Path -Path $ReviewRoot -ChildPath "_manifests"
@@ -789,11 +817,11 @@ function Cleanup-Review {
 
     $removed = $false
     if (Test-Path -LiteralPath $resolvedPath -PathType Container) {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "-c", "core.longpaths=true", "worktree", "remove", "--force", $resolvedPath) -FailureMessage "git worktree remove failed" | Out-Null
+        Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("worktree", "remove", "--force", $resolvedPath)) -FailureMessage "git worktree remove failed" | Out-Null
         $removed = $true
     }
 
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $ProjectRootFull, "-c", "core.longpaths=true", "worktree", "prune") -FailureMessage "git worktree prune failed" | Out-Null
+    Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $ProjectRootFull -Arguments @("worktree", "prune")) -FailureMessage "git worktree prune failed" | Out-Null
 
     [pscustomobject]@{
         schema = "gitlab-mr-review-cleanup.v1"
@@ -812,7 +840,7 @@ function Show-ReviewFile {
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
     $objectName = "${Ref}:$repoRelativePath"
 
-    Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "show", $objectName) -FailureMessage "git show failed"
+    Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $resolvedPath -QuotePath -Arguments @("show", $objectName)) -FailureMessage "git show failed"
 }
 
 function Search-ReviewFile {
@@ -826,7 +854,7 @@ function Search-ReviewFile {
     $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath
     $objectName = "${Ref}:$repoRelativePath"
-    $lines = Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "show", $objectName) -FailureMessage "git show failed"
+    $lines = Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $resolvedPath -QuotePath -Arguments @("show", $objectName)) -FailureMessage "git show failed"
     $regex = [regex]::new($Pattern)
     $matchCount = 0
 
@@ -852,9 +880,9 @@ function Get-ReviewFiles {
     $repoRelativePath = Normalize-RepoPath -Path $RepoPath -AllowEmpty
 
     if ($repoRelativePath -eq ".") {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "ls-tree", "-r", "--name-only", $Ref) -FailureMessage "git ls-tree failed"
+        Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $resolvedPath -QuotePath -Arguments @("ls-tree", "-r", "--name-only", $Ref)) -FailureMessage "git ls-tree failed"
     } else {
-        Invoke-Tool -FilePath "git" -Arguments @("-C", $resolvedPath, "-c", "core.quotePath=false", "ls-tree", "-r", "--name-only", $Ref, "--", $repoRelativePath) -FailureMessage "git ls-tree failed"
+        Invoke-Tool -FilePath "git" -Arguments (New-GitArguments -RepositoryPath $resolvedPath -QuotePath -Arguments @("ls-tree", "-r", "--name-only", $Ref, "--", $repoRelativePath)) -FailureMessage "git ls-tree failed"
     }
 }
 
@@ -867,7 +895,7 @@ function Search-ReviewTree {
     Assert-RegexPattern -Value $Pattern
     Assert-FirstCount -Value $First
     $resolvedPath = Resolve-ReviewWorktree -Path $WorktreePath
-    $arguments = @("-C", $resolvedPath, "-c", "core.quotePath=false", "grep", "-n", "-E", "--no-color", "-e", $Pattern, $Ref)
+    $arguments = New-GitArguments -RepositoryPath $resolvedPath -QuotePath -Arguments @("grep", "-n", "-E", "--no-color", "-e", $Pattern, $Ref)
     if (-not [string]::IsNullOrWhiteSpace($RepoPath)) {
         $repoRelativePath = Normalize-RepoPath -Path $RepoPath -AllowEmpty
         if ($repoRelativePath -ne ".") {
