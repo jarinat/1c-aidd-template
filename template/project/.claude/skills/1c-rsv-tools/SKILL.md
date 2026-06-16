@@ -3,282 +3,240 @@ name: 1c-rsv-tools
 description: >
   Discovery, валидация и редактирование 1С/EDT-конфигурации через MCP-сервер
   1c-rsv (плагин 1С:EDT). Используй как основной слой работы с метаданными,
-  СКД, BSL-модулями, формами, ролями, подсистемами, валидацией EDT и
-  YAxUnit-запусками. Особенно обязателен при создании и изменении объектов
-  метаданных, СКД и BSL, если MCP-сервер доступен.
+  СКД, BSL-модулями, формами, ролями, подсистемами, EDT-валидацией и
+  управляемыми тестовыми прогонами, если MCP-сервер доступен.
 ---
 
 # 1c-rsv-tools
 
 Этот skill описывает правила использования MCP-сервера `1c-rsv`. Сервер
-работает поверх запущенного 1С:EDT (HTTP MCP) и даёт read-only discovery,
-валидацию EDT и write-операции через штатный API EDT, а не через прямую
-правку XML.
+работает поверх запущенного 1С:EDT (HTTP MCP) и даёт структурный discovery,
+валидацию EDT и write-операции через штатные модели EDT, а не через прямую
+правку XML/BSL-файлов.
+
+Актуальная база правил проверена на MCP:RSV Server 5.2.0. Не зашивай старые
+предположения о составе operations: для редких операций сначала читай
+`operation=help`.
 
 ## Когда использовать
 
 - Discovery 1С/EDT-кодовой базы: метаданные, BSL-модули, методы, формы,
-  ссылки между объектами, иерархия вызовов, callers, локальные reference
-  patterns.
-- Любое создание или изменение объектов метаданных, реквизитов, табличных
-  частей, форм, команд, ролей, подсистем, шаблонов СКД и макетов.
-- Любое редактирование BSL-модулей через агентов (`replace`, `append`,
-  `insertBefore`, `insertAfter`, `replaceLines`, `replaceMethod`) с
-  встроенной EDT-валидацией.
-- Валидация EDT-маркеров (`get_validation_errors`) после правок.
-- Чтение реальной структуры формы (`get_form_image format=structure`) с
-  деревом элементов, кнопок, `commandName`, layout-полей.
-- Проверка структуры конфигурации, списка подсистем, статистики объектов.
-- Запуск YAxUnit-тестов и отладочных сессий - только из основной сессии,
-  не из subagent.
+  ссылки между объектами, иерархия вызовов, callers, СКД и локальные patterns.
+- Любое создание, переименование, удаление или изменение объектов метаданных,
+  реквизитов, табличных частей, форм, команд, ролей, подсистем, HTTP-сервисов,
+  XDTO, предопределённых элементов, СКД, макетов и расширений.
+- Любое редактирование BSL-модулей через `write_module_source`.
+- Валидация EDT-маркеров после правок, если встроенной валидации записи
+  недостаточно или нужно проверить объект/проект шире.
+- Чтение реальной структуры формы и динамических списков.
+- Запуск YAxUnit, Vanessa Automation, обновления ИБ, clean build и debug
+  session - только из основной сессии и только при явном решении пользователя.
 
 ## Когда не использовать
 
 - Для маленького точечного чтения известного файла, где достаточно `Read`.
-- Для прямой правки `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit`. Это
-  обходит EDT-API и может сломать целостность ссылок и GUID.
-- Для генерации новых GUID/UUID. См. `.claude/rules/core/onec-general.md`:
-  при ручном XML fallback GUID создаются через `.claude/scripts/new-guid.cmd`,
-  а `1c-rsv` сам управляет GUID при создании и изменении объектов через
-  `edit_metadata`.
+- Для прямой правки `*.mdo`, `*.form`, `*.dcs`, `*.rights` или `*.bsl` через
+  `Write`/`Edit`, если есть соответствующий MCP-инструмент.
+- Для генерации GUID/UUID при штатном MCP-пути: `edit_metadata` сам управляет
+  идентификаторами. `.claude/scripts/new-guid.cmd` допустим только для явно
+  разрешённого XML fallback.
+- Для MR review в отдельном worktree, если MCP привязан к другому EDT
+  workspace. В таком сценарии используй правила review-agent-а.
 
 ## Доступные инструменты
 
-### Workspace и EDT info (read-only)
+### Workspace и EDT info
 
-- `list_workspace_projects` - открытые 1С-проекты EDT.
-- `list_applications` - Run Configurations (ИБ) проекта.
-- `show_edt_version` - версия EDT.
-- `get_config_properties` - свойства конфигурации, статистика, подсистемы.
+- `list_workspace_projects` - проекты EDT workspace. По умолчанию
+  `onlyV8Projects=true`; для DT-проектов внешних обработок/отчётов возвращает
+  `externalObjects`.
+- `list_applications` - Run Configurations/ИБ проекта.
+- `show_edt_version` - версия EDT и Java/OS окружение.
+- `get_config_properties` - свойства конфигурации, подсистемы, статистика.
 
-### Discovery: метаданные (read-only)
+### Discovery: метаданные, код, формы
 
-- `list_metadata_objects` - каталог объектов по типу/маске, с пагинацией.
-- `get_object_details` - структура одного объекта: реквизиты, табличные
-  части, формы, измерения, ресурсы, DCS templates, subsystem links.
-- `get_object_help` - синоним, путь к `mdo`, html-help.
-- `code_search operation=objectReferences` - BSL-ссылки на объект (`deep`
-  ищет производные типы вроде `СправочникСсылка.X`, `simple` - точное имя).
-- `code_search operation=textSearch` - текстовый поиск по BSL и связанным
-  артефактам, включая схемы СКД и запросы динамических списков.
-- `code_search operation=help topic=workflow` - краткий путеводитель по
-  сценариям поиска.
+- `list_metadata_objects` - каталог объектов всех основных типов 1С, включая
+  расширения и DT-проекты внешних обработок/отчётов; используй `nameMask`,
+  `objectType`, `offset`, `limit`.
+- `get_object_details` - структура объекта, свойства, формы, команды, модули,
+  измерения/ресурсы, DCS. Для свойств включай `includeProperties=true`; для
+  больших СКД используй DCS-пагинацию.
+- `get_object_help` - синоним, подсистемы, комментарий MDO и HTML-help.
+- `list_modules` - каталог BSL-модулей с фильтрами и `compact=true`.
+- `code_structure` - основной инструмент чтения BSL:
+  `outline`, `readMethod`, `readModule`, `find`, `help`.
+- `code_search` - поиск по проекту/связанным проектам:
+  `textSearch`, `objectReferences`, `methodReferences`, `resolveSymbol`,
+  `callHierarchy`, `dcsSearch`, `help`.
+- `get_form_image` - `format=structure` для дерева формы, командных панелей,
+  кнопок, `commandName`, layout-полей; `listQuery` читает полный запрос
+  динамического списка с пагинацией.
+- `ai_context` - агрегированный контекст по объекту, форме, модулю или методу.
+- `get_platform_docs` - справочник платформы 1С: API, BSL, язык запросов, СКД.
 
-### Discovery: модули и методы (read-only)
+Старые tools `get_module_structure`, `read_module_source`,
+`read_method_source` не использовать: в MCP 5.2.0 их заменяет
+`code_structure`.
 
-- `list_modules` - каталог BSL-модулей с фильтрами по типу/объекту/имени.
-- `get_module_structure` - список процедур/функций модуля с
-  doc-комментариями.
-- `read_module_source` - чтение модуля целиком или диапазона строк.
-- `read_method_source` - чтение одного метода.
-- `code_search operation=resolveSymbol` - go to definition по
-  `Модуль.Метод`.
-- `code_search operation=methodReferences` - ссылки на конкретный метод.
-- `code_search operation=callHierarchy` - иерархия вызовов (depth 1-3).
+### Валидация и diff
 
-### Discovery: формы и сводка (read-only)
-
-- `get_form_image` - структура формы: дерево элементов, кнопки,
-  `commandName`, position, представления; или PNG. Параметры пагинации:
-  `depth`, `subtree`, `maxElements`.
-- `ai_context` - сборщик контекста по объекту/форме/модулю/методу
-  (depth `minimal`/`standard`/`full`). Полезен на старте discovery вместо
-  серии отдельных вызовов.
-
-### Платформенная справка (read-only)
-
-- `get_platform_docs` - справочник платформы 1С: API, BSL, язык запросов,
-  СКД-функции, аннотации расширений, директивы компиляции.
-
-### Валидация (read-only)
-
-- `validate_query` - Xtext-валидатор языка запросов. В MCP 4.2.0 подтверждён
-  дефект: standalone-валидатор может выдавать ложные синтаксические ошибки
-  даже на простых запросах с русскими ключевыми словами (`ВЫБРАТЬ`,
-  `КАК`, `ИЗ`). Не используй standalone `validate_query` как источник истины
-  для обычных запросов 1С.
-- `get_validation_errors` - EDT-маркеры. Дефолт `scope=session` (только файлы,
-  изменённые в текущей сессии плагина). `scope=object` - все файлы одного
-  объекта. `scope=project` - только осознанно с `confirmLargeResult=true`,
-  иначе срабатывает предохранитель.
-- `diff_module` - сравнение BSL-модуля с git-версией: `summary`, `unified`,
+- `validate_query` - штатный EDT-валидатор языка запросов. С `projectName` и
+  `projectScope=true` проверяет не только синтаксис, но и таблицы, поля,
+  разыменование, группировки, виртуальные таблицы и типы. Без проектного
+  scope config-dependent диагностики не считай окончательной истиной.
+- `get_validation_errors` - EDT/Eclipse-маркеры и официальные quick fixes.
+  `action=read|applyQuickFix`, `scope=session|object|project|all`,
+  `severity=ERROR|WARNING|INFO|ALL`, `source=edt|eclipse|all`,
+  `fileFilter`, `checkIdFull`, `suppressionHint`, `quickFixVariants`.
+- `diff_module` - сравнение BSL-модуля с git `HEAD`: `summary`, `unified`,
   `methods`.
 
-### Edit (write через EDT-API)
+### Edit через EDT API
 
-- `edit_metadata` - единый конструктор операций: `createObject`,
-  `setObjectProperty`, `addObjectAttribute`, `addTabularSection`,
-  `addFormAttribute`, `addField`, `addGroup`, `addButton`, `addTable`,
-  `addDecoration`, `addCommandHandler`, `addEventHandler`,
-  `createReportSchema`, `addDataSet`, `addDataSetField`,
-  `addCalculatedField`, `addTotalField`, `addSchemaParameter`,
-  `addSettingsGroup`, `addSettingsTable`, `addSettingsSelectedField`,
-  `addSettingsFilter`, `addSettingsOrder`, `addConditionalAppearance`,
-  `setRoleRight`, `addRegisterField`, `removeRegisterField`,
-  `addSubsystemContent`, `adoptObject`, `adoptObjects`, `adoptChild`,
-  `adoptModule`, `addTemplate`, `drawTemplate`, `setTemplateCell`,
-  `mergeTemplateCells`, `setDefinedTypeTypes` и др.
-  Для справки используй `edit_metadata operation=help` и
-  `topic=workflow|dcsWorkflow|registersWorkflow|matrixWorkflow|composerWorkflow|dryRun|<имя_операции>`.
-  Поддерживается `dryRun=true`.
+- `edit_metadata` - единый конструктор операций по метаданным, формам, СКД,
+  макетам, расширениям, HTTP-сервисам, XDTO, ролям и внешним объектам.
+  Перед редкой операцией читай `edit_metadata operation=help topic=<...>`.
 - `write_module_source` - запись BSL: `replace`, `append`, `insertBefore`,
-  `insertAfter`, `replaceLines`, `replaceMethod`. Дефолт `dryRun=true`,
-  встроенная EDT-валидация возвращается в поле `validation`. Для массовой
-  замены модуля требуется `confirmFullReplace=true`.
-- `export_object` - экспорт внешней обработки/отчёта в `.epf`/`.erf`.
+  `insertAfter`, `replaceLines`, `replaceMethod`, пакетная замена
+  `methods=[{methodName, source}, ...]`.
+- `export_object` - экспорт DT-проектов внешних обработок/отчётов в
+  `.epf`/`.erf`.
+
+Полезные overview topics `edit_metadata`: `workflow`, `extensionsWorkflow`,
+`externalObjectsWorkflow`, `dcsWorkflow`, `dcsTroubleshooting`,
+`formsTroubleshooting`, `registersWorkflow`, `matrixWorkflow`,
+`composerWorkflow`, `createObjectHttpService`, `createObjectEventSubscription`,
+`types`, `objectTypes`, `formTypes`, `propertyValues`, `supportLock`.
 
 ### Build, БД, тесты, отладка
 
-Эти tools действуют на ИБ или процесс EDT. Используй только из основной
-сессии и только при явном пользовательском решении.
+Эти tools действуют на ИБ, процесс EDT или внешнее окружение. Не вызывай их
+из subagent. Основная сессия вызывает их только при явном решении пользователя.
 
-- `rebuild_project` - clean build EDT-проекта.
-- `sync_database` - обновление ИБ из конфигурации.
-- `yaxunit_tests` - запуск YAxUnit с фильтрами и Markdown-отчётом.
-- `launch_debugger` - управление debug-сессией.
+- `rebuild_project` - clean build EDT-проекта; требует `confirmed=true`.
+- `sync_database` - обновление ИБ из EDT; `fullReload=true` только как
+  аварийный режим.
+- `yaxunit_tests` - unit/API тесты YAxUnit, режимы `run|debug`.
+- `vanessa` - UI/BDD тесты Vanessa Automation:
+  `run`, `checkSyntax`, `steps`, `setup`, `help`.
+- `launch_debugger` - запуск/управление debug-сессией, breakpoints,
+  переменные, evaluate.
 
 ## Базовый workflow
 
-1. Перед discovery зафиксируй `projectName` через
-   `list_workspace_projects` или из явного указания пользователя/AIDD-
-   артефактов. Дальше всегда передавай `projectName` явно - не полагайся
-   на первый найденный проект.
-2. Для discovery предпочитай:
-   - `list_metadata_objects nameMask` для поиска объектов по имени;
-   - `get_object_details` для структуры;
-   - `code_search operation=objectReferences` для зависимостей;
-   - `code_search operation=methodReferences|callHierarchy|resolveSymbol`
-     для методов и переходов к определению;
-   - `ai_context depth=standard` для сводки по объекту/форме/модулю.
-3. Для редактирования метаданных и СКД всегда используй `edit_metadata`,
-   а не прямую правку `*.mdo`, `*.form`, `*.dcs`. Сначала изучи нужную
-   операцию через `edit_metadata operation=help topic=...`.
-4. Для редактирования BSL используй `write_module_source` с `dryRun=true`
-   на спорных правках, читай `validation` из ответа реальной записи.
-5. После change-блока проверь маркеры:
-   - `get_validation_errors scope=session` - что сделано в этой сессии;
-   - `scope=object objectName=<FQN>` - фокус на изменённом объекте.
-6. Не вызывай `sync_database`, `rebuild_project`, `yaxunit_tests` или
-   `launch_debugger` из subagent. Эти операции принимает только основная
-   сессия по решению пользователя.
-7. Не используй `validate_query` как единственный валидатор. Для запросов СКД
-   предпочитай встроенную проверку `edit_metadata`, валидацию EDT или
-   фактический прогон в окружении. Если `validateQueryBeforeWrite=true` даёт
-   поток синтаксических ошибок на русских ключевых словах, отключи его
-   локально с фиксацией причины и проверь запрос другим способом.
+1. Зафиксируй `projectName` через `list_workspace_projects` или явное указание
+   пользователя/AIDD-артефактов. Для write-операций всегда передавай
+   `projectName` явно.
+2. Для discovery начинай с узких структурных запросов:
+   - объект: `list_metadata_objects` -> `get_object_details`;
+   - модуль: `list_modules` -> `code_structure outline|find|readMethod`;
+   - ссылки: `code_search objectReferences|methodReferences|callHierarchy`;
+   - СКД: `get_object_details dcsInclude=...` или `code_search dcsSearch`;
+   - форма: `get_form_image format=structure` или `ai_context`.
+3. Для чтения BSL предпочитай `code_structure`:
+   - `outline` - карта модуля без тел;
+   - `find` - поиск внутри одного модуля, с `linesContext` или
+     `expandToMethod`;
+   - `readMethod` - тело конкретного метода;
+   - `readModule` - только когда нужен весь модуль или диапазон.
+   Номера строк в ответах абсолютные и напрямую подходят для
+   `write_module_source`.
+4. Для поиска по всей базе используй `code_search`. Без `projectName` он умеет
+   auto-scope по основной конфигурации и зависимым расширениям/внешним
+   объектам; при явном `projectName` расширяй scope через
+   `searchAllProjects=true`, если нужны linked-проекты.
+5. Для редактирования метаданных, форм, СКД и ролей используй
+   `edit_metadata`, а не прямую правку XML. Сначала изучи help нужной
+   операции или профильного workflow topic.
+6. Для редактирования BSL используй `write_module_source`.
+   - Для изменения одного метода - `replaceMethod`.
+   - Для нескольких методов - `methods=[...]`, чтобы записать файл и
+     провалидировать один раз.
+   - Для кода вне методов - `replaceLines` с обязательным
+     `expectedFirstLine`; для insert - указывай `expectedLine`.
+   - `replace` всего модуля только при явном основании и
+     `confirmFullReplace=true`.
+7. После реальной записи BSL читай `validation` из ответа
+   `write_module_source`: отдельный `get_validation_errors` обычно не нужен.
+   Для серии правок можно поставить `validateAfterWrite=false` и вызвать
+   `get_validation_errors scope=session waitForValidation=true` один раз.
+8. Не используй `scope=project` в крупных типовых конфигурациях без причины:
+   там много legacy-маркеров, не связанных с текущей задачей.
+9. Не вызывай `sync_database`, `rebuild_project`, `yaxunit_tests`,
+   `vanessa` или `launch_debugger` из subagent.
 
-## Чтение ответов `edit_metadata` и XML fallback
+## Чтение ответов и fallback
 
-- Для write-операций `edit_metadata` авторитетный признак успешного применения
-  изменения — `success:true` вместе с полем результата вроде `applied` или
-  `created`. Не трактуй успешный ответ как неуспешный без явного `success:false`
-  или поля ошибки.
-- Блок `exportSync` описывает синхронизацию экспорта EDT. Значение
-  `forceExportOk:false` само по себе не означает, что изменение не записалось.
-  Если нет `error`, а основной ответ содержит `success:true`, сначала проверь
-  фактическое состояние объекта.
-- Перед ручным XML fallback по `.mdo`, `.form`, `.dcs`, `.rights` или похожим
-  EDT-артефактам выполни обязательный чеклист:
-  1. зафиксируй буквальный ответ MCP с `success:false`, `typeWarning`,
-     ошибкой валидации или другой конкретной причиной;
-  2. вызови `get_object_details includeProperties=true` для того же объекта и
-     проверь фактическое состояние после операции;
+- Для `edit_metadata` авторитетный признак успешной записи -
+  `success:true` вместе с полями результата (`applied`, `created`,
+  `renamed`, `removed` и т.п.). Не считай операцию неуспешной только из-за
+  блока синхронизации экспорта, если нет явной ошибки.
+- `exportSync` описывает запись EDT на диск. `forceExportOk:false` само по
+  себе не доказывает, что изменение не применилось: сначала проверь фактическое
+  состояние через `get_object_details`, `get_form_image` или `code_structure`.
+- Перед XML/BSL fallback выполни чеклист:
+  1. зафиксируй буквальный ответ MCP с `success:false`, `supportLock`,
+     `typeWarning`, ошибкой валидации или иной конкретной причиной;
+  2. проверь фактическое состояние структурным read-инструментом;
   3. прочитай `edit_metadata operation=help topic=<operation>` или профильный
-     `topic=...Workflow`, чтобы исключить другую штатную операцию;
-  4. зафиксируй `Tooling gap` с буквальным ответом инструмента, а не пересказом;
-  5. прими fallback-решение по `.claude/rules/core/tool-usage.md`: основная
-     сессия может разрешить fallback сама в рамках утвержденного scope, но
-     обязана спросить пользователя, если fallback меняет scope, риск или смысл
-     согласованной работы.
-- Для регистров используй актуальный workflow MCP: `createObject` с массивами
-  `dimensions`/`resources`/`attributes`/`recorders` или последующий
-  `addRegisterField`. Не переходи к прямой правке `.mdo` только из-за
-  непонимания блока `exportSync`.
-- При `edit_metadata` не запрашивай и не подставляй GUID/UUID вручную. GUID
-  нужен только для разрешенного XML fallback и создаётся через
-  `.claude/scripts/new-guid.cmd`.
+     workflow/troubleshooting topic;
+  4. зафиксируй `Tooling gap` с буквальным ответом инструмента;
+  5. прими fallback-решение по `.claude/rules/core/tool-usage.md`.
+- Если fallback меняет scope, риск или смысл согласованной работы, спроси
+  пользователя перед правкой.
 
 ## Правила безопасности и качества
 
-- Никогда не редактируй `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit`,
-  если есть соответствующая операция `edit_metadata`. Исключение допустимо
-  только при gap/баге MCP, после фиксации причины и fallback-решения по
-  `.claude/rules/core/tool-usage.md`.
-- При работе через `edit_metadata` не подставляй GUID/UUID вручную и не
-  вызывай `.claude/scripts/new-guid.cmd`: `edit_metadata` сам управляет
-  идентификаторами. Не включай `new-guid.cmd` в prompt subagent-а, если
-  выбран MCP-путь.
-- `.claude/scripts/new-guid.cmd` допустим только для явно разрешенного ручного
-  fallback через `Edit`/`Write` EDT XML, `.mdo`, `.dcs`, `.form`, `.rights` или
-  похожих артефактов. Если wrapper не запустился или не разрешен, остановись и
-  попроси решение пользователя; не пробуй прямой `PowerShell -File
-  new-guid.ps1` или inline GUID-команды.
-- Для роли используй `setRoleRight` с массивом `rights`, а не поштучно.
+- Не редактируй напрямую `*.mdo`, `*.form`, `*.dcs`, `*.rights`, `*.bsl`,
+  если MCP покрывает операцию.
+- Не подставляй GUID/UUID вручную при `edit_metadata`.
+- Для роли используй `setRoleRight` с массивом `rights`.
 - Не назначай явные права на `Enum.*`: платформа 1С не поддерживает такие
-  права в роли на уровне сборки конфигурации. MCP `setRoleRight` в `dryRun`
-  может принять такую операцию, но это не доказывает корректность результата.
-  Доступ к значениям перечислений обеспечивается через права на объекты-
-  владельцы реквизитов (`Document`, `Catalog` и т. п.).
-- Для DCS-выражений включай `validateExpressionBeforeWrite`, если операция
-  поддерживает такую проверку. На специфичных функциях возможны ложные
-  срабатывания - отключай локально с пояснением.
-- Для `write_module_source` всегда указывай явный `mode`:
-  - `replaceMethod` для одной процедуры/функции по имени;
-  - `replaceLines` с диапазоном для локальных правок;
-  - `insertBefore`/`insertAfter` для точечных вставок внутри метода;
-  - `replace` только при необходимости полной замены модуля и с
-    `confirmFullReplace=true`.
-- Для вендорских или типовых модулей с doc-comment над методом используй
-  `replaceMethod` только если replacement source включает doc-comment. В MCP
-  4.2.0 `read_method_source` возвращает метод вместе с doc-comment, и такой
-  сценарий сохраняет комментарий. Если передать только код от строки
-  `Процедура`/`Функция`, комментарий перед методом будет удалён. Для точечной
-  правки внутри тела метода предпочитай `insertBefore`/`insertAfter` или
-  `replaceLines`.
-- Не обходи защиту `confirmFullReplace`. Если правка сносит больше половины
-  модуля без явного основания, это сигнал, что выбран не тот режим.
+  права роли на уровне сборки конфигурации.
+- Для DCS-запросов и выражений включай доступные проверки
+  `validateQueryBeforeWrite`/`validateExpressionBeforeWrite`; если отключаешь
+  их из-за ложного срабатывания, фиксируй причину и проверяй другим способом.
+- Для `write_module_source` не обходи защиту `confirmFullReplace`. Если правка
+  сносит больше половины модуля без явного основания, выбран неверный режим.
 - Не выставляй `skipSyntaxCheck=true` без явной причины.
-- Не вызывай `sync_database`, `rebuild_project`, `yaxunit_tests`,
-  `launch_debugger` из subagent. Это write-операции окружения, не исходников.
-- Если запрос/выражение СКД требует проверки и оптимизации, переходи на skill
+- При `replaceLines`/insert перечитывай актуальные строки через
+  `code_structure` после любых правок выше по модулю.
+- Если `write_module_source` вернул `supportLock`, не обходи его прямой
+  файловой правкой: сообщи пользователю и предложи снятие с поддержки или
+  работу через расширение.
+- Если задача затрагивает запрос/выражение СКД глубоко, подключай skill
   `1c-query`.
-- Если задача затрагивает форму как UI (`Form.form` элементы и обработчики),
-  оставайся в этом skill; редактирование делай через `edit_metadata`
-  (`addField`, `addButton`, `setProperty`, `moveItem`, `removeItem`,
-  `addCommandHandler`, `addEventHandler`). Если нужная операция не покрыта MCP,
-  зафиксируй `Tooling gap` и прими fallback-решение по
-  `.claude/rules/core/tool-usage.md` перед прямой правкой `Form.form`.
-- Если задача - YAxUnit, переходи на skill `yaxunit-tests`. Запуск тестов
-  оставляй основной сессии.
+- Если задача затрагивает UI формы, оставайся в этом skill и используй
+  `edit_metadata` (`addField`, `addButton`, `setProperty`, `moveItem`,
+  `removeItem`, `addEventHandler`, `addCommandHandler`,
+  `addFormConditionalAppearance`, `setupSettingsComposerOnForm` и др.).
+- Если задача - YAxUnit, подключай skill `yaxunit-tests`, но запуск оставляй
+  основной сессии.
 - Если задача - удаление элемента метаданных, обязательно используй
-  `1c-metadata-removal-impact` перед `edit_metadata` `remove*`.
+  `1c-metadata-removal-impact` перед `edit_metadata remove*`.
+- Если задача - UI/BDD сценарий, используй `vanessa steps|checkSyntax` перед
+  `vanessa run`; не выдумывай Gherkin-шаги без словаря.
 
-## Известные ограничения 1c-rsv
+## Известные ограничения и осторожности
 
-- `validate_query` в MCP 4.2.0 непригоден как самостоятельный валидатор
-  обычных запросов 1С: подтверждены ложные ошибки даже на `ВЫБРАТЬ 1 КАК
-  Field`. Если валидатор даёт поток синтаксических ошибок на русских ключевых
-  словах, идентификаторах или строках, не трактуй это как факт ошибки запроса
-  без альтернативной проверки.
-- Для модулей объектов метаданных параметр `modulePath` не всегда корректно
-  резолвится через произвольную кириллическую папку. Надёжнее использовать
-  `objectName + moduleType`.
-- В `scope=project` `get_validation_errors` срабатывает предохранитель при
-  большом числе ошибок. Не обходи его через `confirmLargeResult` без явной
-  необходимости.
-- `edit_metadata` может не покрывать отдельные свойства метаданных и СКД:
-  например `datePart=Date` у измерения, `useRestriction` у параметра СКД,
-  права на `Configuration.*`, свойства роли `setForAttributesByDefault`,
-  `setForNewObjects`, `independentRightsOfChildObjects`, замену или удаление
-  существующего `calculatedField`. В таких случаях сначала проверь help
-  операции, затем оформи точечный fallback с причиной и проверкой diff.
-- `addCalculatedField` может добавить дубль вместо замены существующего поля.
-  Перед применением проверь наличие поля и не считай операцию replace-ом, если
-  help явно этого не обещает.
-- Для регистров в MCP 4.2.0 актуальный workflow: `createObject` с массивами
-  `dimensions`/`resources`/`recorders` или последующий `addRegisterField`.
-  Не используй устаревшее имя операции `addDimension`, если `help` его не
-  подтверждает.
+- `validate_query` в 5.2.0 больше не имеет подтверждённого дефекта с русскими
+  ключевыми словами, но остаётся валидатором. Для критичных запросов проверяй
+  не только синтаксис, но и фактический контекст: `projectName`,
+  `projectScope=true`, запись в СКД/код и/или тестовый прогон.
+- `code_search useRegex=true` для `textSearch` не поддерживается; используй
+  wildcards `*` и `?`. Regex есть в `code_structure find` внутри одного модуля
+  и в `dcsSearch`.
+- `get_validation_errors scope=session` покажет только файлы, изменённые в
+  текущей сессии плагина. Если ничего не правили через MCP/EDT, используй
+  `scope=object` или `fileFilter`.
+- `scope=project` и `scope=all` на типовых конфигурациях могут вернуть тысячи
+  legacy-маркеров; не смешивай их с качеством текущей правки.
+- Для внешних обработок/отчётов и расширений сначала читай соответствующие
+  help topics: `externalObjectsWorkflow`, `extensionsWorkflow`.
+- Состав operations `edit_metadata` развивается. Если старый gap был описан в
+  предыдущих версиях skill, не считай его актуальным без проверки help и
+  фактического ответа MCP.
 
 ## Формат фиксации в research/review
 
@@ -286,9 +244,10 @@ description: >
 
 ```text
 MCP 1c-rsv:
+- server: <MCP:RSV Server version, если проверяли>
 - project: <name>
-- discovery helpers: <list_metadata_objects, get_object_details, ...>
+- discovery: <list_metadata_objects, code_structure, code_search, ...>
 - edits: <edit_metadata operations / write_module_source modes>
-- validation: <session/object summary, errors/warnings counts>
-- limitations: <validate_query кириллица, modulePath кириллица, ...>
+- validation: <write_module_source validation или get_validation_errors summary>
+- limitations: <MCP unavailable, project scope, supportLock, fallback gap, ...>
 ```

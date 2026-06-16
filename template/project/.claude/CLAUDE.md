@@ -86,7 +86,7 @@ supporting docs.
 Это включает:
 
 - discovery (`list_metadata_objects`, `get_object_details`,
-  `code_search`, `ai_context`, `read_method_source`, `get_form_image`);
+  `code_search`, `code_structure`, `ai_context`, `get_form_image`);
 - смысловое discovery по 1С/EDT-кодовой базе: поиск объектов, методов, форм,
   ссылок, callers, подписок, движений, интеграций и локальных reference
   patterns;

@@ -1,7 +1,7 @@
 ---
 name: debug-fixer
 description: "Разработчик 1С/БСП. Исправляет одну диагностированную проблему из aidd debug-loop без commit и без запуска нового цикла."
-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__get_module_structure, mcp__1c-rsv__read_module_source, mcp__1c-rsv__read_method_source, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module, mcp__1c-rsv__edit_metadata, mcp__1c-rsv__write_module_source, mcp__1c-rsv__export_object
+tools: Read, Write, Edit, Glob, Grep, Bash, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__code_structure, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module, mcp__1c-rsv__edit_metadata, mcp__1c-rsv__write_module_source, mcp__1c-rsv__export_object
 disallowedTools: AskUserQuestion
 model: sonnet
 skills:
