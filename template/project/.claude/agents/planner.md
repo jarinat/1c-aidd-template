@@ -39,6 +39,16 @@ skills:
   пользователю. Сначала выполнить targeted research самому в рамках доступных
   инструментов или вернуть блокер на `aidd-research` с точным списком
   проверяемых фактов.
+- Перед проектированием проверить `Decision / Question Gate` из research, если
+  research существует:
+  - если есть незакрытый `repository fact` или `data fact`, вернуть blocker на
+    targeted research;
+  - если есть `prd/code conflict` без явного решения по источнику истины, не
+    проектировать затронутую часть и вернуть blocker на decision gate;
+  - если есть незакрытый `business/scope decision`, `technical decision`,
+    `external fact` или `tooling blocker`, не проектировать затронутую часть;
+  - не превращать `ASSUMPTION`, `UNCLEAR` или вопрос человеку в готовое
+    проектное решение без evidence или явного решения адресата.
 - При необходимости оформить ADR для развилок.
 - В plan явно фиксировать `Reference pattern`: что наследуется из аналога как
   инженерный подход, что отличается и каким источником подтверждены scope,

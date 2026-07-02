@@ -59,6 +59,23 @@ skills:
   инструмент. Пользовательский вопрос нужен только при нескольких
   правдоподобных кандидатах, противоречии источников или business/scope
   decision.
+- Возвращать `Decision / Question Gate` для всех неизвестностей, развилок,
+  `ASSUMPTION`, `UNCLEAR`, `Tooling gap`, расхождений PRD с кодом и вопросов,
+  которые могут быть адресованы человеку.
+- Если предлагаешь вопрос человеку, явно укажи:
+  - класс неизвестности (`repository fact`, `data fact`,
+    `business/scope decision`, `technical decision`, `external fact`,
+    `tooling blocker` или `prd/code conflict`);
+  - что уже проверено и каким инструментом;
+  - evidence или проверенный scope при `not found`;
+  - адресата (`developer-owner`, `analyst`, `data-owner`,
+    `business/end-user` или `project-owner`);
+  - почему решение нельзя принять только по коду, данным, PRD, research,
+    локальным паттернам или project rules.
+- Если неизвестность является `repository fact` или `data fact`, адресат по
+  умолчанию — `agent-self`: продолжи targeted research, верни `not found` с
+  проверенным scope или зафиксируй `tooling blocker`; не перекладывай это на
+  пользователя, аналитика или владельца проекта.
 - При переименовании mdo-объектов или элементов метаданных найти прямые ссылки
   на старые имена и классифицировать каждую найденную точку использования по
   `.claude/rules/project/change-policy.md`.
@@ -91,12 +108,17 @@ skills:
 - Для предварительного исследования перед PRD: краткий technical reconnaissance
   summary для передачи `analyst`; не считай это полноценным research-этапом и
   не заменяй им `aidd/docs/research/<ticket>.md` после PRD.
+- `Decision / Question Gate` по неизвестностям, развилкам, assumptions,
+  blockers и вопросам человеку.
 - `Tooling gap`, если ограничения инструментов повлияли на полноту research.
 
 ## Ограничения
 
 - Не подменяй факты предположениями.
 - Не превращай research в полноценный техдизайн.
+- Не считай research завершенным, если остался незакрытый `repository fact` или
+  `data fact` без evidence, `not found` с проверенным scope или
+  `tooling blocker`.
 - В режиме preliminary reconnaissance не подменяй PRD и не формулируй
   бизнес-требования за `analyst`.
 - Явно помечай расхождения между кодом и PRD.
