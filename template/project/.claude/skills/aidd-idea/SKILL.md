@@ -31,6 +31,13 @@ reference patterns, основная сессия сначала применя�
 `researcher` в режиме предварительного технического исследования, а затем
 передай его вывод `analyst`.
 
+Если пользователь просит оценить "масштаб", "impact", "сколько объектов",
+"масштаб бедствия" или похожую оценку, а задача содержит rename/split/delete,
+миграцию данных, обработчик обновления ИБ или массовую перепривязку ссылок,
+preliminary research должен вернуть `Preliminary Impact Coverage Matrix`.
+Без такой matrix PRD не должен утверждать, что масштаб определен полностью:
+формулируй scope как предварительный и явно перечисляй непроверенные зоны.
+
 Source of truth для lifecycle артефактов и статусов:
 
 - `.claude/rules/core/aidd-artifacts.md`
@@ -68,6 +75,12 @@ Source of truth для lifecycle артефактов и статусов:
 4. Если входной контроль требует анализа кода глубже точечной проверки, запусти
    `researcher` до `analyst`. Передай ему ticket id, исходное описание задачи,
    найденные через `1c-rsv` кандидаты, ссылки/файлы и конкретные вопросы.
+   Если задача рискованная по impact (rename/split/delete/migration/обработчик
+   обновления ИБ/массовая перепривязка ссылок), явно потребуй от `researcher`
+   `Preliminary Impact Coverage Matrix`: BSL, metadata `*.mdo`, forms `*.form`,
+   DCS `*.dcs`, rights `*.rights`, роли/RLS, регистры, отчеты, обработки,
+   обмены, подписки, расширения, тесты и external epf/erf. Для EDT XML нужен
+   MCP evidence, `Glob`/`Grep` fallback или `tooling blocker`.
    Не подменяй этим полноценный этап `research` после PRD.
 5. Создай или обнови `aidd/docs/prd/<ticket>.prd.md` по структуре PRD.
 6. Запусти `analyst` для подготовки PRD, явно передав ему найденные `BLOCKER`,
@@ -140,7 +153,15 @@ Source of truth для lifecycle артефактов и статусов:
     - не фиксируй "можно удалить" без research-диагностики;
     - укажи, что финальное решение по `USED` и `UNCLEAR` точкам принимается
       после technical impact analysis и обсуждения с аналитиком/бизнесом.
-13. Если остались blocking/open questions, оставь PRD в draft-состоянии. Иначе
+13. Если PRD опирается на preliminary impact как источник масштаба, проверь
+    наличие `Preliminary Impact Coverage Matrix`:
+    - если matrix отсутствует при risky impact, оставь статус draft и зафиксируй
+      blocker на targeted research;
+    - если matrix содержит `not checked` по критичным зонам без `tooling
+      blocker`, не формулируй "масштаб определен полностью";
+    - если отчеты/СКД, формы или rights не покрыты MCP evidence, `Glob`/`Grep`
+      fallback или blocker, явно вынеси это в `Warnings`/`Open questions`.
+14. Если остались blocking/open questions, оставь PRD в draft-состоянии. Иначе
     переведи его в готовый статус по правилам AIDD.
 
 ## Минимальный состав PRD

@@ -79,6 +79,20 @@ skills:
 - При переименовании mdo-объектов или элементов метаданных найти прямые ссылки
   на старые имена и классифицировать каждую найденную точку использования по
   `.claude/rules/project/change-policy.md`.
+- Для rename/split/migration и обработчиков обновления ИБ выполнить impact
+  coverage, а не только поиск прямых ссылок:
+  - построить seed set: исходный объект, новый/переименованный объект, связанные
+    регистры, составные реквизиты, basedOn, определяемые типы, роли/RLS,
+    подписки, обмены, отчеты, обработки, формы, тесты и расширения;
+  - проверить транзитивные связи через регистры и составные реквизиты, даже если
+    прямой ссылки на исходный объект в BSL нет;
+  - для EDT XML (`*.dcs`, `*.form`, `*.mdo`, `*.rights`) зафиксировать evidence
+    от MCP или выполнить `Glob`/`Grep` fallback. Если зона не проверена, пиши
+    `not checked`/`tooling blocker`, а не делай вывод о полноте;
+  - для отчетов получить список релевантных `Report.*` и проверить СКД по имени
+    объекта, связанным регистрам, составным реквизитам и business-названиям;
+  - вернуть `Impact Coverage Matrix` даже в preliminary reconnaissance, если
+    пользователь просит оценить масштаб или impact.
 - При удалении элементов метаданных выполнить диагностику по
   `.claude/skills/1c-metadata-removal-impact/SKILL.md` и классифицировать
   результат как `UNUSED`, `DEAD_FUNC`, `USED` или `UNCLEAR`.
@@ -108,6 +122,10 @@ skills:
 - Для предварительного исследования перед PRD: краткий technical reconnaissance
   summary для передачи `analyst`; не считай это полноценным research-этапом и
   не заменяй им `aidd/docs/research/<ticket>.md` после PRD.
+- Для preliminary impact по rename/split/migration: краткая
+  `Preliminary Impact Coverage Matrix` с проверенными зонами, найденными
+  объектами, `not found` scope и tooling gaps. Не называй масштаб полным, если
+  matrix содержит непроверенные критичные зоны.
 - `Decision / Question Gate` по неизвестностям, развилкам, assumptions,
   blockers и вопросам человеку.
 - `Tooling gap`, если ограничения инструментов повлияли на полноту research.
@@ -118,6 +136,10 @@ skills:
 - Не превращай research в полноценный техдизайн.
 - Не считай research завершенным, если остался незакрытый `repository fact` или
   `data fact` без evidence, `not found` с проверенным scope или
+  `tooling blocker`.
+- Не считай impact-анализ полным, если проверены только MCP
+  `objectReferences`/`textSearch`. Для EDT XML (`*.dcs`, `*.form`, `*.mdo`,
+  `*.rights`) нужен явный MCP evidence, `Glob`/`Grep` fallback или
   `tooling blocker`.
 - В режиме preliminary reconnaissance не подменяй PRD и не формулируй
   бизнес-требования за `analyst`.

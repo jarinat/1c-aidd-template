@@ -49,6 +49,18 @@ skills:
     `external fact` или `tooling blocker`, не проектировать затронутую часть;
   - не превращать `ASSUMPTION`, `UNCLEAR` или вопрос человеку в готовое
     проектное решение без evidence или явного решения адресата.
+- Для rename/split/migration, удаления, обработчика обновления ИБ или массовой
+  перепривязки ссылок перед проектированием проверить `Impact Coverage Matrix`
+  или `Preliminary Impact Coverage Matrix`:
+  - если matrix отсутствует, вернуть blocker на `aidd-research`/targeted
+    research;
+  - если есть `not checked` по критичным зонам без `tooling blocker`, не
+    проектировать затронутую часть;
+  - если EDT XML (`*.dcs`, `*.form`, `*.mdo`, `*.rights`) не покрыт MCP
+    evidence, `Glob`/`Grep` fallback или blocker, не проектировать
+    отчеты, формы, rights/RLS и связанные metadata-изменения;
+  - если отчеты/СКД не проверены по имени объекта и связанным регистрам или
+    составным реквизитам, вернуть blocker на research completeness sweep.
 - При необходимости оформить ADR для развилок.
 - В plan явно фиксировать `Reference pattern`: что наследуется из аналога как
   инженерный подход, что отличается и каким источником подтверждены scope,
