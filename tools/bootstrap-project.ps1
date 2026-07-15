@@ -3,8 +3,9 @@
 Bootstraps local AIDD/Codex/Claude Code files in one 1C/EDT project.
 
 .DESCRIPTION
-Installs the reusable runtime layer from template/project and creates missing
-local project scaffolding without overwriting project-specific rules.
+Installs the reusable runtime layer and shared project helpers from
+template/project, then creates missing local project scaffolding without
+overwriting project-specific rules.
 
 Run without -Apply to preview operations.
 
@@ -241,7 +242,8 @@ $overwriteRoots = @(
     ".claude/skills",
     ".claude/rules/core",
     ".claude/scripts",
-    ".claude/docs"
+    ".claude/docs",
+    "tools/scripts/download-sonar-issues.os"
 )
 
 $createIfMissingRoots = @(

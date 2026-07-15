@@ -3,9 +3,9 @@
 Copies shared AIDD template files to one target project.
 
 .DESCRIPTION
-Synchronizes only files that exist in template/project under the shared
-Claude Code runtime paths. Project-local files in the same target directories
-are not changed or removed.
+Synchronizes template-owned shared runtime files and project helpers from
+template/project. Project-local files in the same target directories are not
+changed or removed.
 
 Run without -Apply to preview Add/Update/Unchanged operations.
 
@@ -121,7 +121,8 @@ $syncRoots = @(
     ".claude/rules/core",
     ".claude/scripts",
     ".claude/docs",
-    "aidd/fixtures"
+    "aidd/fixtures",
+    "tools/scripts/download-sonar-issues.os"
 )
 
 $sourceFiles = New-Object System.Collections.Generic.List[System.IO.FileInfo]
