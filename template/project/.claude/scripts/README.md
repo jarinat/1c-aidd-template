@@ -27,7 +27,16 @@ Deterministic блокировки shell-паттернов живут отде�
 - `gitlab-mr-review.cmd` -- approval-friendly entrypoint для GitLab MR review.
 - `gitlab-mr-review.ps1` -- реализация GitLab MR review: metadata, fetch refs,
   изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
-  вызывай напрямую из Claude Code, используй `.cmd` wrapper.
+  вызывай напрямую из Claude Code, используй `.cmd` wrapper. Read-only по
+  отношению к GitLab: команд записи здесь быть не должно.
+- `gitlab-tools.cmd` -- approval-friendly entrypoint для GitLab-операций через
+  `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), ответы
+  и resolve (`reply`, `resolve`). Сценарий и границы —
+  `.claude/skills/gitlab-tools/SKILL.md`.
+- `gitlab-tools.ps1` -- реализация GitLab-операций: явные валидируемые
+  подкоманды, ретрай только на DNS-ошибках, тело заметки только из файла. Не
+  вызывай напрямую из Claude Code, используй `.cmd` wrapper. Правила
+  расширения описаны в шапке самого скрипта.
 - `http-smoke.cmd` -- approval-friendly entrypoint для HTTP-smoke runner-а,
   разрешённого только когда `aidd-debug-loop` или test/debug plan явно
   указывает этот runner.
@@ -80,6 +89,12 @@ Deterministic блокировки shell-паттернов живут отде�
   `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd`,
   `.claude/scripts/gitlab-mr-review.cmd` или
   `.claude/scripts/http-smoke.cmd`.
+- Если скрипт совмещает read- и write-операции, разрешение выдается по
+  префиксу подкоманды, а не на скрипт целиком. Для `gitlab-tools.cmd` в
+  `permissions.allow` входят только `threads`, `pipeline`, `pipeline-log` и
+  `help`; `reply` и `resolve` намеренно остаются без разрешения, чтобы каждая
+  публикация в GitLab упиралась в permission-запрос. Wildcard
+  `Bash(.claude/scripts/gitlab-tools.cmd:*)` добавлять в allow нельзя.
 - HTTP-smoke runner используется только в рамках `aidd-debug-loop`, когда
   test plan в `aidd/docs/debug/<ticket>.md` его явно указывает. URL стендов
   и профили — через `.claude/config/http-smoke.local.json`; креды и токены —

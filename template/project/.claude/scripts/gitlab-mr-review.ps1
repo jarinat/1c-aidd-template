@@ -8,7 +8,9 @@ MR refs, writes a manifest and diff files under C:\ai-review-wt\_manifests,
 and prints the manifest JSON to stdout.
 
 The script intentionally does not publish comments, approve, merge, checkout
-the user's current branch, or accept arbitrary shell code.
+the user's current branch, or accept arbitrary shell code. Reading and answering
+MR threads lives in gitlab-tools.ps1 so that this read-only entrypoint keeps its
+blanket permission without granting GitLab write access.
 
 .EXAMPLE
 .claude/scripts/gitlab-mr-review.cmd prepare -MrUrl https://gitlab.example.com/group/project/-/merge_requests/123

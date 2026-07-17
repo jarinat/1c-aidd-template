@@ -75,6 +75,11 @@ supporting docs.
 - В таком случае сначала прочитай `.claude/skills/aidd-debug-loop/SKILL.md`.
 - `debug-loop` не заменяет `feedback-fix`: пользовательские замечания идут в
   `feedback`, машинный trace runner-ов идёт в `aidd/docs/debug/<ticket>.md`.
+- Если пользователь просит посмотреть замечания GitLab merge request, проверить
+  их исправленность, ответить ревьюеру, узнать статус пайплайна или разобрать
+  падение CI, это сценарий `gitlab-tools`. Замечание ревьюера GitLab — внешняя
+  находка: оно идёт в `review`, а не в `feedback`. Эта маршрутизация имеет
+  приоритет над общим правилом `feedback`.
 
 ## Обязательный routing skills
 
