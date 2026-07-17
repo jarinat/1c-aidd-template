@@ -44,9 +44,12 @@ supporting docs.
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
   `.claude/skills/1c-rsv-tools/SKILL.md`
+  `.claude/skills/bsl-ls-tools/SKILL.md`
+  `.claude/skills/v8std-tools/SKILL.md`
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
+  `.claude/skills/gitlab-tools/SKILL.md`
   `.claude/skills/project-onboarding/SKILL.md`
 - Роли subagent-ов:
   `.claude/agents/*.md`
@@ -126,6 +129,26 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 инструмент. Если доступен `1c-rsv`, используй его для metadata, СКД, форм,
 ролей и BSL; если недоступен, действуй через другой разрешенный проектом
 структурированный способ.
+
+### bsl-ls-tools
+
+Если MCP `bsl-ls` доступен, механический слой проверки изменённых `.bsl`
+(диагностики BSL Language Server) и языковая навигация уровня BSL
+(`find_references`, `call_hierarchy`) выполняются через
+`.claude/skills/bsl-ls-tools/SKILL.md`. На этапе review этот слой обязателен
+для изменённых `.bsl`, а недоступность MCP фиксируется как ограничение review.
+
+`bsl-ls` не заменяет `1c-rsv`: метаданные, формы, СКД, роли, EDT-валидация и
+все правки остаются в зоне `1c-rsv-tools`. `bsl-ls` привязан к рабочей копии
+и не используется в изолированном review worktree.
+
+### v8std-tools
+
+Для сверки паттерна кода со стандартами 1С, расшифровки кодов диагностик
+(BSLLS, АПК, EDT/v8-code-style) и разрешения споров «стандарт или вкус»
+используй `.claude/skills/v8std-tools/SKILL.md`, если MCP `v8std` доступен.
+Это read-only база знаний без привязки к рабочей копии; она разрешена и в
+review-сценариях с изолированным worktree.
 
 ### 1c-debug-info-tools
 

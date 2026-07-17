@@ -25,6 +25,7 @@ permissionMode: acceptEdits
 - project rules и path rules:
   - `.claude/rules/core/tool-usage.md`
   - `.claude/rules/core/code-style.md`
+  - `.claude/rules/core/onec-general.md`
   - `.claude/rules/project/change-policy.md`
   - `.claude/rules/project/naming.md`
   - `.claude/rules/paths/*.md`

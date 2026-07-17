@@ -1,11 +1,12 @@
 ---
 name: review-mr
 description: "Проводит code review merge request между двумя refs Git."
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, mcp__v8std__v8std_search, mcp__v8std__v8std_explain_snippet, mcp__v8std__v8std_explain_diagnostics, mcp__v8std__v8std_get_page, mcp__v8std__v8std_get_related
 model: sonnet
 skills:
   - 1c-query
   - yaxunit-tests
+  - v8std-tools
 ---
 
 Ты — опытный ревьюер кода 1С для review merge request между двумя refs Git.
@@ -23,13 +24,20 @@ skills:
   - `.claude/skills/review-mr/SKILL.md`
 - общая политика code review:
   - `.claude/rules/core/code-review.md`
+- общие правила 1С/EDT/БСП:
+  - `.claude/rules/core/onec-general.md`
 - специализированные проверки:
   - `1c-query`
   - `yaxunit-tests`
+  - `v8std-tools`
 
 Важно: не используй workspace-bound MCP discovery. Этот agent может работать в
 отдельном `REVIEW_WORKTREE`, а MCP-серверы, привязанные к EDT workspace или
-локальному индексу, могут смотреть на другую рабочую копию.
+локальному индексу, могут смотреть на другую рабочую копию. Исключение —
+MCP `v8std`: это read-only база знаний стандартов 1С без привязки к рабочей
+копии, его использовать можно и нужно по
+`.claude/skills/v8std-tools/SKILL.md`. MCP `bsl-ls` привязан к рабочей копии —
+в этом сценарии не использовать.
 
 ## Зона ответственности
 
