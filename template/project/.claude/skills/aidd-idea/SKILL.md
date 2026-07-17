@@ -22,7 +22,7 @@ disable-model-invocation: true
 Если такая проверка превращается в смысловое 1С/EDT discovery по неизвестным
 связям, формам, ссылкам, движениям, подпискам, callers, интеграциям или
 reference patterns, основная сессия сначала применяет
-`.claude/skills/1c-rsv-tools/SKILL.md`, если MCP доступен. Широкий `Glob`/`Grep`
+`.claude/skills/1c-edt-mcp-tools/SKILL.md` (A-EDT), иначе `.claude/skills/1c-rsv-tools/SKILL.md` (A-RSV), если MCP доступен. Широкий `Glob`/`Grep`
 по `src`, `src/cf`, `src/cfe` используй только как fallback или для
 подтверждения найденных MCP-кандидатов.
 
@@ -59,7 +59,7 @@ Source of truth для lifecycle артефактов и статусов:
      источник до подготовки PRD;
    - если нужно найти объект 1С, поле, форму, ссылки, точки использования,
      зависимости или локальный reference pattern без точного известного файла,
-     сначала используй `1c-rsv-tools` для preliminary discovery, затем читай
+     сначала используй `1c-edt-mcp-tools` (иначе `1c-rsv-tools`) для preliminary discovery, затем читай
      найденные конкретные файлы/методы/XML;
    - если найденный файл является источником требований, зафиксируй его в PRD
      как источник соответствующей части требований;
@@ -74,7 +74,7 @@ Source of truth для lifecycle артефактов и статусов:
      намеренное изменение scope/требований.
 4. Если входной контроль требует анализа кода глубже точечной проверки, запусти
    `researcher` до `analyst`. Передай ему ticket id, исходное описание задачи,
-   найденные через `1c-rsv` кандидаты, ссылки/файлы и конкретные вопросы.
+   найденные через EDT-слой (`edt-mcp`, иначе `1c-rsv`) кандидаты, ссылки/файлы и конкретные вопросы.
    Если задача рискованная по impact (rename/split/delete/migration/обработчик
    обновления ИБ/массовая перепривязка ссылок), явно потребуй от `researcher`
    `Preliminary Impact Coverage Matrix`: BSL, metadata `*.mdo`, forms `*.form`,
@@ -92,7 +92,7 @@ Source of truth для lifecycle артефактов и статусов:
      fact, business/scope decision, external fact или tooling blocker;
    - для вопросов класса `repository fact` выполни targeted follow-up research
      до обращения к пользователю: найди объект 1С, реквизит, поле, метод, СКД,
-     форму, роль, тест или AIDD-источник через `1c-rsv`, `Read`, точечный
+     форму, роль, тест или AIDD-источник через EDT-слой (`edt-mcp`, иначе `1c-rsv`), `Read`, точечный
      `Grep` или другой разрешенный discovery-инструмент;
    - если вопрос можно закрыть из уже известного контекста, перенеси решение в
      `Resolved decisions` с пометкой источника `context`;

@@ -43,6 +43,7 @@ supporting docs.
   `.claude/skills/1c-debug-info-tools/SKILL.md`
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
+  `.claude/skills/1c-edt-mcp-tools/SKILL.md`
   `.claude/skills/1c-rsv-tools/SKILL.md`
   `.claude/skills/bsl-ls-tools/SKILL.md`
   `.claude/skills/v8std-tools/SKILL.md`
@@ -86,11 +87,24 @@ supporting docs.
 
 ## Обязательный routing skills
 
+### 1c-edt-mcp-tools
+
+Для metadata, СКД, форм, ролей, подсистем и BSL выбирай EDT-слой:
+
+| Режим | Условие | Действие |
+| --- | --- | --- |
+| A-EDT | доступны `mcp__edt-mcp__*` | предпочитай бесплатный EDT MCP через `.claude/skills/1c-edt-mcp-tools/SKILL.md` |
+| A-RSV | EDT MCP недоступен, доступны `mcp__1c-rsv__*` | используй `.claude/skills/1c-rsv-tools/SKILL.md` |
+| B | оба MCP недоступны | используй штатный project fallback; отсутствие MCP само по себе не `Tooling gap` |
+
+Если доступен только один MCP, используй его. Не смешивай write API EDT MCP и
+`1c-rsv` в одном change block для одного объекта или модуля. `1c-rsv` остаётся
+поддерживаемой альтернативой, особенно для уникальных read-only возможностей.
+
 ### 1c-rsv-tools
 
-Если MCP `1c-rsv` доступен, работа с метаданными, СКД, формами, ролями,
-подсистемами и BSL-модулями выполняется через
-`.claude/skills/1c-rsv-tools/SKILL.md`.
+Если EDT MCP недоступен, но доступен MCP `1c-rsv`, этот слой выполняется через
+`.claude/skills/1c-rsv-tools/SKILL.md` (A-RSV fallback).
 
 Это включает:
 
@@ -126,9 +140,9 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 БСП в ИБ, используй `.claude/skills/1c-bsp/SKILL.md`.
 
 `1c-bsp` задает БСП-контракты и чеклисты, но не навязывает конкретный
-инструмент. Если доступен `1c-rsv`, используй его для metadata, СКД, форм,
-ролей и BSL; если недоступен, действуй через другой разрешенный проектом
-структурированный способ.
+инструмент. Для metadata, СКД, форм, ролей и BSL используй EDT-слой: сначала `edt-mcp`,
+иначе `1c-rsv`; если оба недоступны, действуй через другой разрешенный
+проектом структурированный способ.
 
 ### bsl-ls-tools
 
@@ -138,8 +152,8 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 `.claude/skills/bsl-ls-tools/SKILL.md`. На этапе review этот слой обязателен
 для изменённых `.bsl`, а недоступность MCP фиксируется как ограничение review.
 
-`bsl-ls` не заменяет `1c-rsv`: метаданные, формы, СКД, роли, EDT-валидация и
-все правки остаются в зоне `1c-rsv-tools`. `bsl-ls` привязан к рабочей копии
+`bsl-ls` не заменяет EDT-слой: метаданные, формы, СКД, роли, EDT-валидация и
+все правки остаются в зоне `1c-edt-mcp-tools`, иначе `1c-rsv-tools`. `bsl-ls` привязан к рабочей копии
 и не используется в изолированном review worktree.
 
 ### v8std-tools
@@ -158,10 +172,9 @@ review-сценариях с изолированным worktree.
 `.claude/skills/1c-debug-info-tools/SKILL.md` как дополнительный источник
 evidence.
 
-`1c-debug-info` не заменяет `1c-rsv`: код, метаданные EDT, формы, СКД, роли и
-BSL-правки остаются в зоне `1c-rsv-tools`. Runtime evidence из
-`1c-debug-info` нужно связывать с исходниками через `1c-rsv`, `Read` или
-другой разрешенный discovery.
+`1c-debug-info` не заменяет EDT-слой: код, метаданные EDT, формы, СКД, роли и
+BSL-правки остаются в зоне `1c-edt-mcp-tools`, иначе `1c-rsv-tools`. Runtime
+evidence связывай с исходниками через EDT-слой, `Read` или другой разрешенный discovery.
 
 ### YAxUnit
 

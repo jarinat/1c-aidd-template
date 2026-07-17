@@ -158,7 +158,7 @@ Latin Dok_ is blocked in 1C/YAxUnit paths and object names. Use the Cyrillic pro
 "@.Trim()
 
 $bslFilesystemEditReason = @"
-Direct filesystem Write/Edit of BSL under the project source tree is blocked. Use 1c-rsv write_module_source; fallback needs an explicit user decision and literal tooling evidence.
+Direct filesystem Write/Edit of BSL under the project source tree is blocked. Use EDT MCP write_module_source with expectedHash when available; otherwise use 1c-rsv write_module_source. Filesystem fallback needs an explicit user decision and literal tooling evidence.
 "@.Trim()
 
 if (Test-Regex -Text $inputText -Pattern "\bDok_") {

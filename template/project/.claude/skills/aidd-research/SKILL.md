@@ -19,8 +19,8 @@ description: >
 Для задач удаления элементов метаданных дополнительно используй
 `.claude/skills/1c-metadata-removal-impact/SKILL.md`.
 
-Если доступен MCP `1c-rsv`, дополнительно используй
-`.claude/skills/1c-rsv-tools/SKILL.md` как discovery слой для больших
+Если доступен EDT-слой, дополнительно используй `.claude/skills/1c-edt-mcp-tools/SKILL.md`
+(предпочтительно) или `.claude/skills/1c-rsv-tools/SKILL.md` (A-RSV fallback) как discovery слой для больших
 1С/EDT-кодовых баз. Он помогает искать объекты, методы, ссылки, формы,
 подписки, движения, интеграции и локальные аналоги, но не заменяет чтение
 исходников и AIDD-артефактов.
@@ -36,7 +36,7 @@ description: >
 1. Определи ticket id: используй переданный аргумент или `aidd/docs/.active_ticket`.
 2. Прочитай PRD из `aidd/docs/prd/<ticket>.prd.md`.
 3. Исследуй кодовую базу:
-   - если подключен `1c-rsv`, начни с MCP discovery: определи `projectName`,
+   - если подключен EDT-слой, начни с MCP discovery: в A-EDT определи `projectName` через `list_projects`; в A-RSV следуй `1c-rsv-tools`;
      выполни релевантные discovery-операции и зафиксируй ограничения;
    - найди точки встраивания;
    - найди локальные аналоги реализации в том же модуле, объекте, форме, общем

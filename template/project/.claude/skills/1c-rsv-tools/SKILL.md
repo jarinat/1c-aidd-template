@@ -9,6 +9,12 @@ description: >
 
 # 1c-rsv-tools
 
+> **A-RSV fallback.** Если доступны `mcp__edt-mcp__*`, по умолчанию используй
+> `.claude/skills/1c-edt-mcp-tools/SKILL.md`. Этот skill применяется, когда EDT
+> MCP недоступен, но доступен `1c-rsv`, либо когда требуется уникальная
+> read-only capability RSV. Не смешивай write API RSV и EDT MCP в одном change
+> block для одного объекта или модуля.
+
 Этот skill описывает правила использования MCP-сервера `1c-rsv`. Сервер
 работает поверх запущенного 1С:EDT (HTTP MCP) и даёт структурный discovery,
 валидацию EDT и write-операции через штатные модели EDT, а не через прямую

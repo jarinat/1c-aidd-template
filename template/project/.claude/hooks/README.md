@@ -9,7 +9,7 @@ permission rules.
 ## Hooks
 
 - `block-inline-file-inspection.ps1` -- `PreToolUse` guard для `Bash`,
-  `Read`/`Write`/`Edit`/`Glob`/`Grep` и MCP `1c-rsv`, который блокирует
+  `Read`/`Write`/`Edit`/`Glob`/`Grep` и MCP 1С/EDT (`edt-mcp`, `1c-rsv`), который блокирует
   опасные обходы штатных инструментов и возвращает агенту подсказку
   использовать `.claude/rules/core/tool-usage.md`, профильный skill или
   documented helper.

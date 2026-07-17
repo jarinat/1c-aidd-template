@@ -20,7 +20,7 @@ Shell не является универсальным fallback для чтен�
 - AIDD-артефакты активного тикета: протокол из
   `.claude/rules/core/aidd-artifacts.md`.
 - 1С/EDT metadata, BSL, формы, СКД, роли и подсистемы: сначала
-  `.claude/skills/1c-rsv-tools/SKILL.md` и доступные MCP tools.
+  `.claude/skills/1c-edt-mcp-tools/SKILL.md`, иначе `.claude/skills/1c-rsv-tools/SKILL.md` и доступные MCP tools.
 - Runtime-диагностика живой 1С базы, журнал регистрации, структура объектов в
   опубликованной ИБ: `.claude/skills/1c-debug-info-tools/SKILL.md`, если MCP
   `1c-debug-info` доступен.
