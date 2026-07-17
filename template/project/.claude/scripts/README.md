@@ -30,8 +30,9 @@ Deterministic блокировки shell-паттернов живут отде�
   вызывай напрямую из Claude Code, используй `.cmd` wrapper. Read-only по
   отношению к GitLab: команд записи здесь быть не должно.
 - `gitlab-tools.cmd` -- approval-friendly entrypoint для GitLab-операций через
-  `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), ответы
-  и resolve (`reply`, `resolve`). Сценарий и границы —
+  `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), общие
+  комментарии, ответы, inline review-треды и resolve (`note`, `reply`,
+  `discuss`, `resolve`). Сценарий и границы —
   `.claude/skills/gitlab-tools/SKILL.md`.
 - `gitlab-tools.ps1` -- реализация GitLab-операций: явные валидируемые
   подкоманды, ретрай только на DNS-ошибках, тело заметки только из файла. Не

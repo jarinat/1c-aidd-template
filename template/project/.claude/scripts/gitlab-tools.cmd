@@ -10,8 +10,10 @@ if /I "%~1"=="help" goto :run
 if /I "%~1"=="threads" goto :run
 if /I "%~1"=="pipeline" goto :run
 if /I "%~1"=="pipeline-log" goto :run
+if /I "%~1"=="note" goto :run
 if /I "%~1"=="reply" goto :run
 if /I "%~1"=="resolve" goto :run
+if /I "%~1"=="discuss" goto :run
 goto :usage
 
 :run
@@ -28,6 +30,8 @@ echo   gitlab-tools.cmd pipeline -MrUrl ^<merge-request-url^>
 echo   gitlab-tools.cmd pipeline-log -MrUrl ^<merge-request-url^> -JobId ^<job-id^> [-Tail ^<lines^>]
 echo.
 echo Write commands (always ask for permission):
+echo   gitlab-tools.cmd note -MrUrl ^<merge-request-url^> -BodyFile ^<path^>
 echo   gitlab-tools.cmd reply -MrUrl ^<merge-request-url^> -DiscussionId ^<id^> -BodyFile ^<path^>
 echo   gitlab-tools.cmd resolve -MrUrl ^<merge-request-url^> -DiscussionId ^<id^> [-Unresolve]
+echo   gitlab-tools.cmd discuss -MrUrl ^<merge-request-url^> -Path ^<repo-relative-path^> -BodyFile ^<path^> [-Line ^<new-line^>] [-OldLine ^<old-line^>] [-OldPath ^<path^>] [-ExpectedHeadSha ^<sha^>]
 exit /b 2

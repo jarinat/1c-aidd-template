@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
 Universal GitLab entrypoint for Claude Code sessions: reads MR threads and
-pipelines, answers MR threads, all through glab.
+pipelines, posts general notes, answers MR threads, starts inline review
+threads, all through glab.
 
 .DESCRIPTION
 One approval-friendly entrypoint for GitLab operations, so that sessions stop
@@ -36,6 +37,10 @@ Design rules. Keep them when adding commands:
      of enumerating it, so @(call) yields a single nested array element and
      every field read from [0] silently becomes empty. Assign the response to
      a variable first, then wrap it: $r = Invoke-GlabApiJson ...; $items = @($r).
+  9. Endpoints with a nested payload go through "--input <file>" as raw JSON,
+     not through --field. glab --field builds a flat JSON body, so a key like
+     "position[new_line]" would reach GitLab as a literal key name instead of a
+     nested object, and the thread would silently degrade to a plain note.
 
 How to add a command:
 
@@ -68,11 +73,14 @@ Related:
 
 .EXAMPLE
 .claude/scripts/gitlab-tools.cmd reply -MrUrl https://gitlab.example.com/group/project/-/merge_requests/123 -DiscussionId 8b171c1424ab7a8b44bcda8e62e2498d32650a44 -BodyFile reply.md
+
+.EXAMPLE
+.claude/scripts/gitlab-tools.cmd discuss -MrUrl https://gitlab.example.com/group/project/-/merge_requests/123 -Path src/cf/src/CommonModules/Module.bsl -Line 374 -BodyFile finding.md -ExpectedHeadSha 6594bf1f
 #>
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateSet("help", "threads", "pipeline", "pipeline-log", "reply", "resolve")]
+    [ValidateSet("help", "threads", "pipeline", "pipeline-log", "note", "reply", "resolve", "discuss")]
     [string]$Command,
 
     [string]$MrUrl,
@@ -87,7 +95,17 @@ param(
 
     [switch]$Unresolve,
 
-    [switch]$IncludeSystem
+    [switch]$IncludeSystem,
+
+    [string]$Path,
+
+    [int]$Line = 0,
+
+    [string]$OldPath,
+
+    [int]$OldLine = 0,
+
+    [string]$ExpectedHeadSha
 )
 
 Set-StrictMode -Version Latest
@@ -118,8 +136,12 @@ Read commands:
   gitlab-tools.cmd pipeline-log -MrUrl <merge-request-url> -JobId <job-id> [-Tail <lines>]
 
 Write commands (never allow-listed, always ask for permission):
+  gitlab-tools.cmd note -MrUrl <merge-request-url> -BodyFile <path>
   gitlab-tools.cmd reply -MrUrl <merge-request-url> -DiscussionId <id> -BodyFile <path>
   gitlab-tools.cmd resolve -MrUrl <merge-request-url> -DiscussionId <id> [-Unresolve]
+  gitlab-tools.cmd discuss -MrUrl <merge-request-url> -Path <repo-relative-path> -BodyFile <path>
+                           [-Line <new-line>] [-OldLine <old-line>] [-OldPath <path>]
+                           [-ExpectedHeadSha <sha>]
 
 threads:
   - prints MR discussions as JSON, human notes only
@@ -142,8 +164,29 @@ reply:
   - the body is always read from -BodyFile as UTF-8, never from the command line
   - the note is published under the authenticated user account
 
+note:
+  - posts one general note to the merge request, without a diff anchor
+  - the body is always read from -BodyFile as UTF-8, never from the command line
+  - use it only when a review finding cannot be anchored to a changed line
+
 resolve:
   - marks a thread resolved, or unresolved with -Unresolve
+
+discuss:
+  - starts a NEW resolvable thread anchored to a line of the MR diff
+  - the body is always read from -BodyFile as UTF-8, never from the command line
+  - the note is published under the authenticated user account
+  - base_sha, start_sha and head_sha are read from the MR itself, never passed in
+  - -Path is the repo-relative path exactly as printed by the review manifest:
+    forward slashes, no drive letter, no manual decoding of Cyrillic names
+  - -Line is the line number on the NEW side of the diff, as numbered in the file
+    at head_sha, not the line number inside diff.patch
+  - anchor rules, enforced by GitLab: an added line needs -Line, a deleted line
+    needs -OldLine, an unchanged context line needs both; the line must belong to
+    the diff, arbitrary lines of an untouched file cannot be commented
+  - -OldPath is only needed for a renamed file, it defaults to -Path
+  - -ExpectedHeadSha fails the call when the MR head moved since the review, so a
+    thread cannot land on code that was never reviewed
 
 Implementation:
   gitlab-tools.ps1 is called by the .cmd wrapper. Claude Code should use
@@ -246,6 +289,25 @@ function Assert-JobId {
 
     if ($Value -notmatch "^[0-9]{1,20}$") {
         Stop-WithMessage "Unsupported job id: $Value. Expected a numeric id from 'gitlab-tools.cmd pipeline'."
+    }
+}
+
+function Assert-CommitSha {
+    param(
+        [Parameter(Mandatory = $true)][string]$Value,
+        [Parameter(Mandatory = $true)][string]$Name
+    )
+
+    if ($Value -notmatch "^[0-9a-fA-F]{7,40}$") {
+        Stop-WithMessage "Unsupported ${Name}: $Value. Expected a hex commit sha of 7 to 40 characters."
+    }
+}
+
+function Assert-RepoRelativePath {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value) -or $Value -match "^[A-Za-z]:" -or $Value.StartsWith("/") -or $Value.Contains("\") -or $Value -match "(^|/)\.\.?($|/)") {
+        Stop-WithMessage "Unsupported path: $Value. Expected a repo-relative path with forward slashes, copied verbatim from the review manifest."
     }
 }
 
@@ -514,6 +576,156 @@ function Add-MrReply {
     } | ConvertTo-Json -Depth 4
 }
 
+function Add-MrNote {
+    Assert-MrUrl
+    if ([string]::IsNullOrWhiteSpace($BodyFile)) {
+        Stop-WithMessage "note requires -BodyFile. Write the note text to a file first."
+    }
+
+    if (-not (Test-Path -LiteralPath $BodyFile -PathType Leaf)) {
+        Stop-WithMessage "Body file not found: $BodyFile"
+    }
+
+    $bodyPath = (Resolve-Path -LiteralPath $BodyFile).Path
+    $body = [System.IO.File]::ReadAllText($bodyPath, (New-Object System.Text.UTF8Encoding $false))
+    if ([string]::IsNullOrWhiteSpace($body)) {
+        Stop-WithMessage "Body file is empty: $BodyFile"
+    }
+
+    if ($body.Trim() -match "^(true|false|null|-?[0-9]+(\.[0-9]+)?)$") {
+        Stop-WithMessage "Body file contains a bare JSON literal: $($body.Trim()). Write the note as text."
+    }
+
+    $urlInfo = Parse-MrUrl -Url $MrUrl
+    $endpoint = "projects/$($urlInfo.EncodedProject)/merge_requests/$($urlInfo.Iid)/notes"
+    $note = Invoke-GlabApiJson -HostName $urlInfo.Host -Endpoint $endpoint -Method "POST" -ExtraArguments @("--field", "body=@$bodyPath")
+    $noteId = Get-PropertyValue -Object $note -Name "id"
+
+    [pscustomobject]@{
+        schema = "gitlab-tools-note.v1"
+        mr_url = $urlInfo.BaseUrl
+        note_id = $noteId
+        note_url = "$($urlInfo.BaseUrl)#note_$noteId"
+        author = Get-PropertyValue -Object (Get-PropertyValue -Object $note -Name "author") -Name "username"
+        created_at = Get-PropertyValue -Object $note -Name "created_at"
+    } | ConvertTo-Json -Depth 4
+}
+
+function Add-MrDiscussion {
+    Assert-MrUrl
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        Stop-WithMessage "discuss requires -Path. Copy the repo-relative path verbatim from the review manifest."
+    }
+    if ([string]::IsNullOrWhiteSpace($BodyFile)) {
+        Stop-WithMessage "discuss requires -BodyFile. Write the note text to a file first."
+    }
+
+    Assert-RepoRelativePath -Value $Path
+
+    if ($Line -lt 0 -or $OldLine -lt 0) {
+        Stop-WithMessage "Line numbers must be positive: -Line $Line, -OldLine $OldLine"
+    }
+    if ($Line -eq 0 -and $OldLine -eq 0) {
+        Stop-WithMessage "discuss requires -Line for an added line, -OldLine for a deleted line, or both for an unchanged context line."
+    }
+
+    $oldPathValue = $OldPath
+    if ([string]::IsNullOrWhiteSpace($oldPathValue)) {
+        $oldPathValue = $Path
+    } else {
+        Assert-RepoRelativePath -Value $oldPathValue
+    }
+
+    if (-not (Test-Path -LiteralPath $BodyFile -PathType Leaf)) {
+        Stop-WithMessage "Body file not found: $BodyFile"
+    }
+
+    $bodyPath = (Resolve-Path -LiteralPath $BodyFile).Path
+    $body = [System.IO.File]::ReadAllText($bodyPath, (New-Object System.Text.UTF8Encoding $false))
+    if ([string]::IsNullOrWhiteSpace($body)) {
+        Stop-WithMessage "Body file is empty: $BodyFile"
+    }
+
+    $urlInfo = Parse-MrUrl -Url $MrUrl
+
+    $mrEndpoint = "projects/$($urlInfo.EncodedProject)/merge_requests/$($urlInfo.Iid)"
+    $mr = Invoke-GlabApiJson -HostName $urlInfo.Host -Endpoint $mrEndpoint
+    $diffRefs = Get-PropertyValue -Object $mr -Name "diff_refs"
+    if ($null -eq $diffRefs) {
+        Stop-WithMessage "MR $($urlInfo.BaseUrl) has no diff_refs. GitLab has not finished preparing the diff, retry later."
+    }
+
+    $baseSha = Get-PropertyValue -Object $diffRefs -Name "base_sha"
+    $startSha = Get-PropertyValue -Object $diffRefs -Name "start_sha"
+    $headSha = Get-PropertyValue -Object $diffRefs -Name "head_sha"
+    if ([string]::IsNullOrWhiteSpace($baseSha) -or [string]::IsNullOrWhiteSpace($startSha) -or [string]::IsNullOrWhiteSpace($headSha)) {
+        Stop-WithMessage "MR $($urlInfo.BaseUrl) has incomplete diff_refs. GitLab has not finished preparing the diff, retry later."
+    }
+
+    # A diff thread is bound to the revision it was written against. If the head
+    # moved after the review, the anchor would land on unreviewed code.
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedHeadSha)) {
+        Assert-CommitSha -Value $ExpectedHeadSha -Name "expected head sha"
+        if (-not $headSha.StartsWith($ExpectedHeadSha, [System.StringComparison]::OrdinalIgnoreCase)) {
+            Stop-WithMessage "MR head moved: reviewed $ExpectedHeadSha, current diff_refs.head_sha is $headSha. Re-run the review against the new head before publishing."
+        }
+    }
+
+    $position = [ordered]@{
+        base_sha = $baseSha
+        start_sha = $startSha
+        head_sha = $headSha
+        position_type = "text"
+        new_path = $Path
+        old_path = $oldPathValue
+    }
+    if ($Line -gt 0) {
+        $position["new_line"] = $Line
+    }
+    if ($OldLine -gt 0) {
+        $position["old_line"] = $OldLine
+    }
+
+    $payload = [ordered]@{
+        body = $body
+        position = $position
+    }
+
+    $payloadPath = Join-Path ([System.IO.Path]::GetTempPath()) ("gitlab-tools-discuss-" + [System.Guid]::NewGuid().ToString("N") + ".json")
+    $payloadJson = $payload | ConvertTo-Json -Depth 5 -Compress
+    [System.IO.File]::WriteAllText($payloadPath, $payloadJson, (New-Object System.Text.UTF8Encoding $false))
+
+    try {
+        $endpoint = "projects/$($urlInfo.EncodedProject)/merge_requests/$($urlInfo.Iid)/discussions"
+        $discussion = Invoke-GlabApiJson -HostName $urlInfo.Host -Endpoint $endpoint -Method "POST" -ExtraArguments @("--input", $payloadPath, "--header", "Content-Type: application/json")
+    } finally {
+        Remove-Item -LiteralPath $payloadPath -Force -ErrorAction SilentlyContinue
+    }
+
+    $discussionId = Get-PropertyValue -Object $discussion -Name "id"
+    $notesResponse = Get-PropertyValue -Object $discussion -Name "notes"
+    $notes = @($notesResponse)
+    $noteId = $null
+    if ($notes.Count -gt 0) {
+        $noteId = Get-PropertyValue -Object $notes[0] -Name "id"
+    }
+
+    [pscustomobject]@{
+        schema = "gitlab-tools-discuss.v1"
+        mr_url = $urlInfo.BaseUrl
+        discussion_id = $discussionId
+        note_id = $noteId
+        note_url = "$($urlInfo.BaseUrl)#note_$noteId"
+        head_sha = $headSha
+        position = [pscustomobject]@{
+            new_path = $Path
+            new_line = $(if ($Line -gt 0) { $Line } else { $null })
+            old_path = $oldPathValue
+            old_line = $(if ($OldLine -gt 0) { $OldLine } else { $null })
+        }
+    } | ConvertTo-Json -Depth 4
+}
+
 function Set-MrThreadResolved {
     Assert-MrUrl
     if ([string]::IsNullOrWhiteSpace($DiscussionId)) {
@@ -554,6 +766,14 @@ switch ($Command) {
 
     "reply" {
         Add-MrReply
+    }
+
+    "note" {
+        Add-MrNote
+    }
+
+    "discuss" {
+        Add-MrDiscussion
     }
 
     "resolve" {
