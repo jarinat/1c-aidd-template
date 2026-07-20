@@ -52,11 +52,17 @@ Source of truth:
 
 Обязательный путь подготовки:
 
-- используй только project-local script
-  `.claude/scripts/gitlab-mr-review.cmd prepare`;
+- используй только project-local script `gitlab-mr-review` prepare:
+  - на Windows — `.claude/scripts/gitlab-mr-review.cmd prepare`;
+  - на Linux/WSL — `.claude/scripts/gitlab-mr-review.sh prepare`;
+- оба entrypoint дают одинаковую read-only семантику и одинаковую схему
+  manifest; отличается только платформа и корень worktree (`C:\ai-review-wt`
+  на Windows, `AI_REVIEW_ROOT` или `~/.cache/ai-review-wt` на Linux/WSL);
 - `.cmd` является approval-friendly wrapper над
   `.claude/scripts/gitlab-mr-review.ps1`; не вызывай `.ps1` напрямую, чтобы
   Claude Code не предлагал постоянное разрешение вида `powershell *`;
+- на Linux/WSL внешним entrypoint является `.sh`; не пересобирай его логику
+  ad-hoc командами `bash -c`, `python -c`, `git ...` или pipelines;
 - не собирай подготовку MR ad-hoc командами `curl`, `python -c`,
   `git credential fill`, shell pipelines или временными `/tmp/*.json`;
 - после `prepare` не используй shell-команды для чтения MR context. Не вызывай
@@ -78,10 +84,15 @@ inline env. Не проси пользователя присылать token в
 ## Алгоритм
 
 1. Проверь, что пользователь передал `MR_URL`.
-2. Подготовь review context одной командой из корня целевого репозитория:
+2. Подготовь review context одной командой из корня целевого репозитория,
+   выбрав entrypoint по платформе:
 
    ```powershell
    .claude/scripts/gitlab-mr-review.cmd prepare -MrUrl "<MR_URL>"
+   ```
+
+   ```bash
+   .claude/scripts/gitlab-mr-review.sh prepare -MrUrl "<MR_URL>"
    ```
 
 3. Используй JSON manifest из stdout и `manifest_path` как source of truth для:
@@ -130,10 +141,15 @@ inline env. Не проси пользователя присылать token в
     - если review не удалось завершить из-за ошибки инструментов или нужно
       сохранить каталог для ручной диагностики, не удаляй его и явно объясни
       причину в отчёте;
-    - в обычном успешном сценарии выполни cleanup только через script:
+    - в обычном успешном сценарии выполни cleanup только через script для
+      своей платформы (или через `cleanup_command` из manifest):
 
       ```powershell
       .claude/scripts/gitlab-mr-review.cmd cleanup -WorktreePath "<worktree_path>"
+      ```
+
+      ```bash
+      .claude/scripts/gitlab-mr-review.sh cleanup -WorktreePath "<worktree_path>"
       ```
 
     - не удаляй worktree вручную через `rm`, `Remove-Item` или shell-цепочки.
@@ -169,11 +185,12 @@ inline env. Не проси пользователя присылать token в
 ## Ограничения
 
 - Не меняй текущую ветку пользователя.
-- Не заменяй `.claude/scripts/gitlab-mr-review.cmd prepare` inline-командами,
-  самописными `curl`/`python`/`git credential` последовательностями или
-  временными файлами вне manifest, созданного script.
-- Не вызывай `.claude/scripts/gitlab-mr-review.ps1` напрямую из skill: внешний
-  entrypoint для Claude Code должен оставаться `.cmd`.
+- Не заменяй `gitlab-mr-review` prepare (`.cmd` на Windows, `.sh` на
+  Linux/WSL) inline-командами, самописными `curl`/`python`/`git credential`
+  последовательностями или временными файлами вне manifest, созданного script.
+- Не вызывай `.claude/scripts/gitlab-mr-review.ps1` напрямую из skill: внешним
+  entrypoint для Claude Code должен оставаться `.cmd` на Windows и `.sh` на
+  Linux/WSL.
 - Не используй `.cmd show-file`, `.cmd grep-file`, `.cmd list-files`,
   `.cmd grep-tree`, `cd "<worktree_path>" && git ...`,
   `git -C "<worktree_path>" ...` или shell pipelines для чтения файлов из
