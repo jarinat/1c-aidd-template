@@ -92,6 +92,25 @@ PRD нельзя переводить в `PRD_READY`, если в нём ест�
   evidence, позволяющее сопоставить находку с исходником.
 - `feedback` и `review` не смешиваются в одном файле и не заменяют друг друга.
 
+## Наблюдения A-COMP
+
+- `research` — канонический артефакт наблюдений о
+  `edt-companion-mcp` для тикета, если он существует. Раздел называй
+  `## Tooling observations / A-COMP`.
+- Если research не создаётся (в частности, в согласованном Fast path),
+  канонической записью служит раздел PRD `## Implementation notes / Tooling
+  observations / A-COMP`; он не меняет требования, решения, статус и
+  acceptance criteria.
+- Если проблема впервые проявилась на позднем этапе, зафиксируй краткий факт в
+  текущем stage-артефакте до fallback или следующей итерации и добавь/сошлись на
+  каноническую запись в research либо PRD.
+- Каждая запись включает: class (`bug`, `documentation-drift`,
+  `capability-gap`, `enhancement`, `performance`), plugin/EDT version,
+  tool и фактическую schema/args, evidence, impact, reproducibility и
+  fallback/decision.
+- Это инженерное наблюдение, не бизнес-требование и не user feedback. Не
+  создавай внешний issue автоматически.
+
 ## Debug
 
 - `debug` — отдельный артефакт для автономных проверок, которые запускает
@@ -123,9 +142,10 @@ PRD нельзя переводить в `PRD_READY`, если в нём ест�
 
 1. `aidd/docs/.active_ticket`
 2. PRD, plan и tasklist по тикету
-3. `aidd/docs/feedback/<ticket>.md`, `aidd/docs/debug/<ticket>.md` и
+3. `aidd/docs/research/<ticket>.md`, если он существует
+4. `aidd/docs/feedback/<ticket>.md`, `aidd/docs/debug/<ticket>.md` и
    `aidd/docs/review/<ticket>.md`, если эти файлы уже существуют
-4. Перед планированием или реализацией проверь, нет ли в PRD раздела
+5. Перед планированием или реализацией проверь, нет ли в PRD раздела
    `Blocking questions`. Если он не пустой, не продолжай затронутую часть без
    явного решения пользователя.
 

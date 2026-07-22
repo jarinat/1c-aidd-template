@@ -150,7 +150,7 @@ Started: <date>
 
 1. Определи ticket id: используй переданный аргумент или
    `aidd/docs/.active_ticket`.
-2. Прочитай PRD, plan, tasklist, feedback/review при наличии и
+2. Прочитай PRD, plan, tasklist, research, feedback/review при наличии и
    `aidd/docs/debug/<ticket>.md`, если он уже существует.
 3. Прочитай `.claude/rules/project/testing.md` и убедись, что выбранный runner
    разрешён для проекта или явно задан пользователем в текущем scope.
@@ -184,8 +184,11 @@ Started: <date>
      `&Вместо` отдельно укажи прочитать
      `.claude/skills/yaxunit-tests/references/api-reference.md`.
 10. Проверь результат `debug-fixer`: diff, scope, отсутствие самовольных
-    изменений и `Tooling gap`.
-11. Обнови debug-итерацию: фактические changed files, tooling gaps и next step.
+    изменений и `Tooling gap`. Для companion bug/drift/gap/idea/performance
+    зафиксируй literal evidence до следующего runner или fallback.
+11. Обнови debug-итерацию: фактические changed files, tooling gaps, A-COMP
+    observation (если есть) и next step; добавь ссылку на каноническую запись
+    research, если он есть, иначе PRD.
 12. Повтори цикл с шага 5, пока не будет PASS, blocker или лимит итераций.
 
 ## Правила исправлений

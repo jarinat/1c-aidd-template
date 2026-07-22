@@ -1,6 +1,8 @@
 {
   "permissions": {
     "allow": [
+      "Skill(1c-edt-companion-mcp-tools *)",
+      "Skill(1c-edt-companion-mcp-tools)",
       "Skill(1c-edt-mcp-tools *)",
       "Skill(1c-edt-mcp-tools)",
       "Skill(1c-debug-info-tools)",
@@ -71,6 +73,7 @@
       "Bash(git describe:*)",
       "Bash(git name-rev:*)",
       "Bash(git for-each-ref:*)",
+      "mcp__edt-companion-mcp__*",
       "mcp__edt-mcp__*",
       "mcp__1c-rsv__*",
       "mcp__1c-debug-info__get_configuration_info",
@@ -107,6 +110,16 @@
       },
       {
         "matcher": "mcp__1c-rsv__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude\\hooks\\block-inline-file-inspection.ps1",
+            "shell": "powershell"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__edt-companion-mcp__.*",
         "hooks": [
           {
             "type": "command",

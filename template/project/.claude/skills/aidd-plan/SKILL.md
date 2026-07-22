@@ -126,6 +126,9 @@ Source of truth для lifecycle артефактов и статусов:
    и принятым решением.
 17. Если `planner` сообщил `Tooling gap`, добавь его в plan отдельным разделом
    только если gap влияет на implementation pattern, verification или риски.
+   Для наблюдения A-COMP зафиксируй краткий факт в plan и сошлись на
+   каноническую запись в research, если он есть, иначе в PRD в разделе
+   `Implementation notes / Tooling observations / A-COMP`.
 18. Не ставь `PLAN_APPROVED` без явного подтверждения пользователя.
 19. После подтверждения пользователя переведи план в готовый статус по правилам
    AIDD.
@@ -147,6 +150,7 @@ Source of truth для lifecycle артефактов и статусов:
 - Impact Coverage blockers, если research/preliminary impact не покрывает
   критичные зоны rename/split/migration/delete/update-handler scope
 - Tooling gaps, если они влияют на план, проверки или риски
+- краткая ссылка на A-COMP observation, если она проявилась при планировании
 - Decisions по `USED` и `UNCLEAR` точкам удаления, если задача удаляет элементы
   метаданных
 - Open questions

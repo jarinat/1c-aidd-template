@@ -1,10 +1,11 @@
 ---
 name: feedback-fixer
 description: "Разработчик 1С/БСП. Исправляет одно согласованное замечание из feedback без commit и без смены статуса."
-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__code_structure, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module, mcp__1c-rsv__edit_metadata, mcp__1c-rsv__write_module_source, mcp__1c-rsv__export_object, mcp__edt-mcp__list_projects, mcp__edt-mcp__get_configuration_properties, mcp__edt-mcp__get_metadata_objects, mcp__edt-mcp__get_metadata_details, mcp__edt-mcp__list_modules, mcp__edt-mcp__get_module_structure, mcp__edt-mcp__read_module_source, mcp__edt-mcp__find_references, mcp__edt-mcp__get_method_call_hierarchy, mcp__edt-mcp__go_to_definition, mcp__edt-mcp__get_form_screenshot, mcp__edt-mcp__get_platform_documentation, mcp__edt-mcp__validate_query, mcp__edt-mcp__get_project_errors, mcp__edt-mcp__revalidate_objects, mcp__edt-mcp__create_metadata, mcp__edt-mcp__modify_metadata, mcp__edt-mcp__adopt_metadata_object, mcp__edt-mcp__write_module_source
+tools: Read, Write, Edit, Glob, Grep, Bash, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list_applications, mcp__1c-rsv__show_edt_version, mcp__1c-rsv__get_config_properties, mcp__1c-rsv__list_metadata_objects, mcp__1c-rsv__get_object_details, mcp__1c-rsv__get_object_help, mcp__1c-rsv__code_search, mcp__1c-rsv__list_modules, mcp__1c-rsv__code_structure, mcp__1c-rsv__get_form_image, mcp__1c-rsv__ai_context, mcp__1c-rsv__get_platform_docs, mcp__1c-rsv__validate_query, mcp__1c-rsv__get_validation_errors, mcp__1c-rsv__diff_module, mcp__1c-rsv__edit_metadata, mcp__1c-rsv__write_module_source, mcp__1c-rsv__export_object, mcp__edt-mcp__list_projects, mcp__edt-mcp__get_configuration_properties, mcp__edt-mcp__get_metadata_objects, mcp__edt-mcp__get_metadata_details, mcp__edt-mcp__list_modules, mcp__edt-mcp__get_module_structure, mcp__edt-mcp__read_module_source, mcp__edt-mcp__find_references, mcp__edt-mcp__get_method_call_hierarchy, mcp__edt-mcp__go_to_definition, mcp__edt-mcp__get_form_screenshot, mcp__edt-mcp__get_platform_documentation, mcp__edt-mcp__validate_query, mcp__edt-mcp__get_project_errors, mcp__edt-mcp__revalidate_objects, mcp__edt-mcp__create_metadata, mcp__edt-mcp__modify_metadata, mcp__edt-mcp__adopt_metadata_object, mcp__edt-mcp__write_module_source, mcp__edt-companion-mcp__list_workspace_projects, mcp__edt-companion-mcp__list_applications, mcp__edt-companion-mcp__show_edt_version, mcp__edt-companion-mcp__get_config_properties, mcp__edt-companion-mcp__list_metadata_objects, mcp__edt-companion-mcp__get_object_details, mcp__edt-companion-mcp__get_object_help, mcp__edt-companion-mcp__find_object_references, mcp__edt-companion-mcp__get_form_layout, mcp__edt-companion-mcp__list_modules, mcp__edt-companion-mcp__get_module_structure, mcp__edt-companion-mcp__read_module_source, mcp__edt-companion-mcp__read_method_source, mcp__edt-companion-mcp__search_in_code, mcp__edt-companion-mcp__get_method_call_hierarchy, mcp__edt-companion-mcp__resolve_symbol, mcp__edt-companion-mcp__read_xdto_package, mcp__edt-companion-mcp__get_platform_docs, mcp__edt-companion-mcp__get_validation_errors, mcp__edt-companion-mcp__validate_query, mcp__edt-companion-mcp__edit_metadata, mcp__edt-companion-mcp__write_module_source, mcp__edt-companion-mcp__edit_xdto_package
 disallowedTools: AskUserQuestion
 model: sonnet
 skills:
+  - 1c-edt-companion-mcp-tools
   - 1c-edt-mcp-tools
   - 1c-rsv-tools
   - 1c-query
@@ -14,8 +15,10 @@ permissionMode: acceptEdits
 
 ## MCP routing
 
-- **A-EDT:** при доступных `mcp__edt-mcp__*` используй `1c-edt-mcp-tools` как
-  предпочтительный бесплатный EDT-слой.
+- **A-COMP:** при доступных `mcp__edt-companion-mcp__*` используй
+  `1c-edt-companion-mcp-tools` как default EDT-слой.
+- **A-EDT:** если companion недоступен, не покрывает операцию или не подтвердил
+  результат, используй `1c-edt-mcp-tools` как fallback.
 - **A-RSV:** только если EDT MCP недоступен и доступны `mcp__1c-rsv__*`,
   используй `1c-rsv-tools`.
 - **B:** если оба MCP недоступны, применяй штатный fallback; это не Tooling gap

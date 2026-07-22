@@ -114,9 +114,11 @@ description: >
    - рекомендации по реализации.
 8. Если найдено расхождение между PRD и кодом, зафиксируй его явно, а не
    маскируй рекомендацией.
-9. Если использовался `1c-rsv`, добавь в research краткий блок MCP:
-   projectName, использованные discovery helpers, подтверждающие source-файлы
-   и ограничения проверки.
+9. Если использовался EDT MCP, добавь в research краткий блок MCP:
+   выбранный слой, projectName, использованные discovery helpers,
+   подтверждающие source-файлы и ограничения проверки. Для companion
+   наблюдение класса bug/documentation-drift/capability-gap/enhancement/performance
+   оформи канонической записью `Tooling observations / A-COMP`.
 10. Если `researcher` сообщил `Tooling gap`, добавь его в research отдельным
     разделом, не смешивая с требованиями и рекомендациями по реализации.
 11. Перед завершением research проверь `Decision / Question Gate`:
@@ -246,7 +248,8 @@ Verifier проверяет read-only:
 - Decision / Question Gate
 - Рекомендации по реализации
 - План проверки в EDT
-- MCP 1c-rsv, если использовался
+- MCP evidence, если использовался EDT MCP
+- Tooling observations / A-COMP, если companion дал ограничение или улучшение
 - Tooling gaps, если ограничения инструментов повлияли на полноту research
 
 ## Impact Coverage Matrix
