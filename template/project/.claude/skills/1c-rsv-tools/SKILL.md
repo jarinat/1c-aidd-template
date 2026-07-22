@@ -20,9 +20,10 @@ description: >
 валидацию EDT и write-операции через штатные модели EDT, а не через прямую
 правку XML/BSL-файлов.
 
-Актуальная база правил проверена на MCP:RSV Server 5.2.0. Не зашивай старые
-предположения о составе operations: для редких операций сначала читай
-`operation=help`.
+Актуальная база правил проверена на MCP:RSV Server 7.1.0. Реестр tools зависит
+от выбранного профиля и установленных компонентов: перед редкой операцией
+сверяй фактический `tools/list`, затем читай `operation=help`. Не переноси
+предположения о составе tools или operations из старых версий сервера.
 
 ## Когда использовать
 
@@ -74,7 +75,8 @@ description: >
   `outline`, `readMethod`, `readModule`, `find`, `help`.
 - `code_search` - поиск по проекту/связанным проектам:
   `textSearch`, `objectReferences`, `methodReferences`, `resolveSymbol`,
-  `callHierarchy`, `dcsSearch`, `help`.
+  `callHierarchy`, `dcsSearch`, `open`, `help`. `open` только показывает
+  объект, форму, метод или строку в EDT для человека и не изменяет исходники.
 - `get_form_image` - `format=structure` для дерева формы, командных панелей,
   кнопок, `commandName`, layout-полей; `listQuery` читает полный запрос
   динамического списка с пагинацией.
@@ -82,7 +84,7 @@ description: >
 - `get_platform_docs` - справочник платформы 1С: API, BSL, язык запросов, СКД.
 
 Старые tools `get_module_structure`, `read_module_source`,
-`read_method_source` не использовать: в MCP 5.2.0 их заменяет
+`read_method_source` не использовать: их заменяет
 `code_structure`.
 
 ### Валидация и diff
@@ -95,8 +97,11 @@ description: >
   `action=read|applyQuickFix`, `scope=session|object|project|all`,
   `severity=ERROR|WARNING|INFO|ALL`, `source=edt|eclipse|all`,
   `fileFilter`, `checkIdFull`, `suppressionHint`, `quickFixVariants`.
-- `diff_module` - сравнение BSL-модуля с git `HEAD`: `summary`, `unified`,
-  `methods`.
+- `code_review` - read-only ревью BSL модуля, метода, диапазона строк или
+  проекта по диагностике BSL Language Server. Это не замена `git diff` и не
+  компиляционная валидация. Инструмент может потребовать отдельный компонент
+  MCP:RSV Code Review; при его отсутствии зафиксируй ограничение без fallback
+  к выдуманным диагностическим правилам.
 
 ### Edit через EDT API
 
@@ -105,7 +110,9 @@ description: >
   Перед редкой операцией читай `edit_metadata operation=help topic=<...>`.
 - `write_module_source` - запись BSL: `replace`, `append`, `insertBefore`,
   `insertAfter`, `replaceLines`, `replaceMethod`, пакетная замена
-  `methods=[{methodName, source}, ...]`.
+  `methods=[{methodName, source}, ...]`. В 7.1.0 первый вызов по умолчанию
+  выполняется как `dryRun=true`; для реальной записи требуется осознанно
+  передать `dryRun=false`.
 - `export_object` - экспорт DT-проектов внешних обработок/отчётов в
   `.epf`/`.erf`.
 
@@ -115,7 +122,7 @@ description: >
 `composerWorkflow`, `createObjectHttpService`, `createObjectEventSubscription`,
 `types`, `objectTypes`, `formTypes`, `propertyValues`, `supportLock`.
 
-### Build, БД, тесты, отладка
+### Build, БД, тесты, отладка и диагностика
 
 Эти tools действуют на ИБ, процесс EDT или внешнее окружение. Не вызывай их
 из subagent. Основная сессия вызывает их только при явном решении пользователя.
@@ -128,6 +135,10 @@ description: >
   `run`, `checkSyntax`, `steps`, `setup`, `help`.
 - `launch_debugger` - запуск/управление debug-сессией, breakpoints,
   переменные, evaluate.
+- `diagnostics` - замер производительности, технологический журнал и журнал
+  регистрации. Может включать техжурнал, работать с ИБ и создавать заметную
+  нагрузку; вызывай только из основной сессии и только по явному решению
+  пользователя.
 
 ## Базовый workflow
 
@@ -156,6 +167,9 @@ description: >
    `edit_metadata`, а не прямую правку XML. Сначала изучи help нужной
    операции или профильного workflow topic.
 6. Для редактирования BSL используй `write_module_source`.
+   - Сначала выполни безопасный preview (`dryRun=true`, это default 7.1.0) и
+     сверь target/diff с намерением задачи.
+   - Только затем повтори тот же вызов с `dryRun=false` для реальной записи.
    - Для изменения одного метода - `replaceMethod`.
    - Для нескольких методов - `methods=[...]`, чтобы записать файл и
      провалидировать один раз.
@@ -205,6 +219,8 @@ description: >
   их из-за ложного срабатывания, фиксируй причину и проверяй другим способом.
 - Для `write_module_source` не обходи защиту `confirmFullReplace`. Если правка
   сносит больше половины модуля без явного основания, выбран неверный режим.
+- Не считай успешный `dryRun` фактом изменения. Реальная запись подтверждается
+  ответом вызова с `dryRun=false` и последующим структурным read/validation.
 - Не выставляй `skipSyntaxCheck=true` без явной причины.
 - При `replaceLines`/insert перечитывай актуальные строки через
   `code_structure` после любых правок выше по модулю.
@@ -226,10 +242,10 @@ description: >
 
 ## Известные ограничения и осторожности
 
-- `validate_query` в 5.2.0 больше не имеет подтверждённого дефекта с русскими
-  ключевыми словами, но остаётся валидатором. Для критичных запросов проверяй
-  не только синтаксис, но и фактический контекст: `projectName`,
-  `projectScope=true`, запись в СКД/код и/или тестовый прогон.
+- `validate_query` без `projectName` проверяет синтаксис и структуру, но не
+  подтверждает объекты конфигурации. Для критичных запросов передавай
+  `projectName` (при необходимости `projectScope=true`) и дополнительно
+  проверяй запись в СКД/код и/или тестовый прогон.
 - `code_search useRegex=true` для `textSearch` не поддерживается; используй
   wildcards `*` и `?`. Regex есть в `code_structure find` внутри одного модуля
   и в `dcsSearch`.
