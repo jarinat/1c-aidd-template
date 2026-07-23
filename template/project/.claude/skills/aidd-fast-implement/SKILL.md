@@ -91,10 +91,10 @@ Source of truth:
    - выполнены доступные проверки из PRD.
    Если `implementer` сообщил `Tooling gap`, оцени риск и зафиксируй его в PRD
    отдельным разделом `Implementation notes / Tooling gaps`, не меняя
-   требования, статус, решения и acceptance criteria. Для наблюдения A-COMP
+   требования, статус, решения и acceptance criteria. Для наблюдения EDT MCP
    сначала запиши краткий факт до fallback, затем добавь полную каноническую
    запись в research, если он есть, иначе в PRD в разделе `Implementation notes
-   / Tooling observations / A-COMP`.
+   / Tooling observations / EDT MCP`.
 8. Не создавай и не обновляй `plan` и `tasklist`.
 9. Commit делай только если пользователь просил commit или это явно требуется
    текущим рабочим сценарием. Commit message формулируй по

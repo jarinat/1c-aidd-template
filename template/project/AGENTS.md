@@ -14,6 +14,7 @@
 - `.claude/rules/core/*.md` — переносимые правила;
 - `.claude/rules/project/*.md` — специфика текущего проекта;
 - `.claude/rules/paths/*.md` — правила для отдельных зон дерева;
+- `.mcp.json` — project-local выбор и подключение единственного EDT MCP;
 - `aidd/docs/*` — рабочие артефакты тикетов.
 
 ## Роль Codex
@@ -80,5 +81,10 @@ Codex выступает как независимый инженерный эк
 - `scripts` — project-local entrypoint scripts.
 - `local` — личные и machine-specific настройки.
 - `aidd/docs` — артефакты конкретных тикетов.
+
+Для EDT MCP `.mcp.json` является единственным source of truth: среди
+`edt-companion-mcp`, `edt-mcp`, `1c-rsv` в нём должен быть ровно один сервер.
+Другой EDT MCP не подключай и не используй как fallback. `bsl-ls` и
+`1c-debug-info` не являются альтернативами EDT MCP.
 
 Для каждого правила должен быть один основной source of truth.

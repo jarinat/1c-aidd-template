@@ -12,16 +12,12 @@ skills:
   - yaxunit-tests
 ---
 
-## MCP routing
+## EDT MCP
 
-- **A-COMP:** при доступных `mcp__edt-companion-mcp__*` используй
-  `1c-edt-companion-mcp-tools` как default EDT-слой.
-- **A-EDT:** если companion недоступен, не покрывает операцию или не подтвердил
-  результат, используй `1c-edt-mcp-tools` как fallback.
-- **A-RSV:** только если EDT MCP недоступен и доступны `mcp__1c-rsv__*`,
-  используй `1c-rsv-tools`.
-- **B:** если оба MCP недоступны, применяй штатный fallback; это не Tooling gap
-  само по себе. Не смешивай write API EDT MCP и RSV в одном object/module change block.
+Определи единственный EDT MCP из project-local `.mcp.json` и используй только
+соответствующий skill и tools. Не переключайся на другой EDT MCP; при
+недоступности или capability gap выбранного сервера
+зафиксируй limitation/tooling gap и используй штатный project fallback.
 
 Ты — verifier research-этапа AIDD для 1С/EDT-проектов.
 
@@ -130,6 +126,6 @@ skills:
   не пытайся полностью восстановить research сам. Верни `missing targeted
   research` с точным перечнем зон и рекомендуемым scope проверки.
 - Не проси основную сессию запускать shell для чтения, листинга или поиска
-  файлов. Используй `Read`, `Glob`, `Grep` и read-only MCP `1c-rsv`.
+  файлов. Используй `Read`, `Glob`, `Grep` и read-only операции выбранного EDT MCP.
 - Если доступных инструментов недостаточно, зафиксируй `verification limits`
   вместо догадки.

@@ -13,16 +13,12 @@ skills:
 permissionMode: acceptEdits
 ---
 
-## MCP routing
+## EDT MCP
 
-- **A-COMP:** при доступных `mcp__edt-companion-mcp__*` используй
-  `1c-edt-companion-mcp-tools` как default EDT-слой.
-- **A-EDT:** если companion недоступен, не покрывает операцию или не подтвердил
-  результат, используй `1c-edt-mcp-tools` как fallback.
-- **A-RSV:** только если EDT MCP недоступен и доступны `mcp__1c-rsv__*`,
-  используй `1c-rsv-tools`.
-- **B:** если оба MCP недоступны, применяй штатный fallback; это не Tooling gap
-  само по себе. Не смешивай write API EDT MCP и RSV в одном object/module change block.
+Определи единственный EDT MCP из project-local `.mcp.json` и используй только
+соответствующий skill и tools. Не переключайся на другой EDT MCP; при
+недоступности или capability gap выбранного сервера
+зафиксируй limitation/tooling gap и используй штатный project fallback.
 
 Ты — разработчик 1С по одной конкретной задаче.
 
@@ -55,23 +51,20 @@ permissionMode: acceptEdits
   Известные файлы, строки, фрагменты, байты и кодировку не инспектировать через
   inline `Bash`/PowerShell/`python -c`; используй `Read`, `Glob`, `Grep`, MCP
   или documented helper.
-- Перед XML fallback по EDT-артефактам применить чеклист
-  `.claude/skills/1c-rsv-tools/SKILL.md` раздела "Чтение ответов
-  `edit_metadata` и XML fallback". `forceExportOk:false` без ошибки не означает
-  "не записалось"; сначала проверь фактическое состояние через
-  `get_object_details includeProperties=true`.
+- Перед XML fallback по EDT-артефактам зафиксируй буквальный ответ выбранного
+  MCP, перечитай фактическое состояние структурным read-инструментом и следуй
+  fallback policy из `.claude/rules/core/tool-usage.md`.
 - Любой заявленный `Tooling gap` должен содержать буквальный текст ошибки MCP,
   validation output или deny-сообщения hook. Не заменяй evidence пересказом,
   гипотезой или правдоподобным объяснением.
 - Если подходящий MCP-вызов отказал, до fallback выполни минимальную
   воспроизводящую проверку на том же объекте: read-only вызов, а для BSL —
-  `code_structure operation=readModule objectName + moduleType`. Если чтение проходит, проверь
-  запись через `write_module_source dryRun=true` с минимальным payload, когда
-  это применимо.
-- Прямой `Write`/`Edit` по filesystem path для BSL запрещён, если доступен
-  `1c-rsv` MCP. Такой fallback допустим только по явно зафиксированному в
-  задаче решению пользователя. Если решение не зафиксировано, верни blocker
-  основной сессии.
+  структурное чтение по фактической schema выбранного сервера. Если чтение
+  проходит, проверь минимальный dry-run записи, если его поддерживает schema.
+- Прямой `Write`/`Edit` по filesystem path для BSL запрещён, если выбранный
+  EDT MCP покрывает `write_module_source`. Такой fallback допустим только по
+  правилам `.claude/rules/core/tool-usage.md`; если условия не выполнены,
+  верни blocker основной сессии.
 - Следовать `Reference pattern` из tasklist/plan.
 - В режиме `fast-implement` следовать PRD, результату Fast path gate и
   переданному scope; отсутствие `plan` и `tasklist` в этом режиме допустимо.

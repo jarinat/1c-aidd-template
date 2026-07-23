@@ -272,6 +272,7 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 - `~/.claude/shell-snapshots`;
 - `~/.claude/settings.json`;
 - `.claude/settings.local.json`;
+- project-local `.mcp.json` с endpoint-ами, credentials и выбором EDT MCP;
 - `config/projects.local.json`;
 - `aidd/tmp`;
 - реальные тикетные артефакты из рабочих проектов.

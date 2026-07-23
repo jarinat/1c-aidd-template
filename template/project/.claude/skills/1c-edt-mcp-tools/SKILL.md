@@ -2,27 +2,21 @@
 name: 1c-edt-mcp-tools
 description: >
   Бесплатный EDT MCP для discovery, типизированного редактирования и валидации
-  1С/EDT-конфигураций. Используй как предпочтительный A-EDT слой для metadata,
-  форм, ролей, СКД, BSL, запросов и EDT-проверок, если доступен edt-mcp.
+  1С/EDT-конфигураций. Используй только если `edt-mcp` — единственный выбранный
+  EDT MCP в project-local .mcp.json.
 ---
 
 # 1c-edt-mcp-tools
 
-Это source of truth для бесплатного MCP-сервера `edt-mcp` (режим A-EDT). Он
+Это source of truth для бесплатного MCP-сервера `edt-mcp`. Он
 предоставляет структурный discovery, типизированные EDT-операции и
 EDT-валидацию. Перед нетривиальной операцией сверяй фактическую schema через
 `get_tool_guide`: состав tools зависит от версии плагина и включённых toolsets.
 
-- **A-EDT:** если доступны `mcp__edt-mcp__*`, используй этот skill.
-- **A-RSV:** если EDT MCP недоступен, но доступны `mcp__1c-rsv__*`, используй
-  `.claude/skills/1c-rsv-tools/SKILL.md`.
-- **B:** если недоступны оба MCP, используй штатный project fallback. Само по
-  себе отсутствие обоих MCP не является `Tooling gap`.
-
-Если доступен только один MCP, используй его. `1c-rsv` остаётся поддерживаемой
-альтернативой, особенно для его уникальных read-only возможностей. Не смешивай
-write API `edt-mcp` и `1c-rsv` в одном change block для одного объекта или
-модуля.
+Применяй этот skill, только если в project-local `.mcp.json` среди
+`edt-companion-mcp`, `edt-mcp`, `1c-rsv` указан ровно один сервер — `edt-mcp`.
+Если сервер недоступен или не покрывает операцию, не переключайся на другой
+EDT MCP: зафиксируй limitation/tooling gap и используй штатный project fallback.
 
 ## Локальное подключение
 
@@ -141,7 +135,7 @@ workflow: сначала preview без `confirm`, потом явный `confir
   `enable_toolset`, затем повторный `tools/list`; не предполагай, что скрытый
   tool отсутствует на сервере.
 - При отсутствующей typed operation или подтверждённом ограничении зафиксируй
-  literal evidence и переходи к A-RSV или B по tool-usage policy.
+  literal evidence и переходи к штатному project fallback по tool-usage policy.
 
 ## Формат evidence
 

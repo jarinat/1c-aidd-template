@@ -51,9 +51,9 @@ Source of truth для lifecycle `review` и статусов:
    - перечисли затронутые файлы;
    - если `review-fixer` сообщил `Tooling gap`, зафиксируй его в записи
      `RV-XXX` отдельным полем или подпунктом;
-   - для наблюдения A-COMP зафиксируй краткий факт в `RV-XXX` до fallback и
+   - для наблюдения EDT MCP зафиксируй краткий факт в `RV-XXX` до fallback и
      сошлись на каноническую запись в research, если он есть, иначе в PRD в
-     разделе `Implementation notes / Tooling observations / A-COMP`;
+     разделе `Implementation notes / Tooling observations / EDT MCP`;
    - переведи статус замечания в целевой статус.
 9. Сообщи пользователю, что изменено, и отдельно укажи, что повторный review
    запускается только вручную по его команде.

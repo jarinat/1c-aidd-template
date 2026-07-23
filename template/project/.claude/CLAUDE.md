@@ -90,50 +90,36 @@ supporting docs.
 
 ### EDT MCP routing
 
-Для metadata, СКД, форм, ролей, подсистем и BSL выбирай EDT-слой:
+Для metadata, СКД, форм, ролей, подсистем и BSL используй ровно один EDT MCP,
+заданный в project-local `.mcp.json`. Из трёх имён
+`edt-companion-mcp`, `edt-mcp`, `1c-rsv` в `mcpServers` должно быть ровно одно.
 
-| Режим | Условие | Действие |
+| Сервер в `.mcp.json` | Обязательный skill | Допустимые tools |
 | --- | --- | --- |
-| A-COMP | доступны `mcp__edt-companion-mcp__*` | default: `.claude/skills/1c-edt-companion-mcp-tools/SKILL.md` |
-| A-EDT | companion недоступен, не покрывает операцию, вернул ошибку или не подтвердил результат | `.claude/skills/1c-edt-mcp-tools/SKILL.md` |
-| A-RSV | оба EDT MCP недоступны либо RSV имеет нужную уникальную read-only возможность | `.claude/skills/1c-rsv-tools/SKILL.md` |
-| B | все структурированные слои недоступны | штатный project fallback; отсутствие MCP само по себе не `Tooling gap` |
+| `edt-companion-mcp` | `.claude/skills/1c-edt-companion-mcp-tools/SKILL.md` | `mcp__edt-companion-mcp__*` |
+| `edt-mcp` | `.claude/skills/1c-edt-mcp-tools/SKILL.md` | `mcp__edt-mcp__*` |
+| `1c-rsv` | `.claude/skills/1c-rsv-tools/SKILL.md` | `mcp__1c-rsv__*` |
 
-Перед редкой или рискованной companion-операцией сверяй фактическую schema через
-`tools/list`. Не смешивай write API companion, EDT MCP и RSV в одном change
-block для одного объекта или модуля; fallback выполняй только на границе целой
+Не выбирай другой EDT MCP из-за недоступности, непокрытой операции, ошибки или
+неполного результата выбранного сервера. Зафиксируй limitation/tooling gap и
+перейди к штатному project fallback по `.claude/rules/core/tool-usage.md`.
+Если в `.mcp.json` нет ни одного или указано два и более EDT MCP, это ошибка
+конфигурации: EDT-вызовы запрещены до её исправления. Hook из
+`.claude/settings.json` технически блокирует вызовы невыбранного сервера.
+
+Перед редкой или рискованной операцией сверяй фактическую schema выбранного
+сервера. Не смешивай его write API с файловым fallback внутри одного change
+block для объекта или модуля: переход выполняй только на границе целой
 операции с повторным чтением фактического состояния.
 
-### 1c-rsv-tools
-
-Если EDT MCP недоступен, но доступен MCP `1c-rsv`, этот слой выполняется через
-`.claude/skills/1c-rsv-tools/SKILL.md` (A-RSV fallback).
-
-Это включает:
-
-- discovery (`list_metadata_objects`, `get_object_details`,
-  `code_search`, `code_structure`, `ai_context`, `get_form_image`);
-- смысловое discovery по 1С/EDT-кодовой базе: поиск объектов, методов, форм,
-  ссылок, callers, подписок, движений, интеграций и локальных reference
-  patterns;
-- редактирование метаданных, СКД и ролей через `edit_metadata`;
-- редактирование BSL через `write_module_source` с `dryRun=true` на спорных
-  правках и встроенной EDT-валидацией;
-- проверку маркеров через `get_validation_errors`.
-
 Прямая правка `*.mdo`, `*.form`, `*.dcs` через `Write`/`Edit` запрещена, если
-есть соответствующая операция `edit_metadata`. Исключения допустимы только при
-gap/баге MCP, с фиксацией причины и fallback-решением по
-`.claude/rules/core/tool-usage.md`.
-
-Запуски `sync_database`, `rebuild_project`, `yaxunit_tests` и
-`launch_debugger` принимает только основная сессия по решению пользователя;
-subagent их не вызывает.
+выбранный MCP покрывает операцию `edit_metadata`. Запуски изменения ИБ, полного
+rebuild, YAxUnit и debugger принимает только основная сессия по решению
+пользователя; subagent их не вызывает.
 
 `Read` известного файла и `Glob` узкого известного пути допустимы без skill.
-Широкий `Glob`/`Grep` по `src`, `src/cf`, `src/cfe` для поиска 1С-сущностей
-используй только как fallback, если MCP недоступен, или для подтверждения уже
-найденных MCP-кандидатов.
+Широкий `Glob`/`Grep` по 1С-исходникам используй только при недоступности
+выбранного MCP или для подтверждения уже найденных им кандидатов.
 
 ### 1c-bsp
 
@@ -143,10 +129,9 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 БСП в ИБ, используй `.claude/skills/1c-bsp/SKILL.md`.
 
 `1c-bsp` задает БСП-контракты и чеклисты, но не навязывает конкретный
-инструмент. Для metadata, СКД, форм, ролей и BSL используй EDT-слой: сначала
-`edt-companion-mcp`, затем `edt-mcp`, иначе `1c-rsv`; если они недоступны,
-действуй через другой разрешенный
-проектом структурированный способ.
+инструмент. Для metadata, СКД, форм, ролей и BSL используй EDT MCP, выбранный
+в `.mcp.json`; при его недоступности действуй через разрешенный project
+fallback.
 
 ### bsl-ls-tools
 
@@ -156,9 +141,8 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 `.claude/skills/bsl-ls-tools/SKILL.md`. На этапе review этот слой обязателен
 для изменённых `.bsl`, а недоступность MCP фиксируется как ограничение review.
 
-`bsl-ls` не заменяет EDT-слой: метаданные, формы, СКД, роли, EDT-валидация и
-все правки остаются в зоне `1c-edt-companion-mcp-tools`, затем
-`1c-edt-mcp-tools`, иначе `1c-rsv-tools`. `bsl-ls` привязан к рабочей копии
+`bsl-ls` не заменяет выбранный EDT MCP: метаданные, формы, СКД, роли,
+EDT-валидация и все правки остаются в его зоне. `bsl-ls` привязан к рабочей копии
 и не используется в изолированном review worktree.
 
 ### v8std-tools
@@ -177,9 +161,8 @@ review-сценариях с изолированным worktree.
 `.claude/skills/1c-debug-info-tools/SKILL.md` как дополнительный источник
 evidence.
 
-`1c-debug-info` не заменяет EDT-слой: код, метаданные EDT, формы, СКД, роли и
-BSL-правки остаются в зоне `1c-edt-companion-mcp-tools`, затем
-`1c-edt-mcp-tools`, иначе `1c-rsv-tools`. Runtime
+`1c-debug-info` не заменяет выбранный EDT MCP: код, метаданные EDT, формы,
+СКД, роли и BSL-правки остаются в его зоне. Runtime
 evidence связывай с исходниками через EDT-слой, `Read` или другой разрешенный discovery.
 
 ### YAxUnit

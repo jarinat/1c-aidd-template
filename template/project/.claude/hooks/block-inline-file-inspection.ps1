@@ -104,6 +104,76 @@ function Test-BslSourcePath {
     return Test-Regex -Text $normalizedPath -Pattern "(^|/)src/.+\.bsl$"
 }
 
+function Get-SelectedEdtMcp {
+    $projectRoot = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+    $mcpConfigPath = Join-Path -Path $projectRoot -ChildPath ".mcp.json"
+
+    if (-not (Test-Path -LiteralPath $mcpConfigPath -PathType Leaf)) {
+        return [pscustomobject]@{
+            Server = $null
+            Error = "Project MCP configuration is missing: .mcp.json. Configure exactly one EDT MCP server: edt-companion-mcp, edt-mcp, or 1c-rsv."
+        }
+    }
+
+    try {
+        $mcpConfig = Get-Content -LiteralPath $mcpConfigPath -Raw | ConvertFrom-Json
+    }
+    catch {
+        return [pscustomobject]@{
+            Server = $null
+            Error = "Project MCP configuration .mcp.json is not valid JSON: $($_.Exception.Message)"
+        }
+    }
+
+    $servers = Get-JsonProperty -Object $mcpConfig -Name "mcpServers"
+    if ($null -eq $servers) {
+        return [pscustomobject]@{
+            Server = $null
+            Error = "Project MCP configuration .mcp.json has no mcpServers object. Configure exactly one EDT MCP server."
+        }
+    }
+
+    $edtServerNames = @(
+        $servers.PSObject.Properties.Name | Where-Object {
+            $_ -in @("edt-companion-mcp", "edt-mcp", "1c-rsv")
+        }
+    )
+
+    if ($edtServerNames.Count -ne 1) {
+        $actual = if ($edtServerNames.Count -eq 0) { "none" } else { $edtServerNames -join ", " }
+        return [pscustomobject]@{
+            Server = $null
+            Error = "Project MCP configuration must contain exactly one EDT MCP server (edt-companion-mcp, edt-mcp, 1c-rsv); found: $actual."
+        }
+    }
+
+    return [pscustomobject]@{
+        Server = $edtServerNames[0]
+        Error = $null
+    }
+}
+
+function Get-EdtMcpServerFromToolName {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ToolName
+    )
+
+    if ($ToolName -match "^mcp__edt-companion-mcp__") {
+        return "edt-companion-mcp"
+    }
+
+    if ($ToolName -match "^mcp__edt-mcp__") {
+        return "edt-mcp"
+    }
+
+    if ($ToolName -match "^mcp__1c-rsv__") {
+        return "1c-rsv"
+    }
+
+    return $null
+}
+
 $inputJson = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrWhiteSpace($inputJson)) {
     exit 0
@@ -123,6 +193,20 @@ $inputText = Convert-ToolInputToText -ToolInput $toolInput
 
 if ([string]::IsNullOrWhiteSpace($toolName)) {
     exit 0
+}
+
+$edtMcpServerFromTool = Get-EdtMcpServerFromToolName -ToolName $toolName
+if ($null -ne $edtMcpServerFromTool) {
+    $selectedEdtMcp = Get-SelectedEdtMcp
+    if (-not [string]::IsNullOrWhiteSpace($selectedEdtMcp.Error)) {
+        Write-Deny -Reason $selectedEdtMcp.Error
+        exit 0
+    }
+
+    if ($selectedEdtMcp.Server -ne $edtMcpServerFromTool) {
+        Write-Deny -Reason "EDT MCP '$edtMcpServerFromTool' is not selected for this project. .mcp.json selects '$($selectedEdtMcp.Server)'; use only mcp__$($selectedEdtMcp.Server)__* tools."
+        exit 0
+    }
 }
 
 $denyReason = @"
@@ -158,7 +242,7 @@ Latin Dok_ is blocked in 1C/YAxUnit paths and object names. Use the Cyrillic pro
 "@.Trim()
 
 $bslFilesystemEditReason = @"
-Direct filesystem Write/Edit of BSL under the project source tree is blocked. Use EDT MCP write_module_source with expectedHash when available; otherwise use 1c-rsv write_module_source. Filesystem fallback needs an explicit user decision and literal tooling evidence.
+Direct filesystem Write/Edit of BSL under the project source tree is blocked. Use write_module_source of the EDT MCP selected in .mcp.json when available. Filesystem fallback needs an explicit user decision and literal tooling evidence.
 "@.Trim()
 
 if (Test-Regex -Text $inputText -Pattern "\bDok_") {

@@ -19,11 +19,12 @@ Shell не является универсальным fallback для чтен�
   1С/EDT.
 - AIDD-артефакты активного тикета: протокол из
   `.claude/rules/core/aidd-artifacts.md`.
-- 1С/EDT metadata, BSL, формы, СКД, роли и подсистемы: сначала
-  `.claude/skills/1c-edt-companion-mcp-tools/SKILL.md`, если доступны
-  `mcp__edt-companion-mcp__*`; иначе
-  `.claude/skills/1c-edt-mcp-tools/SKILL.md`, затем
-  `.claude/skills/1c-rsv-tools/SKILL.md`.
+- 1С/EDT metadata, BSL, формы, СКД, роли и подсистемы: используй единственный
+  EDT MCP из project-local `.mcp.json` и соответствующий ему skill:
+  `edt-companion-mcp` → `1c-edt-companion-mcp-tools`, `edt-mcp` →
+  `1c-edt-mcp-tools`, `1c-rsv` → `1c-rsv-tools`. Другой EDT MCP не является
+  fallback. Если выбранный сервер недоступен или не покрывает операцию,
+  зафиксируй limitation/tooling gap и применяй штатный project fallback.
 - Runtime-диагностика живой 1С базы, журнал регистрации, структура объектов в
   опубликованной ИБ: `.claude/skills/1c-debug-info-tools/SKILL.md`, если MCP
   `1c-debug-info` доступен.
@@ -100,20 +101,20 @@ Project-local helpers из `.claude/scripts` в `Bash` вызывай тольк
 - review/research: в `review` или `research` как наблюдение, если gap влияет
   на полноту проверки.
 
-## Наблюдения edt-companion-mcp
+## Наблюдения EDT MCP
 
-Для A-COMP фиксируй не только blocking gap, но и bug, documentation drift,
-capability gap, improvement idea и значимую performance-находку. Каноническое
-описание хранится в `research` текущего тикета, а при отсутствии research — в
-PRD, в разделе `Implementation notes / Tooling observations / A-COMP`. На
-позднем этапе допустима первая краткая запись в plan/tasklist/feedback/debug/
-review с последующей ссылкой на канонический артефакт. Не дублируй полный текст
-между артефактами.
+Для выбранного EDT MCP фиксируй не только blocking gap, но и bug,
+documentation drift, capability gap, improvement idea и значимую
+performance-находку. Каноническое описание хранится в `research` текущего
+тикета, а при отсутствии research — в PRD, в разделе
+`Implementation notes / Tooling observations / EDT MCP`. На позднем этапе
+допустима первая краткая запись в plan/tasklist/feedback/debug/review с
+последующей ссылкой на канонический артефакт. Не дублируй полный текст между
+артефактами.
 
-Запись содержит версии companion/EDT, tool и фактическую schema/args, ожидаемый
-и фактический результат, reproducibility, влияние и fallback/decision. Успешный
-fallback не отменяет фиксацию исходного ограничения. Внешний issue создавай
-только по явному решению пользователя.
+Запись содержит имя и версию выбранного сервера/EDT, tool и фактическую
+schema/args, ожидаемый и фактический результат, reproducibility, влияние и
+fallback/decision. Внешний issue создавай только по явному решению пользователя.
 
 ## Fallback policy для write-операций
 

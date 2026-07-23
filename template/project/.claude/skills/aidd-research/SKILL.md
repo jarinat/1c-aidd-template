@@ -19,8 +19,8 @@ description: >
 Для задач удаления элементов метаданных дополнительно используй
 `.claude/skills/1c-metadata-removal-impact/SKILL.md`.
 
-Если доступен EDT-слой, дополнительно используй `.claude/skills/1c-edt-mcp-tools/SKILL.md`
-(предпочтительно) или `.claude/skills/1c-rsv-tools/SKILL.md` (A-RSV fallback) как discovery слой для больших
+Если доступен EDT MCP, дополнительно используй соответствующий выбранному
+серверу skill как discovery слой для больших
 1С/EDT-кодовых баз. Он помогает искать объекты, методы, ссылки, формы,
 подписки, движения, интеграции и локальные аналоги, но не заменяет чтение
 исходников и AIDD-артефактов.
@@ -36,7 +36,7 @@ description: >
 1. Определи ticket id: используй переданный аргумент или `aidd/docs/.active_ticket`.
 2. Прочитай PRD из `aidd/docs/prd/<ticket>.prd.md`.
 3. Исследуй кодовую базу:
-   - если подключен EDT-слой, начни с MCP discovery: в A-EDT определи `projectName` через `list_projects`; в A-RSV следуй `1c-rsv-tools`;
+   - если подключен EDT MCP, начни с MCP discovery по его skill и определи `projectName`;
      выполни релевантные discovery-операции и зафиксируй ограничения;
    - найди точки встраивания;
    - найди локальные аналоги реализации в том же модуле, объекте, форме, общем
@@ -116,9 +116,9 @@ description: >
    маскируй рекомендацией.
 9. Если использовался EDT MCP, добавь в research краткий блок MCP:
    выбранный слой, projectName, использованные discovery helpers,
-   подтверждающие source-файлы и ограничения проверки. Для companion
+   подтверждающие source-файлы и ограничения проверки. Для выбранного EDT MCP
    наблюдение класса bug/documentation-drift/capability-gap/enhancement/performance
-   оформи канонической записью `Tooling observations / A-COMP`.
+   оформи канонической записью `Tooling observations / EDT MCP`.
 10. Если `researcher` сообщил `Tooling gap`, добавь его в research отдельным
     разделом, не смешивая с требованиями и рекомендациями по реализации.
 11. Перед завершением research проверь `Decision / Question Gate`:
@@ -249,7 +249,7 @@ Verifier проверяет read-only:
 - Рекомендации по реализации
 - План проверки в EDT
 - MCP evidence, если использовался EDT MCP
-- Tooling observations / A-COMP, если companion дал ограничение или улучшение
+- Tooling observations / EDT MCP, если выбранный сервер дал ограничение или улучшение
 - Tooling gaps, если ограничения инструментов повлияли на полноту research
 
 ## Impact Coverage Matrix

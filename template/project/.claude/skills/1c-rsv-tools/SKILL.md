@@ -2,18 +2,16 @@
 name: 1c-rsv-tools
 description: >
   Discovery, валидация и редактирование 1С/EDT-конфигурации через MCP-сервер
-  1c-rsv (плагин 1С:EDT). Используй как основной слой работы с метаданными,
-  СКД, BSL-модулями, формами, ролями, подсистемами, EDT-валидацией и
-  управляемыми тестовыми прогонами, если MCP-сервер доступен.
+  1c-rsv (плагин 1С:EDT). Используй только если `1c-rsv` — единственный
+  выбранный EDT MCP в project-local .mcp.json.
 ---
 
 # 1c-rsv-tools
 
-> **A-RSV fallback.** Если доступны `mcp__edt-mcp__*`, по умолчанию используй
-> `.claude/skills/1c-edt-mcp-tools/SKILL.md`. Этот skill применяется, когда EDT
-> MCP недоступен, но доступен `1c-rsv`, либо когда требуется уникальная
-> read-only capability RSV. Не смешивай write API RSV и EDT MCP в одном change
-> block для одного объекта или модуля.
+> Применяй этот skill, только если в project-local `.mcp.json` среди
+> `edt-companion-mcp`, `edt-mcp`, `1c-rsv` указан ровно один сервер — `1c-rsv`.
+> Если он недоступен или не покрывает операцию, не переключайся на другой EDT
+> MCP: зафиксируй limitation/tooling gap и используй штатный project fallback.
 
 Этот skill описывает правила использования MCP-сервера `1c-rsv`. Сервер
 работает поверх запущенного 1С:EDT (HTTP MCP) и даёт структурный discovery,

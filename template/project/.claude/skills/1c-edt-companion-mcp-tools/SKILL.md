@@ -1,16 +1,17 @@
 ---
 name: 1c-edt-companion-mcp-tools
 description: >
-  Основной EDT MCP-слой для discovery, typed-редактирования и validation
-  1С/EDT-проектов. Используй, когда доступны mcp__edt-companion-mcp__*.
+  Discovery, typed-редактирование и validation 1С/EDT-проектов через
+  edt-companion-mcp. Используй, только если этот сервер единственный выбранный
+  EDT MCP в project-local .mcp.json.
 ---
 
 # 1c-edt-companion-mcp-tools
 
-`edt-companion-mcp` работает внутри открытого 1С:EDT workspace. Это default
-EDT-слой проекта при доступных `mcp__edt-companion-mcp__*`; `edt-mcp` —
-резервный EDT-слой, `1c-rsv` — следующий fallback. Endpoint, credentials и
-machine-specific MCP configuration держи локально и не коммить.
+`edt-companion-mcp` работает внутри открытого 1С:EDT workspace. Применяй этот
+skill, только если в project-local `.mcp.json` среди `edt-companion-mcp`,
+`edt-mcp`, `1c-rsv` указан ровно один сервер — `edt-companion-mcp`. Endpoint,
+credentials и machine-specific MCP configuration держи локально и не коммить.
 
 ## Runtime contract
 
@@ -24,23 +25,13 @@ machine-specific MCP configuration держи локально и не комм�
 `show_edt_version` и `list_workspace_projects` используй для фиксации
 версии, открытого workspace и точного `projectName`; не угадывай имена.
 
-## Routing и границы fallback
+## Границы fallback
 
-| Режим | Условие | Действие |
-| --- | --- | --- |
-| A-COMP | доступны `mcp__edt-companion-mcp__*` | этот skill — default |
-| A-EDT | companion недоступен, не покрывает операцию, вернул ошибку или не подтверждает результат | `1c-edt-mcp-tools` |
-| A-RSV | оба EDT MCP недоступны либо нужен подтверждённо уникальный read-only capability RSV | `1c-rsv-tools` |
-| B | структурированный слой недоступен | project fallback; это не tooling gap само по себе |
-
-Не смешивай write API `edt-companion-mcp`, `edt-mcp` и `1c-rsv` внутри
-одного change block над одним объектом или BSL-модулем. Перед fallback:
-
-1. Заверши или явно отмени dirty buffer companion; `save=false` не виден
-   другому серверу и файловым инструментам.
-2. Перечитай фактическое состояние уже целевым сервером.
-3. Передай ему целую следующую операцию, а не часть прежней правки.
-4. Зафиксируй наблюдение A-COMP по правилам artifacts.
+Не переключайся на `edt-mcp` или `1c-rsv`, если companion недоступен, не
+покрывает операцию, вернул ошибку или не подтвердил результат. Заверши или
+явно отмени dirty buffer companion; `save=false` не виден файловым
+инструментам. Затем зафиксируй limitation/tooling gap и переходи к штатному
+project fallback на границе целой операции с повторным чтением состояния.
 
 ## Рабочий цикл
 
@@ -82,7 +73,7 @@ machine-specific MCP configuration держи локально и не комм�
   Если literal match не подтверждён, не повторяй write вслепую: перечитай
   фрагмент и выбери узкий безопасный режим.
 
-## Evidence A-COMP
+## Evidence EDT MCP
 
 Если companion дал ошибку, неполный результат, schema/documentation drift,
 неудобный workflow, заметную деградацию или идею улучшения, зафиксируй это в
@@ -93,7 +84,7 @@ machine-specific MCP configuration держи локально и не комм�
 Минимальная запись:
 
 ```text
-A-COMP observation:
+EDT MCP observation:
 - class: bug | documentation-drift | capability-gap | enhancement | performance
 - plugin/EDT: <версии из runtime>
 - tool/schema: <tool, важные args и фактическая schema>

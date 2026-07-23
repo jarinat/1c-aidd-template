@@ -184,9 +184,9 @@ Started: <date>
      `&Вместо` отдельно укажи прочитать
      `.claude/skills/yaxunit-tests/references/api-reference.md`.
 10. Проверь результат `debug-fixer`: diff, scope, отсутствие самовольных
-    изменений и `Tooling gap`. Для companion bug/drift/gap/idea/performance
+    изменений и `Tooling gap`. Для выбранного EDT MCP bug/drift/gap/idea/performance
     зафиксируй literal evidence до следующего runner или fallback.
-11. Обнови debug-итерацию: фактические changed files, tooling gaps, A-COMP
+11. Обнови debug-итерацию: фактические changed files, tooling gaps, EDT MCP
     observation (если есть) и next step; добавь ссылку на каноническую запись
     research, если он есть, иначе PRD.
 12. Повтори цикл с шага 5, пока не будет PASS, blocker или лимит итераций.
