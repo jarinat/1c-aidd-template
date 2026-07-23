@@ -43,3 +43,34 @@ message. При переносе AIDD в другой проект меняй п
 - Не используй в subject номера AIDD-блоков, локальные подтикеты и служебные
   фразы вроде `Блок 2`.
 - Детали change-блока выноси в body commit message.
+
+## Релизные MR
+
+Этот раздел заполняй только если проект использует регламент создания
+релизных merge request через `release-mr`. Пока в нём есть placeholders или
+указан статус `disabled`, skill не должен создавать MR.
+
+- Release MR workflow: `disabled`.
+- Release branch: `<release-branch-format>`.
+- Исходная ветка для переименования (если применимо):
+  `<pre-release-branch-format>`.
+- Целевые ветки и порядок создания MR: `<target-branches>`.
+- Title: `<release-title-format>`.
+- Remote и GitLab project: `<remote-name>`, `<gitlab-host>/<group>/<project>`.
+- Источник состава релиза: `<git-range-and-merge-filter>`.
+- Как сопоставлять feature-MR с тикетами: `<mr-ticket-matching-rule>`.
+- Шаблон ссылки на трекер: `<tracker-ticket-url>` или `not-used`.
+- Формат описания основного релизного MR: `<release-description-format>`.
+- Assignee и reviewer: `<assignment-policy>`.
+
+Правила:
+
+- `release-mr` используй только после явного запроса пользователя подготовить
+  или создать релизные MR.
+- «Подготовить» означает собрать и показать состав/описание; публикация MR
+  требует отдельного явного указания создать их, если пользователь не объединил
+  оба действия в одном запросе.
+- До создания MR проверь, что локальная ветка синхронизирована с remote и что
+  все параметры этого раздела заполнены без placeholders.
+- Не approve, не merge и не включай auto-merge. Назначения выполняй только по
+  `assignment-policy`.

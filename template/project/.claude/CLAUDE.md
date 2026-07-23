@@ -52,6 +52,7 @@ supporting docs.
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
   `.claude/skills/gitlab-tools/SKILL.md`
+  `.claude/skills/release-mr/SKILL.md`
   `.claude/skills/project-onboarding/SKILL.md`
 - Роли subagent-ов:
   `.claude/agents/*.md`
@@ -85,6 +86,9 @@ supporting docs.
   падение CI, это сценарий `gitlab-tools`. Замечание ревьюера GitLab — внешняя
   находка: оно идёт в `review`, а не в `feedback`. Эта маршрутизация имеет
   приоритет над общим правилом `feedback`.
+- Если пользователь явно просит подготовить или создать релизные MR, сначала
+  прочитай `.claude/skills/release-mr/SKILL.md`. Сценарий доступен только при
+  заполненной секции «Релизные MR» в `.claude/rules/project/ticketing.md`.
 
 ## Обязательный routing skills
 

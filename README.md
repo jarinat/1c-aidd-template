@@ -325,6 +325,9 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 - `skills/gitlab-tools/SKILL.md` и `scripts/gitlab-tools.*`: добавлена работа
   с тредами MR и пайплайнами GitLab; read-команды allow-listed отдельно, а
   публикация ответов и resolve всегда требуют отдельного подтверждения.
+- `skills/release-mr/SKILL.md`: добавлен опциональный, project-configured
+  сценарий подготовки и создания релизных GitLab MR; ветки, состав релиза,
+  описание, назначения и трекер задаются в `rules/project/ticketing.md`.
 - `skills/project-onboarding/SKILL.md`: добавлен Claude-вход в общий сценарий
   обследования проекта без смешивания фактов и догадок.
 - `skills/aidd-debug-loop/SKILL.md` и `agents/debug-fixer.md`: добавлен
