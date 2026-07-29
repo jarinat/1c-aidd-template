@@ -37,8 +37,6 @@
       "Skill(aidd-review *)",
       "Skill(aidd-tasks)",
       "Skill(aidd-tasks *)",
-      "Skill(bsl-ls-tools)",
-      "Skill(bsl-ls-tools *)",
       "Skill(gitlab-tools)",
       "Skill(gitlab-tools *)",
       "Skill(project-onboarding)",
@@ -83,7 +81,6 @@
       "mcp__1c-debug-info__get_form_structure",
       "mcp__1c-debug-info__validate_query",
       "mcp__1c-debug-info__bsl_syntax_help",
-      "mcp__bsl-ls__*",
       "mcp__v8std__*"
     ],
     "deny": [

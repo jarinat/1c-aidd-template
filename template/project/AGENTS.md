@@ -84,7 +84,7 @@ Codex выступает как независимый инженерный эк
 
 Для EDT MCP `.mcp.json` является единственным source of truth: среди
 `edt-companion-mcp`, `edt-mcp`, `1c-rsv` в нём должен быть ровно один сервер.
-Другой EDT MCP не подключай и не используй как fallback. `bsl-ls` и
-`1c-debug-info` не являются альтернативами EDT MCP.
+Другой EDT MCP не подключай и не используй как fallback. `1c-debug-info` не
+является альтернативой EDT MCP.
 
 Для каждого правила должен быть один основной source of truth.

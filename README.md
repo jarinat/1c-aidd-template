@@ -317,9 +317,8 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 - `skills/review-gitlab-mr/SKILL.md`: добавлен ручной read-only сценарий
   review GitLab MR по ссылке через изолированный worktree и существующий
   `review-mr` engine.
-- `skills/bsl-ls-tools/SKILL.md` и `skills/v8std-tools/SKILL.md`: добавлены
-  условные MCP-слои для механических BSL-диагностик, caller-анализа и сверки
-  спорных замечаний со стандартами 1С.
+- `skills/v8std-tools/SKILL.md`: добавлен условный MCP-слой для сверки спорных
+  замечаний со стандартами 1С и расшифровки диагностик.
 - `skills/aidd-review/SKILL.md`: добавлен режим Pre-MR для полного review
   ветки с несколькими подтикетами.
 - `skills/gitlab-tools/SKILL.md` и `scripts/gitlab-tools.*`: добавлена работа

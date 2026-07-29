@@ -46,7 +46,6 @@ supporting docs.
   `.claude/skills/1c-edt-companion-mcp-tools/SKILL.md`
   `.claude/skills/1c-edt-mcp-tools/SKILL.md`
   `.claude/skills/1c-rsv-tools/SKILL.md`
-  `.claude/skills/bsl-ls-tools/SKILL.md`
   `.claude/skills/v8std-tools/SKILL.md`
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
@@ -136,18 +135,6 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 инструмент. Для metadata, СКД, форм, ролей и BSL используй EDT MCP, выбранный
 в `.mcp.json`; при его недоступности действуй через разрешенный project
 fallback.
-
-### bsl-ls-tools
-
-Если MCP `bsl-ls` доступен, механический слой проверки изменённых `.bsl`
-(диагностики BSL Language Server) и языковая навигация уровня BSL
-(`find_references`, `call_hierarchy`) выполняются через
-`.claude/skills/bsl-ls-tools/SKILL.md`. На этапе review этот слой обязателен
-для изменённых `.bsl`, а недоступность MCP фиксируется как ограничение review.
-
-`bsl-ls` не заменяет выбранный EDT MCP: метаданные, формы, СКД, роли,
-EDT-валидация и все правки остаются в его зоне. `bsl-ls` привязан к рабочей копии
-и не используется в изолированном review worktree.
 
 ### v8std-tools
 
