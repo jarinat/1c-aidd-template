@@ -10,8 +10,10 @@ disable-model-invocation: true
 # Sonar PR evidence
 
 Это общий read-only contract. Единственный entrypoint получения данных —
-`tools/scripts/download-sonar-issues.os`; не заменяй его `curl`, inline API,
-другим клиентом или способом аутентификации.
+`tools/scripts/download-sonar-issues.os`, вызываемый через approval-friendly
+wrapper `.claude/scripts/download-sonar-issues.cmd` на Windows. Wrapper не
+добавляет API или аутентификацию; не заменяй helper `curl`, inline API, другим
+клиентом или способом аутентификации.
 
 ## Границы
 
@@ -40,7 +42,7 @@ disable-model-invocation: true
 2. Запусти только:
 
    ```text
-   oscript tools/scripts/download-sonar-issues.os -pr <PR_IID> -output-dir "<OUTPUT_DIR>"
+   .claude/scripts/download-sonar-issues.cmd -pr <PR_IID> -output-dir "<OUTPUT_DIR>"
    ```
 
 3. Прочитай точный path `issues-pr-<PR_IID>.json` из `OUTPUT_DIR`. Проверь:

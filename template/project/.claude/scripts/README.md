@@ -33,6 +33,10 @@ Deterministic блокировки shell-паттернов живут отде�
   Sonar evidence для этого MR получает только
   `tools/scripts/download-sonar-issues.os` через skill `sonar-pr-evidence`; его
   JSON сохраняется рядом с manifest, а не в рабочем репозитории.
+- `download-sonar-issues.cmd` -- approval-friendly wrapper для единственного
+  Sonar entrypoint `tools/scripts/download-sonar-issues.os`. Он переходит в
+  корень проекта и только передаёт аргументы helper-у; не добавляет другой
+  Sonar client, способ аутентификации или операции записи.
 - `gitlab-tools.cmd` -- approval-friendly entrypoint для GitLab-операций через
   `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), общие
   комментарии, ответы, inline review-треды и resolve (`note`, `reply`,

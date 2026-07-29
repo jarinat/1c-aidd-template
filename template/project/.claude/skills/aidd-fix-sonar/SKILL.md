@@ -97,7 +97,7 @@ Source of truth:
 5. Запусти из корня проекта только через общий entrypoint:
 
    ```text
-   oscript tools/scripts/download-sonar-issues.os -pr <PR>
+   .claude/scripts/download-sonar-issues.cmd -pr <PR>
    ```
 
 6. Прочитай `out/sonar-reports/issues-pr-<PR>.json` и выполни validation из

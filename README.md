@@ -323,6 +323,9 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
   получения Sonar issues по PR, проверки JSON и сопоставления analyzed revision
   с GitLab MR `head_sha`; он используется без создания `RV-XXX` в MR review и
   без замены самостоятельного `aidd-fix-sonar` workflow.
+- `scripts/download-sonar-issues.cmd`: добавлен approval-friendly Windows
+  wrapper для существующего Sonar helper, чтобы MR review не требовал широкого
+  разрешения на `cd ... && oscript ...`.
 - `skills/v8std-tools/SKILL.md`: добавлен условный MCP-слой для сверки спорных
   замечаний со стандартами 1С и расшифровки диагностик.
 - `skills/aidd-review/SKILL.md`: добавлен режим Pre-MR для полного review
