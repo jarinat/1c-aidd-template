@@ -112,7 +112,10 @@ Examples:
 function Invoke-Git {
     param([Parameter(Mandatory = $true)][string[]]$GitArgs)
 
-    $Output = & git -C $ProjectRootFull @GitArgs
+    # Git C-quotes non-ASCII paths by default. Keep paths literal so the
+    # extension filters below and the subsequent `git diff -- <path>` calls
+    # receive the same repo-relative name.
+    $Output = & git -c core.quotePath=false -C $ProjectRootFull @GitArgs
     if ($LASTEXITCODE -ne 0) {
         Stop-WithMessage "git $($GitArgs -join ' ') failed"
     }
