@@ -3,6 +3,7 @@ name: review-mr
 description: "Проводит code review merge request между двумя refs Git."
 tools: Read, Glob, Grep, mcp__v8std__v8std_search, mcp__v8std__v8std_explain_snippet, mcp__v8std__v8std_explain_diagnostics, mcp__v8std__v8std_get_page, mcp__v8std__v8std_get_related
 model: sonnet
+color: cyan
 skills:
   - 1c-query
   - yaxunit-tests
