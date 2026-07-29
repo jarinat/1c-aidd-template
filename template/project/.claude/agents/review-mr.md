@@ -75,8 +75,10 @@ MCP `v8std`: это read-only база знаний стандартов 1С б�
   чтение файлов и команды, если он задан.
 - `$SONAR_COVERAGE` и `$SONAR_COVERAGE_REASON` — статус Sonar coverage для
   GitLab MR review.
-- `$SONAR_REPORT_PATH` — точный путь к подготовленному Sonar JSON, только при
+- `$SONAR_EVIDENCE_PATH` — точный путь к Sonar JSON только при
   `$SONAR_COVERAGE=verified`.
+- `$SONAR_HINTS_PATH` — точный путь к полному валидному Sonar JSON только при
+  `$SONAR_COVERAGE=unverified`; это не evidence, а очередь проверки.
 
 ## Выход
 
@@ -88,14 +90,18 @@ MCP `v8std`: это read-only база знаний стандартов 1С б�
 ## Ограничения
 
 - Не исправляй код автоматически.
-- Sonar — дополнительное read-only evidence, не замена проверки diff, кода и
-  правил и не автоматическая команда на исправление. При coverage не
-  `verified` не интерпретируй Sonar issues как кандидатные замечания.
-- `SONAR_REPORT_PATH` — единственное разрешённое чтение вне
-  `REVIEW_WORKTREE`/manifest snapshots; используй его только как JSON evidence,
-  не как путь к исходному коду.
-- Если одна проблема подтверждена и engine, и Sonar, выведи одно замечание с
-  обоими источниками, keys/rules Sonar и общим evidence.
+- Sonar — дополнительный read-only источник, не замена проверки diff, кода и
+  правил и не автоматическая команда на исправление. При `verified` issues
+  являются evidence; при `unverified` они являются только hints и не могут
+  сами породить замечание.
+- `SONAR_EVIDENCE_PATH` или `SONAR_HINTS_PATH` — единственное разрешённое
+  чтение вне `REVIEW_WORKTREE`/manifest snapshots; используй их только как
+  JSON, не как путь к исходному коду.
+- Если одна проблема подтверждена и engine, и verified Sonar, выведи одно
+  замечание с обоими источниками, keys/rules Sonar и общим evidence.
+- Если hint подтверждён только current diff и кодом, источник finding —
+  `Review engine; Sonar hint (unverified)`. Не утверждай, что Sonar проверил
+  current SHA, и не называй hint verified evidence.
 - Не используй workspace-bound MCP discovery для поиска ссылок, callers или
   выводов по MR.
 - Для пошагового алгоритма и checklist ориентируйся на

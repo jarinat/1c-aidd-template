@@ -112,8 +112,10 @@ inline env. Не проси пользователя присылать token в
 5. Примени `.claude/skills/sonar-pr-evidence/SKILL.md` с `PR_IID=mr_iid` и
    `HEAD_SHA=head_sha`. Каталогом результата задай `<manifest directory>/sonar`:
    это generated evidence вне рабочего репозитория. Всегда получи и сохрани
-   `Sonar coverage` и причину. Если coverage не `verified`, продолжай обычный
-   review без Sonar candidates; не называй Sonar проверенным.
+   `Sonar coverage` и причину. При `verified` передай report как evidence. При
+   `unverified` с полным valid report передай его только как список hints для
+   независимой проверки. При `unavailable`, `incomplete` или `stale` продолжай
+   review без Sonar data; не называй Sonar проверенным.
 6. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
    После `prepare` не запускай shell-команды для чтения MR context. Для `HEAD`
    читай файлы из `worktree_path` или из конкретных `head_snapshot_path` в
@@ -132,8 +134,9 @@ inline env. Не проси пользователя присылать token в
      `changed_files_path`, `mr_json_path`, `base_snapshot_root`,
      `head_snapshot_root`;
    - `SONAR_COVERAGE` и `SONAR_COVERAGE_REASON`; при `verified` — точный
-     `SONAR_REPORT_PATH` в `<manifest directory>/sonar/issues-pr-<mr_iid>.json`
-     как исключение только для чтения Sonar evidence;
+     `SONAR_EVIDENCE_PATH`, при `unverified` с полным valid report — точный
+     `SONAR_HINTS_PATH` в `<manifest directory>/sonar/issues-pr-<mr_iid>.json`.
+     Оба пути являются исключением только для чтения Sonar JSON;
    - требование брать repo-relative paths дословно из manifest-файлов или
      `changed_files_path`, без ручной реконструкции кириллических имён;
    - требование не использовать `Bash`, `cmd`, `powershell`, `.cmd`, `.ps1`,
@@ -244,8 +247,9 @@ inline env. Не проси пользователя присылать token в
   необходимости; в отчёте обязательно укажи причину.
 - Не запрашивай и не сохраняй GitLab token в файлах проекта.
 - Не исправляй код автоматически в рамках review GitLab MR.
-- Sonar — дополнительное read-only evidence, не замена проверки кода и не
-  автоматическая команда на исправление. Используй Sonar issues только при
-  `Sonar coverage: verified`; при любом другом coverage продолжай обычный
-  review и выведи фактическую причину.
+- Sonar — дополнительный read-only источник, не замена проверки кода и не
+  автоматическая команда на исправление. При `verified` это evidence; при
+  `unverified` полный report допускается только как hints, которые review
+  engine обязан подтвердить по current diff и коду. При `unavailable`,
+  `incomplete` и `stale` Sonar data не используй.
 - Не придумывай замечания, если проблем нет.

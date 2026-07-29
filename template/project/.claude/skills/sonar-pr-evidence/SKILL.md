@@ -58,24 +58,27 @@ wrapper `.claude/scripts/download-sonar-issues.cmd` на Windows. Wrapper не
      нормализации или предположений;
    - `analysis.taskId`, `analysis.revisionProperty` и, если Sonar его отдал,
      `analysisId`/`executedAt` сохраняются как evidence.
-5. Верни вызывающему workflow только подготовленный path, coverage и причину:
+5. Верни вызывающему workflow prepared path, coverage и причину:
 
    | Coverage | Когда ставить |
    | --- | --- |
    | `verified` | JSON полон, PR совпадает, и Sonar revision точно равен `HEAD_SHA`. |
-   | `unavailable` | Нет `oscript`, конфигурации, token, доступа к Sonar или helper завершился ошибкой. |
+   | `unavailable` | Полный issues report не получен: нет `oscript`, конфигурации, token, доступа к Sonar или helper завершился ошибкой. |
    | `incomplete` | JSON/пагинация/обязательные поля невалидны или список issues усечён. |
    | `stale` | Sonar отдал revision, но она не равна `HEAD_SHA`. |
-   | `unverified` | Issues полны, но revision evidence отсутствует, неполна или не допускает точного сравнения. |
+   | `unverified` | Issues report полон и относится к запрошенному PR, но revision evidence отсутствует, недоступен (включая HTTP 401/403) или не допускает точного сравнения. |
 
 Не называй coverage `verified` в любом другом случае. При `unavailable` report
-path может отсутствовать; при остальных статусах не передавай issues review
-engine как кандидатные замечания.
+path отсутствует. При `incomplete` и `stale` не передавай issues review engine.
+При `unverified` передай exact report path только как `SONAR_HINTS_PATH`: это
+не evidence и не источник готовых замечаний, а список мест для независимой
+проверки current diff и кода.
 
 ## Использование workflow
 
 - `review-gitlab-mr` вызывает contract с обязательным `HEAD_SHA` и передаёт
-  `SONAR_REPORT_PATH` в `review-mr` только при `verified`.
+  `SONAR_EVIDENCE_PATH` в `review-mr` при `verified`; при `unverified` с
+  полным валидным report передаёт только `SONAR_HINTS_PATH`.
 - `aidd-fix-sonar` использует тот же entrypoint и JSON validation, но остаётся
   самостоятельным workflow: создаёт `RV-XXX`, принимает решение пользователя,
   исправляет код и отдельно подтверждает rescan. Его lifecycle не запускается

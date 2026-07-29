@@ -90,10 +90,15 @@
   становится замечанием review лишь после проверки точной location по diff и
   исходнику, а также применимых core/project/path rules; оно не является
   автоматической командой на исправление.
-- Для GitLab MR review используй Sonar issues только при доказанном совпадении
-  analyzed revision с `head_sha` MR. В остальных случаях явно сообщай coverage
-  (`unavailable`, `incomplete`, `stale` или `unverified`) и причину, не выдавая
-  report за проверенный.
+- Для GitLab MR review используй Sonar issues как verified evidence только при
+  доказанном совпадении analyzed revision с `head_sha` MR. В остальных случаях
+  явно сообщай coverage (`unavailable`, `incomplete`, `stale` или
+  `unverified`) и причину, не выдавая report за проверенный.
+- Полный и валидный Sonar report с coverage `unverified` допускается только как
+  набор hints: review engine обязан независимо подтвердить проблему по current
+  diff, исходнику и правилам. Такое замечание имеет источник `Review engine;
+  Sonar hint (unverified)`, а не подтверждённый `Source: SonarQube`. При
+  `unavailable`, `incomplete` и `stale` Sonar data не используй даже как hints.
 - Если одну проблему независимо нашёл review engine и SonarQube, формируй одно
   замечание с обоими источниками и Sonar issue/rule keys, а не дубликаты.
 - Прежде чем отнести поведенческое замечание к `blocking`/`important`, проверь,

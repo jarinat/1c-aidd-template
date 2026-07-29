@@ -322,7 +322,9 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 - `skills/sonar-pr-evidence/SKILL.md`: добавлен общий read-only contract
   получения Sonar issues по PR, проверки JSON и сопоставления analyzed revision
   с GitLab MR `head_sha`; он используется без создания `RV-XXX` в MR review и
-  без замены самостоятельного `aidd-fix-sonar` workflow.
+  без замены самостоятельного `aidd-fix-sonar` workflow. Полный report без
+  доказанного SHA допускается только как unverified hints для независимой
+  проверки кода review engine.
 - `scripts/download-sonar-issues.cmd`: добавлен approval-friendly Windows
   wrapper для существующего Sonar helper, чтобы MR review не требовал широкого
   разрешения на `cd ... && oscript ...`.
