@@ -301,6 +301,7 @@ STUB
 import sys, json, os
 m = json.load(open(sys.argv[1], encoding="utf-8"))
 assert m["schema"] == "gitlab-mr-review.v1", m.get("schema")
+assert m["mr_iid"] == 42, m.get("mr_iid")
 assert m["title"] == "Тестовый MR", m["title"]
 assert m["target_project_path"] == "group/project", m["target_project_path"]
 assert m["target_project_id"] == 100, m["target_project_id"]

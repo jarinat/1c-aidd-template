@@ -29,6 +29,10 @@ Deterministic блокировки shell-паттернов живут отде�
   изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
   вызывай напрямую из Claude Code, используй `.cmd` wrapper. Read-only по
   отношению к GitLab: команд записи здесь быть не должно.
+- `gitlab-mr-review` manifest содержит `mr_iid`, `base_sha` и `head_sha`.
+  Sonar evidence для этого MR получает только
+  `tools/scripts/download-sonar-issues.os` через skill `sonar-pr-evidence`; его
+  JSON сохраняется рядом с manifest, а не в рабочем репозитории.
 - `gitlab-tools.cmd` -- approval-friendly entrypoint для GitLab-операций через
   `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), общие
   комментарии, ответы, inline review-треды и resolve (`note`, `reply`,

@@ -23,7 +23,10 @@ Source of truth:
 - подготовка review-контекста MR (worktree, diff, snapshots):
   `.claude/skills/review-gitlab-mr/SKILL.md`;
 - исправление принятого `RV-XXX`: `.claude/skills/aidd-fix-review/SKILL.md`;
-- Sonar-находки того же PR: `.claude/skills/aidd-fix-sonar/SKILL.md`.
+- Sonar issues того же PR для AIDD-разбора:
+  `.claude/skills/aidd-fix-sonar/SKILL.md`; read-only evidence для GitLab MR
+  review получает `review-gitlab-mr` через `sonar-pr-evidence` и не публикует
+  комментарии автоматически.
 
 ## Границы
 
@@ -41,7 +44,11 @@ Source of truth:
   pipelines или временными JSON. Если не хватает операции, добавь подкоманду по
   рецепту из шапки `gitlab-tools.ps1`.
 - Не проси и не сохраняй GitLab token: авторизация только через `glab auth`.
-- Не дублируй проверки SonarQube: находки Sonar идут через `aidd-fix-sonar`.
+- SonarQube не заменяет проверку кода и не является автоматической командой на
+  исправление. Для GitLab MR review verified Sonar evidence обрабатывает
+  `review-gitlab-mr`; для самостоятельного AIDD-разбора и исправлений issues
+  используй `aidd-fix-sonar`. Этот skill не запускает ни один из этих workflow
+  неявно и не публикует Sonar-находки автоматически.
 - Не меняй текущую ветку пользователя и не делай commit.
 
 ## Команды

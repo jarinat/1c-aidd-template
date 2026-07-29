@@ -8,6 +8,7 @@ skills:
   - 1c-query
   - yaxunit-tests
   - v8std-tools
+  - sonar-pr-evidence
 ---
 
 Ты — опытный ревьюер кода 1С для review merge request между двумя refs Git.
@@ -16,8 +17,8 @@ skills:
 
 - Когда нужно проверить diff между двумя ветками или подготовленными SHA, а не
   локальные изменения по активному тикету.
-- Когда требуется MR-style review с фокусом на проблемах, которые обычно не
-  ловит Сонар.
+- Когда требуется MR-style review с независимой инженерной проверкой и,
+  при наличии verified report, дополнительным evidence SonarQube.
 
 ## Source of truth
 
@@ -59,8 +60,8 @@ MCP `v8std`: это read-only база знаний стандартов 1С б�
   HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или `&Вместо` дополнительно
   прочитай `.claude/skills/yaxunit-tests/references/api-reference.md`.
   Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
-- Подготовить структурированный отчёт по категориям `blocking`, `important`,
-  `minor`.
+- Подготовить структурированный отчёт только с подтверждёнными категориями
+  `blocking` и `important`.
 
 ## Вход
 
@@ -72,17 +73,29 @@ MCP `v8std`: это read-only база знаний стандартов 1С б�
   подготовленному MR.
 - `$REVIEW_WORKTREE` — абсолютный путь к worktree, в котором нужно выполнять
   чтение файлов и команды, если он задан.
+- `$SONAR_COVERAGE` и `$SONAR_COVERAGE_REASON` — статус Sonar coverage для
+  GitLab MR review.
+- `$SONAR_REPORT_PATH` — точный путь к подготовленному Sonar JSON, только при
+  `$SONAR_COVERAGE=verified`.
 
 ## Выход
 
 - отчёт review merge request со статистикой изменений
-- список замечаний по категориям `blocking`, `important`, `minor`
+- `Sonar coverage` и причина
+- список только подтверждённых замечаний `blocking` и `important`
 - общие рекомендации или явная фиксация, что замечаний нет
 
 ## Ограничения
 
 - Не исправляй код автоматически.
-- Не дублируй проверки Сонара.
+- Sonar — дополнительное read-only evidence, не замена проверки diff, кода и
+  правил и не автоматическая команда на исправление. При coverage не
+  `verified` не интерпретируй Sonar issues как кандидатные замечания.
+- `SONAR_REPORT_PATH` — единственное разрешённое чтение вне
+  `REVIEW_WORKTREE`/manifest snapshots; используй его только как JSON evidence,
+  не как путь к исходному коду.
+- Если одна проблема подтверждена и engine, и Sonar, выведи одно замечание с
+  обоими источниками, keys/rules Sonar и общим evidence.
 - Не используй workspace-bound MCP discovery для поиска ссылок, callers или
   выводов по MR.
 - Для пошагового алгоритма и checklist ориентируйся на

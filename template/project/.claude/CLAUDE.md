@@ -50,6 +50,7 @@ supporting docs.
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
+  `.claude/skills/sonar-pr-evidence/SKILL.md`
   `.claude/skills/gitlab-tools/SKILL.md`
   `.claude/skills/release-mr/SKILL.md`
   `.claude/skills/project-onboarding/SKILL.md`
@@ -85,6 +86,11 @@ supporting docs.
   падение CI, это сценарий `gitlab-tools`. Замечание ревьюера GitLab — внешняя
   находка: оно идёт в `review`, а не в `feedback`. Эта маршрутизация имеет
   приоритет над общим правилом `feedback`.
+- Если пользователь передал GitLab MR URL и просит провести review самого
+  change-set, сначала прочитай `.claude/skills/review-gitlab-mr/SKILL.md`.
+  Этот read-only сценарий может использовать только verified Sonar evidence по
+  `.claude/skills/sonar-pr-evidence/SKILL.md`; он не запускает
+  `aidd-fix-sonar`, не создаёт `RV-XXX` и не исправляет код.
 - Если пользователь явно просит подготовить или создать релизные MR, сначала
   прочитай `.claude/skills/release-mr/SKILL.md`. Сценарий доступен только при
   заполненной секции «Релизные MR» в `.claude/rules/project/ticketing.md`.

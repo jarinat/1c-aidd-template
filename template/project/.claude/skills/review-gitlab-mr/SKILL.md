@@ -16,6 +16,8 @@ Source of truth:
 
 - MR review engine:
   - `.claude/skills/review-mr/SKILL.md`
+- Sonar issues evidence:
+  - `.claude/skills/sonar-pr-evidence/SKILL.md`
 - общая политика code review:
   - `.claude/rules/core/code-review.md`
 - специализированные проверки:
@@ -34,6 +36,7 @@ Source of truth:
 - не публикует комментарии в GitLab;
 - не approve/revoke/merge MR;
 - не переключает текущую рабочую ветку пользователя.
+- не создаёт `RV-XXX`, не меняет код и не записывает AIDD-артефакты;
 - не использует workspace-bound MCP discovery, потому что MR проверяется в
   отдельном worktree, а MCP-серверы, привязанные к EDT workspace или локальному
   индексу, могут смотреть на другую рабочую копию.
@@ -97,6 +100,7 @@ inline env. Не проси пользователя присылать token в
 
 3. Используй JSON manifest из stdout и `manifest_path` как source of truth для:
    - `mr_url`, `title`, `description`;
+   - `mr_iid`;
    - `source_branch`, `target_branch`;
    - `base_sha`, `head_sha`;
    - `worktree_path`;
@@ -105,14 +109,19 @@ inline env. Не проси пользователя присылать token в
 4. Зафиксируй в контексте review конкретный `head_sha`. Если script сообщает,
    что `diff_refs` ещё пустой или MR не подготовлен GitLab, остановись и
    попроси повторить позже.
-5. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
+5. Примени `.claude/skills/sonar-pr-evidence/SKILL.md` с `PR_IID=mr_iid` и
+   `HEAD_SHA=head_sha`. Каталогом результата задай `<manifest directory>/sonar`:
+   это generated evidence вне рабочего репозитория. Всегда получи и сохрани
+   `Sonar coverage` и причину. Если coverage не `verified`, продолжай обычный
+   review без Sonar candidates; не называй Sonar проверенным.
+6. Не используй текущую рабочую копию пользователя для чтения окружающего кода.
    После `prepare` не запускай shell-команды для чтения MR context. Для `HEAD`
    читай файлы из `worktree_path` или из конкретных `head_snapshot_path` в
    `changed_files_path`; для `BASE` читай только конкретные
    `base_snapshot_path` из `changed_files_path`. Не реконструируй snapshot path
    как `base_snapshot_root/head_snapshot_root + repo-relative path`: snapshot
    files могут храниться под короткими hash-именами.
-6. Передай subagent `review-mr`:
+7. Передай subagent `review-mr`:
    - `MR_URL`, title, source/target branches;
    - `REVIEW_WORKTREE=<worktree_path>`;
    - `BASE_REF=<base_sha>`;
@@ -122,21 +131,26 @@ inline env. Не проси пользователя присылать token в
      `diff_stat_path`, `diff_name_status_path`, `diff_patch_path`,
      `changed_files_path`, `mr_json_path`, `base_snapshot_root`,
      `head_snapshot_root`;
+   - `SONAR_COVERAGE` и `SONAR_COVERAGE_REASON`; при `verified` — точный
+     `SONAR_REPORT_PATH` в `<manifest directory>/sonar/issues-pr-<mr_iid>.json`
+     как исключение только для чтения Sonar evidence;
    - требование брать repo-relative paths дословно из manifest-файлов или
      `changed_files_path`, без ручной реконструкции кириллических имён;
    - требование не использовать `Bash`, `cmd`, `powershell`, `.cmd`, `.ps1`,
      `git` или shell pipelines внутри subagent review;
    - требование читать MR context через `Read`, `Glob`, `Grep` по
      `REVIEW_WORKTREE`, `base_snapshot_root` и `head_snapshot_root`.
-7. Сформируй итоговый отчёт review:
+8. Сформируй итоговый отчёт review:
     - MR title/link;
     - проверенные `base_sha` и `head_sha`;
     - краткая статистика diff;
-    - `blocking`, `important`, `minor`;
+    - `Sonar coverage: verified|unavailable|incomplete|stale|unverified` и
+      фактическую причину;
+    - только подтверждённые `blocking` и `important`;
     - явная фиксация, что замечаний нет, если review чистый;
     - статус cleanup: `worktree removed: <path>` или `worktree kept: <path>`
       с причиной.
-8. До вывода итогового отчёта удали review worktree по умолчанию:
+9. До вывода итогового отчёта удали review worktree по умолчанию:
     - если пользователь заранее явно попросил оставить worktree, не удаляй его;
     - если review не удалось завершить из-за ошибки инструментов или нужно
       сохранить каталог для ручной диагностики, не удаляй его и явно объясни
@@ -153,7 +167,7 @@ inline env. Не проси пользователя присылать token в
       ```
 
     - не удаляй worktree вручную через `rm`, `Remove-Item` или shell-цепочки.
-9. Выведи итоговый отчёт review в текущую сессию уже с фактическим cleanup
+10. Выведи итоговый отчёт review в текущую сессию уже с фактическим cleanup
     статусом.
 
 ## Публикация в GitLab
@@ -202,6 +216,9 @@ inline env. Не проси пользователя присылать token в
 ## Ограничения
 
 - Не меняй текущую ветку пользователя.
+- Не запускай `aidd-fix-sonar`, не создавай `RV-XXX`, не записывай
+  `aidd/docs/*` и не исправляй код: GitLab MR review использует только
+  read-only Sonar evidence.
 - Не заменяй `gitlab-mr-review` prepare (`.cmd` на Windows, `.sh` на
   Linux/WSL) inline-командами, самописными `curl`/`python`/`git credential`
   последовательностями или временными файлами вне manifest, созданного script.
@@ -227,5 +244,8 @@ inline env. Не проси пользователя присылать token в
   необходимости; в отчёте обязательно укажи причину.
 - Не запрашивай и не сохраняй GitLab token в файлах проекта.
 - Не исправляй код автоматически в рамках review GitLab MR.
-- Не дублируй проверки Сонара.
+- Sonar — дополнительное read-only evidence, не замена проверки кода и не
+  автоматическая команда на исправление. Используй Sonar issues только при
+  `Sonar coverage: verified`; при любом другом coverage продолжай обычный
+  review и выведи фактическую причину.
 - Не придумывай замечания, если проблем нет.

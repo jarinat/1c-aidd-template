@@ -347,6 +347,7 @@ elif mode == "manifest":
 
     manifest = {
         "schema": "gitlab-mr-review.v1",
+        "mr_iid": mr.get("iid"),
         "mr_url": mr.get("web_url"),
         "title": mr.get("title"),
         "description": mr.get("description"),

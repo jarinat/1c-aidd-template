@@ -23,6 +23,13 @@ project-specific правилами.
 
 ## Выбор сценария
 
+- Если пользователь просит провести GitLab MR review по ссылке, основная
+  сессия использует `.claude/skills/review-gitlab-mr/SKILL.md`. В этом
+  сценарии SonarQube — только дополнительное read-only evidence по
+  `.claude/skills/sonar-pr-evidence/SKILL.md`: review не создаёт `RV-XXX`, не
+  меняет код и не запускает `aidd-fix-sonar`. Недоступный, неполный, stale или
+  unverified Sonar report не отменяет review, но его coverage и причина должны
+  войти в отчёт.
 - Если пользователь просит скачать, разобрать или исправить SonarQube issues
   конкретного PR, основная сессия использует
   `.claude/skills/aidd-fix-sonar/SKILL.md`. Sonar-находки фиксируются в
@@ -236,6 +243,10 @@ PRD уже содержит достаточный scope, а отдельные 
   `review` -> фиксация `RV-XXX` со статусом `OPEN` -> решение пользователя
   `ACCEPTED` или `DECLINED` -> `aidd-fix-review` только для `ACCEPTED` ->
   статус `FIXED`.
+- Sonar issue не является автоматической командой на исправление: до `RV-XXX`
+  он проходит инженерную проверку по diff, исходнику и core/project/path rules.
+  Это правило не отменяет read-only использование verified Sonar evidence в
+  GitLab MR review и не превращает такой review в AIDD review-fix цикл.
 - Повторный запуск review после исправлений по `review` выполняется только
   вручную по явной просьбе пользователя.
 - Перед созданием или обновлением MR по ветке с несколькими подтикетами

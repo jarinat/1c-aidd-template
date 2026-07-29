@@ -775,6 +775,7 @@ function Prepare-Review {
 
     $manifest = [pscustomobject]@{
         schema = "gitlab-mr-review.v1"
+        mr_iid = $mr.iid
         mr_url = $mr.web_url
         title = $mr.title
         description = $mr.description

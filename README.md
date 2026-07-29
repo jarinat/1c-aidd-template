@@ -316,7 +316,13 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
   диагностика удаления элементов метаданных с gate для `USED` и `UNCLEAR`.
 - `skills/review-gitlab-mr/SKILL.md`: добавлен ручной read-only сценарий
   review GitLab MR по ссылке через изолированный worktree и существующий
-  `review-mr` engine.
+  `review-mr` engine. Он использует verified SonarQube issues только как
+  дополнительное evidence: неполный, stale или unavailable report не отменяет
+  review и явно отражается как Sonar coverage.
+- `skills/sonar-pr-evidence/SKILL.md`: добавлен общий read-only contract
+  получения Sonar issues по PR, проверки JSON и сопоставления analyzed revision
+  с GitLab MR `head_sha`; он используется без создания `RV-XXX` в MR review и
+  без замены самостоятельного `aidd-fix-sonar` workflow.
 - `skills/v8std-tools/SKILL.md`: добавлен условный MCP-слой для сверки спорных
   замечаний со стандартами 1С и расшифровки диагностик.
 - `skills/aidd-review/SKILL.md`: добавлен режим Pre-MR для полного review

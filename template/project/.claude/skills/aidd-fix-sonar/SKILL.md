@@ -24,6 +24,8 @@ Source of truth:
   `.claude/rules/paths/*.md`;
 - исправление принятого `RV-XXX`:
   `.claude/skills/aidd-fix-review/SKILL.md`.
+- общий read-only contract выгрузки и JSON validation:
+  `.claude/skills/sonar-pr-evidence/SKILL.md`.
 
 ## Границы
 
@@ -35,6 +37,8 @@ Source of truth:
 - Не вшивай в skill префиксы, имена объектов и исключения отдельного проекта.
 - Не считай этот сценарий полным AIDD review изменений: он импортирует и
   обрабатывает только Sonar-находки.
+- Не запускай этот workflow из `review-gitlab-mr`: GitLab MR review получает
+  только evidence и не создаёт `RV-XXX`, решения или исправления.
 - Security Hotspots не входят в scope первой версии: используемый API
   выгружает issues, но не hotspot review. Не заявляй, что hotspots проверены.
 - Не добавляй generated report в commit и не записывай в него токен.
@@ -87,22 +91,20 @@ Source of truth:
 2. Получи явный номер PR. Не угадывай его по активной ветке.
 3. Прочитай PRD, plan, tasklist, feedback и существующий review по протоколу
    AIDD, затем project/path rules.
-4. Проверь наличие `tools/scripts/download-sonar-issues.os`,
-   `sonar-project.properties`, `oscript` и env var `SONAR_TOKEN`. Не выводи
-   значение токена.
-5. Запусти из корня проекта:
+4. Примени `.claude/skills/sonar-pr-evidence/SKILL.md`: проверь наличие
+   entrypoint, `sonar-project.properties`, `oscript` и env var `SONAR_TOKEN`,
+   не выводя значение token.
+5. Запусти из корня проекта только через общий entrypoint:
 
    ```text
    oscript tools/scripts/download-sonar-issues.os -pr <PR>
    ```
 
-6. Прочитай `out/sonar-reports/issues-pr-<PR>.json` и проверь:
-   - JSON корректен;
-   - `total` равен фактическому количеству элементов `issues`;
-   - поле `pullRequest`, если присутствует, соответствует запрошенному PR;
-   - у issue есть `key`, `rule`, `message`, `component` и однозначная
-     file-level или line/textRange location.
-   При неполной выгрузке не анализируй усеченный список.
+6. Прочитай `out/sonar-reports/issues-pr-<PR>.json` и выполни validation из
+   общего contract: `schema`, PR, `total`, полнота `issues` и обязательные
+   поля/location. При `incomplete` не анализируй усеченный список. Evidence
+   revision сохраняй для последующего rescan, но не подменяй им отдельное
+   подтверждение свежего анализа после исправлений.
 7. Сопоставь `component` с repo-relative путем и прочитай точный исходник и
    релевантный фрагмент diff. Если сопоставление неоднозначно, зафиксируй
    `BLOCKED`, не угадывай файл.
