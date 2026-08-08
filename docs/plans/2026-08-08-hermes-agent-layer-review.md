@@ -163,20 +163,20 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Ревизи
 - Consumes: статусы доказанности из Task 1.
 - Produces: вердикты по `AGENTS.md`, `.claude/CLAUDE.md`, `doc/ai/README.md`, `doc/ai/standards/layers.md`; зафиксированная схема слоёв, с которой сверяются задачи 3–6.
 
-- [ ] **Step 1: Прочитать целиком**
+- [x] **Step 1: Прочитать целиком**
 
-Read (P): `AGENTS.md`, `.claude/CLAUDE.md`, `doc/ai/README.md`, `doc/ai/standards/layers.md`, `doc/ai/project/project-rules.template.md`, `doc/ai/project/project-rules.example.md`.
+Read (W): `AGENTS.md`, `.claude/CLAUDE.md`, `doc/ai/README.md`, `doc/ai/standards/layers.md`, `doc/ai/project/project-rules.template.md`, `doc/ai/project/project-rules.example.md`.
 
-- [ ] **Step 2: Проверить по чек-листу entrypoints**
+- [x] **Step 2: Проверить по чек-листу entrypoints** (главная находка: нет миграционной инструкции для проекта с личным слоем — коллизия untracked `AGENTS.md`/`.claude/CLAUDE.md` при merge)
 
 - `AGENTS.md`: короткий маршрутизатор без дублирования правил? Не содержит Claude-специфики? Совместим с ролью «корневой AGENTS.md принадлежит шаблону»?
 - `.claude/CLAUDE.md`: реализует мост корректно (импорт `@AGENTS.md` или эквивалент — сверить с официальной механикой импортов; симлинк недопустим из-за Windows)? Не конфликтует с личным `.claude/CLAUDE.md` разработчика с AIDD (это же имя файла! — как слой ведёт себя, когда у разработчика в проекте уже есть свой `.claude/CLAUDE.md`, как у пользователя в MBS)? Это ключевой вопрос сосуществования — если ответ «перезапишет личный файл», это blocking-находка с решением user.
 - `layers.md`: три слоя описаны так, что расширение не требует правки корпоративных файлов? Куда разработчик кладёт личные skills и как избегается shadowing `mplsys-`?
 - Языковой и терминологический контроль: русский, нет специфики Avtolid (искать `Grep -i "avtolid|prosys|MPLSYS-47"` по перечисленным файлам), нет AIDD-терминов (`Grep -i "aidd|active_ticket|tasklist|prd"`).
 
-- [ ] **Step 3: Заполнить секцию 2 матрицей и списком вопросов user**
+- [x] **Step 3: Заполнить секцию 2 матрицей и списком вопросов user**
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
