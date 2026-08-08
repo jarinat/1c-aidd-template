@@ -273,11 +273,11 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Ревизи
 - Consumes: вердикты канонических skills из Task 4.
 - Produces: вердикт по архитектуре моста (рендер vs альтернативы) — ключевой вход секции 11.
 
-- [ ] **Step 1: Прочитать механизм**
+- [x] **Step 1: Прочитать механизм**
 
 Read (P): `tools/ai/mplsys-render-claude-layer.sh`, `.claude/rules/mplsys/mplsys.md`, 2–3 адаптера `.claude/skills/mplsys-*/SKILL.md` (например `mplsys-1c-query`, `mplsys-code-review`, `mplsys-implement`) и `.claude/agents/mplsys-implementer.md`.
 
-- [ ] **Step 2: Проверить соответствие адаптеров каноническим**
+- [x] **Step 2: Проверить соответствие адаптеров каноническим** (выборочно, побайтово соответствуют; вторых копий нет)
 
 Для каждого из 14 skills сравнить `.claude/skills/X/SKILL.md` с `.agents/skills/X/SKILL.md`:
 
@@ -287,13 +287,13 @@ git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" diff --n
 
 (если diff --no-index недоступен в этой форме — попарно). Вопросы: адаптер = точная копия или тонкая обёртка? Есть ли «вторая копия процесса» (запрещена промптом)? Рендер детерминирован и идемпотентен (повторный прогон не меняет файлы)? Как ловится дрейф — validator?
 
-- [ ] **Step 3: Оценить архитектуру рендера против альтернатив**
+- [x] **Step 3: Оценить архитектуру рендера против альтернатив** (рендер+strict check — лучший вариант для Windows-команды)
 
 Зафиксировать в отчёте сравнение: рендер-скрипт (как есть) vs идентичные копии под контролем валидатора vs симлинки (отвергнуты: Windows). Критерий — стоимость для обычного разработчика команды: что он должен запускать и когда, что происходит при забытом рендере. Вердикт — предложение engine, решение user.
 
-- [ ] **Step 4: Заполнить секцию 5**
+- [x] **Step 4: Заполнить секцию 5**
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
