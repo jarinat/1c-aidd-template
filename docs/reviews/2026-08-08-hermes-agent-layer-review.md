@@ -45,6 +45,45 @@ HEAD: `4384d6d22c865b058e5a3091361d4c5a68be9396`
 
 ## 1. Испытания и отчёт Hermes
 
+Найденные артефакты: каталог `.ai-eval/` (40 файлов, ignored) в worktree W.
+Итоговый отчёт Hermes (15 пунктов по промпту) и матрица испытаний **как файлы
+отсутствуют** — по-видимому, остались только в сессии Hermes.
+
+Что фактически запускалось (по логам `.ai-eval/`):
+
+| Испытание | Evidence | Статус |
+|---|---|---|
+| Discovery Codex (clean) | `codex-clean-discovery.txt`: Codex v0.144.5 видит слой, называет skills и commit-правило | подтверждено |
+| Discovery Claude (clean) | `claude-clean-discovery.txt`: мост загружен, но на раннем этапе Claude НЕ мог перечислить skills из startup context (только `mplsys-code-review`) | подтверждено, с находкой |
+| Discovery после переносов (`.claude`, `doc/ai`, новые skills) | `*-final.txt`, `claude-three-skills-startup-final.txt`, `codex-after-dotclaude-final.txt` | подтверждено |
+| Сосуществование с личным слоем | `claude-dotclaude-local-coexistence.txt` (маркер из `CLAUDE.local.md` + корпоративные инварианты), `codex-personal-layer.txt` | подтверждено |
+| Защита namespace | `namespace-conflict.txt`: validator (227 проверок) ловит подсадной `.claude/skills/mplsys-conflict-probe` | подтверждено |
+| Commit helper | `commit1..4-dryrun.txt`: реальные dry-run прогоны | подтверждено |
+| Языковая политика | `*-russian-policy-final.txt` | подтверждено |
+| «Natural/explicit suites» обоих CLI (9 кейсов A–I) | `claude-natural-suite-full.md`, `codex-natural-suite.txt` и пр.: **routing-only** — «no actions were executed», PASS означает выбор правильного skill и правильных гейтов, а не исполнение сценария | подтверждено как routing, НЕ подтверждено как исполнение |
+| Перекрёстное ревью hardening | `hardening-review.txt`, `hardening-final-review.txt`: содержательное критическое ревью (см. находки ниже) | подтверждено |
+
+Известные проблемы, зафиксированные самим экспериментом и не имеющие
+подтверждённого закрытия в логах:
+
+- `str | None` в `mplsys-validate-agent-layer.py` поднимает минимальный Python
+  до 3.10 без явной фиксации требования (hardening-final-review, пункт 1) —
+  проверить фактическое состояние кода в задаче 6.
+- Positive self-test `c-dynamic-skill` корректен только при динамическом
+  обнаружении skills рендерером — требует подтверждения кода (задачи 5–6).
+- Suites A–I запускались ДО переименования `docs/ai` → `doc/ai`; после
+  финальных переносов повторялись только startup-discovery проверки, полный
+  прогон suites не повторён.
+
+Проверка «непересекаемых границ» промпта:
+
+- `EDT-project-template` main не тронут: вершина `a9e5555` (2026-08-04, до
+  старта Hermes). Ветка `feature/team-ai-tools` (итерация A) создана 31.07 —
+  до эксперимента, Hermes ей не принадлежит.
+- `1c-aidd-template` (донор) не тронут: история чистая.
+- Push не выполнялся: `experiment/edtpt-agent-layer` и
+  `feature/MPLSYS-4793-edtpt-agent-layer` существуют только локально.
+
 ## 2. Entrypoints
 
 ## 3. Standards
@@ -60,6 +99,27 @@ HEAD: `4384d6d22c865b058e5a3091361d4c5a68be9396`
 ## 8. Сверка с итерацией A (mpl-*)
 
 ## 9. Не подтверждено испытаниями
+
+Предварительный список по итогам задачи 1 (уточняется задачами 2–7):
+
+1. Итоговый отчёт Hermes и матрица испытаний — файлов нет; полнота
+   эксперимента восстанавливается только по `.ai-eval/` логам.
+2. End-to-end исполнение сценариев промпта (реальное исправление запроса 1С,
+   написание и прогон YAxUnit-теста, review синтетического diff с внесением
+   правок address-review, обработка Sonar fixture с правками кода) — suites
+   были routing-only; поведение skills при фактическом исполнении не
+   проверялось ни на одном CLI.
+3. Полный прогон suites после финальной структуры слоя (`doc/ai`,
+   `.claude/CLAUDE.md`, 14 skills) — не повторялся; финальное состояние
+   проверено только startup-discovery.
+4. Прохождение полного `run-selftests.sh` на финальной вершине `4384d6d22` —
+   лога нет (validator запускался, 227 checks, но единый «all pass» прогон
+   self-tests не зафиксирован).
+5. Сценарий «чистый разработчик» из чистого checkout только tracked-файлов —
+   метод в логах не зафиксирован; discovery-логи есть, но воспроизводимость
+   именно из чистого дерева не доказана.
+6. Работоспособность слоя на Windows-машине разработчика (все helper'ы —
+   bash/python; эксперимент шёл в Linux-контейнере Hermes).
 
 ## 10. Вход для дизайна самоулучшения
 

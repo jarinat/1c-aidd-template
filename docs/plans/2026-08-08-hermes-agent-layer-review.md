@@ -118,7 +118,7 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Каркас
 **Interfaces:**
 - Produces: список свойств слоя со статусом «доказано артефактом X» / «заявлено, не доказано» — задачи 2–6 обязаны сверяться с ним, прежде чем засчитывать что-либо как проверенное.
 
-- [ ] **Step 1: Найти артефакты испытаний**
+- [x] **Step 1: Найти артефакты испытаний** (найден `.ai-eval/` в W, 40 логов; итоговый отчёт как файл отсутствует)
 
 Hermes-промпт требовал: итоговый отчёт (15 пунктов), матрицу испытаний, `.ai-eval/` с логами запусков CLI, validator/self-tests результаты. Искать:
 
@@ -128,7 +128,7 @@ git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" status -
 
 Плюс Glob по P: `.ai-eval/**`, `*.report.md`, `doc/ai/**/report*`; плюс Glob по `C:/ai-agents/hermes/**/*report*` вне репозитория (отчёт мог остаться в workspace Hermes, напр. рядом с worktree `hermy-PROSYS-Avtolid-agent-layer`). Прочитать найденное.
 
-- [ ] **Step 2: Сверить «Критерии завершения» промпта с доказательствами**
+- [x] **Step 2: Сверить «Критерии завершения» промпта с доказательствами** (главная находка: suites — routing-only, end-to-end исполнение не проверялось)
 
 Для каждого пункта критериев завершения из `prompts/hermes-edt-corporate-agent-layer.md` (реализован MVP, оба CLI прошли критические сценарии, чистый checkout, композиция с личным слоем, review не меняет файлы, Sonar offline fixture, commit helper не захватывает постороннее, validator проходит, read-only репозитории не тронуты, push не выполнялся) записать: доказательство (файл/лог/коммит) или «не доказано».
 
@@ -141,11 +141,11 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" log --format="%h %ad %s
 
 (Ветка `feature/team-ai-tools` в T — отдельный вопрос задачи 8: она могла быть создана ДО Hermes и не им.)
 
-- [ ] **Step 3: Заполнить секции 1 и 9 отчёта**
+- [x] **Step 3: Заполнить секции 1 и 9 отчёта**
 
 Секция 1 — что нашлось и где; секция 9 — итоговый список «заявлено, но не подтверждено» (он же вход для решения: какие испытания повторить в подпроекте 3).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
