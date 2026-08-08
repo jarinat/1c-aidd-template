@@ -137,3 +137,9 @@ frontmatter; Codex — вложенные `AGENTS.md` (ближайший поб
 - Правки слоя — только на `feature/team-ai-tools-v2` шаблона, с прогоном
   validator + render --check + self-tests до коммита; в проекты — merge
   ветки шаблона.
+- Процесс работы над пунктами бэклога (Claude Code, машина владельца): через
+  плагин Superpowers — brainstorming для дизайн-пунктов (Б2, Б4, Б5),
+  writing-plans + executing-plans для реализации; спеки и планы — в
+  `docs/specs/` и `docs/plans/` этого репозитория. Superpowers — личный
+  инструмент оркестратора, в корпоративный слой не переносится; Codex
+  работает по слою `mpl-*` без него.
