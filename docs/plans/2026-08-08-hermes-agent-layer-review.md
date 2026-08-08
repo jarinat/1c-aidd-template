@@ -237,25 +237,25 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Ревизи
 
 Ревизовать канонические `.agents/skills/mplsys-*/SKILL.md` в P (адаптеры `.claude` — задача 5). Группы и порядок:
 
-- [ ] **Step 1: Группа EDT MCP** — `mplsys-edt-mcp`, `mplsys-edt-companion-mcp`, `mplsys-1c-rsv`
+- [x] **Step 1: Группа EDT MCP** — `mplsys-edt-mcp`, `mplsys-edt-companion-mcp`, `mplsys-1c-rsv` (policy-расхождение по fallback — вопрос user)
 
 Чек-лист: правило «ровно один активный EDT MCP» сохранено? Нет выдуманных tool names/schemas (сверить упоминаемые tools со списком реальных: у донора в `template/project/.claude/skills/1c-*-tools/SKILL.md` и по фактическим MCP этой сессии `mcp__1c-rsv__*`)? Fallback при недоступности описан без подмены сервера?
 
-- [ ] **Step 2: Группа 1С-инженерия** — `mplsys-1c-query`, `mplsys-yaxunit`, `mplsys-1c-bsp`, `mplsys-v8std`, `mplsys-metadata-removal-impact`
+- [x] **Step 2: Группа 1С-инженерия** — `mplsys-1c-query`, `mplsys-yaxunit`, `mplsys-1c-bsp`, `mplsys-v8std`, `mplsys-metadata-removal-impact` (все принять)
 
 Чек-лист: против пар донора (Task 3 Step 2 + `template/project/.claude/skills/{1c-bsp,v8std-tools,1c-metadata-removal-impact}/SKILL.md`). Для `mplsys-yaxunit` отдельно: требует определять фактическую версию YAxUnit и запрещает угадывать API Мокито/ЮТест? `references/yaxunit-api.md` — не устарел ли против донора `references/api-reference.md`?
 
-- [ ] **Step 3: Группа процессов** — `mplsys-code-review`, `mplsys-address-review`, `mplsys-fix-sonar`, `mplsys-commit`, `mplsys-project-onboarding`, `mplsys-implement`, роль `.agents/roles/mplsys-implementer/ROLE.md`
+- [x] **Step 3: Группа процессов** — `mplsys-code-review`, `mplsys-address-review`, `mplsys-fix-sonar`, `mplsys-commit`, `mplsys-project-onboarding`, `mplsys-implement`, роль `.agents/roles/mplsys-implementer/ROLE.md` (implement+роль — не AIDD, но добавка сверх MVP; вопрос user о включении)
 
 Чек-лист: review строго read-only? address-review трогает только выбранные замечания? fix-sonar работает с offline fixture и не верит Sonar вслепую? commit не захватывает постороннее и требует явные пути? onboarding отделяет факты от догадок? `mplsys-implement`+роль: не протащен ли фактически AIDD-lifecycle под другим именем (красная линия из требований пользователя — «без навязывания воркфлоу»)? Роль `.agents/roles/` — вообще стандартный ли это механизм Codex или изобретение (сверить с доками Codex; если изобретение — вердикт user).
 
-- [ ] **Step 4: Кросс-проверка всех 14 frontmatter**
+- [x] **Step 4: Кросс-проверка всех 14 frontmatter**
 
 По каждому SKILL.md: frontmatter соответствует agentskills.io (`name` = имя каталога, `description` со внятными triggers); атомарность (skill не требует запуска другого skill); нет ссылок на личный шаблон/пути Hermes.
 
-- [ ] **Step 5: Заполнить секцию 4, батч вопросов user**
+- [x] **Step 5: Заполнить секцию 4, батч вопросов user**
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
