@@ -194,11 +194,11 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Ревизи
 - Consumes: схема слоёв из Task 2.
 - Produces: вердикты по каждому документу `doc/ai/standards/*`; список потерь против донора, который используют вердикты задачи 4 (skills ссылаются на standards).
 
-- [ ] **Step 1: Прочитать все 9 документов**
+- [x] **Step 1: Прочитать все 9 документов**
 
 Read (P): `doc/ai/standards/{onec-bsl,bsl-style,onec-queries,testing-yaxunit,code-review,git-commits,agent-tools,language,layers}.md` (layers уже прочитан в Task 2 — в матрице секции 3 не дублировать, дать ссылку).
 
-- [ ] **Step 2: Сверка с донором по парам**
+- [x] **Step 2: Сверка с донором по парам** (review/queries/tooling ядро выжило; потери — write-time правила в onec-bsl и стилевые в bsl-style)
 
 Пары donor→standard (Read соответствующий файл D для каждой):
 - `template/project/.claude/rules/core/onec-general.md` → `onec-bsl.md`
@@ -211,13 +211,13 @@ Read (P): `doc/ai/standards/{onec-bsl,bsl-style,onec-queries,testing-yaxunit,cod
 
 Для каждой пары ответить: какие содержательные правила донора потеряны? Потеря оправдана (AIDD/проектная специфика) или это выхолащивание инженерного ядра (например: чтение реквизитов через точку, запросы в циклах, блокировки при проверке уникальности, `ПередЗаписью`/`ПриЗаписи`, привилегированный режим — эти блоки донора обязаны иметь эквивалент или явное объяснение отсутствия)? Что добавлено нового и корректно ли оно?
 
-- [ ] **Step 3: Проверка чистоты и выдумок**
+- [x] **Step 3: Проверка чистоты и выдумок**
 
 По каждому документу: `Grep -i "aidd|avtolid|prosys"`; выборочная проверка фактических утверждений о платформе/БСП, которые выглядят незнакомо (кандидаты на выдуманный API), — сверить с донором или v8std (MCP `v8std` доступен в этой сессии, использовать для спорных стандартов 1С).
 
-- [ ] **Step 4: Заполнить секцию 3, собрать вопросы user**
+- [x] **Step 4: Заполнить секцию 3, собрать вопросы user**
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
