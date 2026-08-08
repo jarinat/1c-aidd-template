@@ -39,7 +39,7 @@
 **Interfaces:**
 - Produces: файл отчёта с заголовком, фиксацией SHA и пустыми секциями 1–8, которые заполняют задачи 1–8.
 
-- [ ] **Step 1: Зафиксировать фактическое состояние P**
+- [x] **Step 1: Зафиксировать фактическое состояние P**
 
 Выполнить и записать вывод (для отчёта):
 
@@ -51,7 +51,7 @@ git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" log --fo
 
 Ожидаемо: ветка `feature/MPLSYS-4793-edtpt-agent-layer`, 13 коммитов `EDTPT-AI:`. Если состояние отличается (ветка переключена, есть незакоммиченные изменения в agent-layer файлах) — зафиксировать в отчёте как ограничение и продолжать по фактическому HEAD.
 
-- [ ] **Step 2: Составить полный список файлов слоя**
+- [x] **Step 2: Составить полный список файлов слоя** (факт: объект уточнён — вершина `experiment/edtpt-agent-layer` `4384d6d22`; список собран через `log --grep=EDTPT-AI --name-status`)
 
 ```bash
 git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" diff --stat develop...HEAD
@@ -59,7 +59,7 @@ git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" diff --s
 
 Список путей из diff — это генеральная совокупность ревизии. Сверить с ожидаемыми зонами: `AGENTS.md`, `.claude/**`, `.agents/**`, `doc/ai/**`, `tools/ai/**`. Файлы вне этих зон — сразу кандидат в находки задачи 7 (захват постороннего).
 
-- [ ] **Step 3: Создать каркас отчёта**
+- [x] **Step 3: Создать каркас отчёта**
 
 Создать `docs/reviews/2026-08-08-hermes-agent-layer-review.md` в D:
 
@@ -101,7 +101,7 @@ HEAD: <SHA из Step 1>
 ## 11. Сводка вердиктов и доработки для подпроекта 2
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
