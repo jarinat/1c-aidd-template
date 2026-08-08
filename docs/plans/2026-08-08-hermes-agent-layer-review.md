@@ -311,21 +311,21 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Ревизи
 - Consumes: инварианты слоя из задач 2–5 (что валидатор ДОЛЖЕН проверять).
 - Produces: вердикт по validator/self-tests; список инвариантов без автоматической проверки (вход секции 11).
 
-- [ ] **Step 1: Прочитать код**
+- [x] **Step 1: Прочитать код**
 
-Read (P): `tools/ai/mplsys-validate-agent-layer.py`, `tools/ai/tests/run-selftests.sh`, `tools/ai/tests/fixtures/sonar-issues.sample.json`.
+Read (W): `tools/ai/mplsys-validate-agent-layer.py` (структурно: 24 check-метода, block-list'ы), `tools/ai/tests/run-selftests.sh`, fixture.
 
-- [ ] **Step 2: Сверить покрытие validator с требованиями промпта**
+- [x] **Step 2: Сверить покрытие validator с требованиями промпта** (покрытие шире списка; str|None закрыт `from __future__`)
 
 Промпт требовал минимум: обязательные файлы, YAML frontmatter, имя каталога = `name`, шаблон `^mplsys-[a-z0-9-]+$`, уникальность, битые ссылки, соответствие адаптеров каноническим, отсутствие второй копии процесса, отсутствие AIDD-терминов в новых tracked-файлах, отсутствие ссылок на личный шаблон, корректность `.gitignore`, отсутствие абсолютных путей/секретов, shadowing namespace. Для каждого пункта: покрыт кодом / не покрыт. НЕ запускать скрипты (read-only ограничение) — только чтение кода; выполнимость проверяется в подпроекте 3.
 
-- [ ] **Step 3: Оценить переносимость валидатора**
+- [x] **Step 3: Оценить переносимость валидатора** (python3 — вопрос user: док+CI vs порт)
 
 Python + bash в команде Windows-разработчиков 1С: на чём это будет запускаться у обычного разработчика и в CI шаблона? Если ответ «ни на чём» — находка с вердиктом доработать (варианты: OneScript, PowerShell, CI-job). Решение user.
 
-- [ ] **Step 4: Заполнить секцию 6**
+- [x] **Step 4: Заполнить секцию 6**
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
@@ -343,11 +343,11 @@ git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" commit -m "Ревизи
 - Consumes: генеральная совокупность файлов из Task 0 Step 2.
 - Produces: вердикт по helper; карта «коммит → файлы → атомарность» для подпроекта 2 (порядок cherry-pick).
 
-- [ ] **Step 1: Прочитать helper**
+- [x] **Step 1: Прочитать helper**
 
 Read (P): `tools/ai/mplsys-commit.sh`. Чек-лист промпта: только явные пути, предварительный status/diff, dry-run, отказ при пустом сообщении, без push, exit codes, пути с пробелами, точки входа Windows/Linux или документированное обоснование. Сверить с донором `template/project/.claude/scripts/commit-block.sh`: что helper потерял/упростил. Отдельно: `.sh`-only в Windows-команде — та же находка о переносимости, что и в Task 6 Step 3.
 
-- [ ] **Step 2: Проверить каждый из 13 коммитов**
+- [x] **Step 2: Проверить каждый из 13 коммитов** (12 фактических; name-status собран в Task 0 — только зоны слоя, захвата src нет)
 
 ```bash
 git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" show --stat <sha>
@@ -355,9 +355,9 @@ git -C "C:/ai-agents/hermes/workspace/git/sollers/hermy-PROSYS-Avtolid" show --s
 
 для каждого `EDTPT-AI:` коммита (список из Task 0 Step 1). Вопросы: только agent-layer файлы (нет захвата `src/**`, пользовательских файлов)? Границы осмысленны для cherry-pick? Мешают ли merge-коммиты веток эксперимента переносу (если да — в подпроект 2 идёт рекомендация переносить squash'ем или диапазоном, зафиксировать)?
 
-- [ ] **Step 3: Заполнить секцию 7 (включая карту cherry-pick)**
+- [x] **Step 3: Заполнить секцию 7 (включая карту cherry-pick)** (рекомендация: переносить финальное состояние синтезированными коммитами, не cherry-pick истории)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git -C "C:/Users/jarin/git/my-projects/1c-aidd-template" add docs/reviews/2026-08-08-hermes-agent-layer-review.md docs/plans/2026-08-08-hermes-agent-layer-review.md
