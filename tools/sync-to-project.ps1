@@ -44,6 +44,24 @@ function Resolve-Directory {
     return (Resolve-Path -LiteralPath $Path).Path
 }
 
+function Assert-CorporateLayer {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ProjectRoot
+    )
+
+    $agentsEntrypoint = Join-Path -Path $ProjectRoot -ChildPath "AGENTS.md"
+    $corporateSkills = Join-Path -Path $ProjectRoot -ChildPath ".agents/skills"
+
+    if (-not (Test-Path -LiteralPath $agentsEntrypoint -PathType Leaf)) {
+        throw "Corporate agent layer is missing in target project (no AGENTS.md). The personal AIDD layer is a superstructure and cannot be installed without it: $ProjectRoot"
+    }
+
+    if (-not (Test-Path -LiteralPath $corporateSkills -PathType Container)) {
+        throw "Corporate agent layer is missing in target project (no .agents/skills). The personal AIDD layer is a superstructure and cannot be installed without it: $ProjectRoot"
+    }
+}
+
 function Join-TemplatePath {
     param(
         [Parameter(Mandatory = $true)]
@@ -110,6 +128,7 @@ function Get-FileStatus {
 $repoRoot = Resolve-Directory -Path (Join-Path -Path $PSScriptRoot -ChildPath "..") -Name "Repository root"
 $templateProject = Resolve-Directory -Path (Join-Path -Path $repoRoot -ChildPath "template/project") -Name "Template project"
 $targetProject = Resolve-Directory -Path $ProjectPath -Name "Target project"
+Assert-CorporateLayer -ProjectRoot $targetProject
 
 $syncRoots = @(
     ".claude/CLAUDE.md",
