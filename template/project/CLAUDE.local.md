@@ -1,14 +1,25 @@
-# <Project Name> - Claude Code Entry Point
+# Личный AIDD-слой — входная точка Claude Code
 
 ## Назначение
 
-Это главная project-shared входная точка для Claude Code в этом репозитории.
+Это входная точка личного AIDD-слоя поверх корпоративного agent layer MPL
+Systems. Файл gitignored в рабочем проекте; его источник — шаблон
+`1c-aidd-template`.
+
+Личный слой — **надстройка**. Он не работает без корпоративного слоя и не
+дублирует его: техническая процедура 1С/EDT живёт только в skills `mpl-*`, здесь
+остаётся только AIDD-специфика.
+
+Корпоративному слою принадлежат и личным слоем не изменяются:
+
+- `AGENTS.md` в корне — корпоративная точка входа, читается Codex нативно;
+- `.claude/CLAUDE.md` — корпоративный мост Claude Code (`@../AGENTS.md`);
+- `.claude/rules/mpl/`, `.claude/skills/mpl-*`, `doc/ai/**` — корпоративные
+  правила, skills и стандарты.
+
 Файл должен оставаться коротким индексом и не дублировать подробные правила из
 `.claude/rules/core`, `.claude/skills`, `.claude/agents`, project rules и
 supporting docs.
-
-В рамках проекта используется именно `.claude/CLAUDE.md`, а не корневой
-`CLAUDE.md`.
 
 ## Слои конфигурации
 
@@ -22,6 +33,11 @@ supporting docs.
   `.claude/settings.json`.
 - `scripts`: project-local entrypoint scripts из `.claude/scripts`.
 - `docs`: supporting docs.
+
+Корпоративный слой (`AGENTS.md`, `.claude/rules/mpl/`, `.claude/skills/mpl-*`,
+`doc/ai/**`) загружается параллельно и независимо. Личные правила не отключают
+корпоративные skills `mpl-*` и правила безопасности; при конфликте вынеси вопрос
+пользователю.
 
 ## Где искать source of truth
 
@@ -195,6 +211,10 @@ review, интерпретации тестов, формулированию fe
 5. Core rules из `.claude/rules/core/*.md`.
 6. Skill или agent, который выполняет текущий сценарий.
 7. Supporting docs из `.claude/docs/*.md`.
+
+Корпоративные правила безопасности и skills `mpl-*` не отключаются ни одним
+пунктом этого списка. Если личное правило противоречит корпоративному
+инварианту, вынеси вопрос пользователю.
 
 ## Минимальные always-loaded инварианты
 

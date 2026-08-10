@@ -253,7 +253,7 @@ $targetProject = Resolve-Directory -Path $ProjectPath -Name "Target project"
 Assert-CorporateLayer -ProjectRoot $targetProject
 
 $overwriteRoots = @(
-    ".claude/CLAUDE.md",
+    "CLAUDE.local.md",
     ".claude/settings.json",
     ".claude/agents",
     ".claude/config",

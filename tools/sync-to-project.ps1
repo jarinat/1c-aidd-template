@@ -131,7 +131,7 @@ $targetProject = Resolve-Directory -Path $ProjectPath -Name "Target project"
 Assert-CorporateLayer -ProjectRoot $targetProject
 
 $syncRoots = @(
-    ".claude/CLAUDE.md",
+    "CLAUDE.local.md",
     ".claude/settings.json",
     ".claude/agents",
     ".claude/config",
