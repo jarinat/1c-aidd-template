@@ -132,6 +132,7 @@ Assert-CorporateLayer -ProjectRoot $targetProject
 
 $syncRoots = @(
     "CLAUDE.local.md",
+    ".agents/local/instructions.md",
     ".claude/settings.json",
     ".claude/agents",
     ".claude/config",

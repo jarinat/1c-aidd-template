@@ -254,6 +254,7 @@ Assert-CorporateLayer -ProjectRoot $targetProject
 
 $overwriteRoots = @(
     "CLAUDE.local.md",
+    ".agents/local/instructions.md",
     ".claude/settings.json",
     ".claude/agents",
     ".claude/config",
@@ -266,7 +267,6 @@ $overwriteRoots = @(
 )
 
 $createIfMissingRoots = @(
-    "AGENTS.md",
     ".claude/rules/project",
     ".claude/rules/paths",
     "aidd"
