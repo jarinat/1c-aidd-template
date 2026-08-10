@@ -7,9 +7,9 @@ model: sonnet
 effort: medium
 color: orange
 skills:
-  - 1c-edt-companion-mcp-tools
-  - 1c-edt-mcp-tools
-  - 1c-rsv-tools
+  - mpl-edt-companion-mcp
+  - mpl-edt-mcp
+  - mpl-1c-rsv
   - 1c-query
   - yaxunit-tests
 permissionMode: acceptEdits

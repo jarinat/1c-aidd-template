@@ -5,13 +5,13 @@ tools: Read, Glob, Grep, mcp__1c-rsv__list_workspace_projects, mcp__1c-rsv__list
 model: opus
 color: blue
 skills:
-  - 1c-edt-companion-mcp-tools
-  - 1c-edt-mcp-tools
-  - 1c-rsv-tools
+  - mpl-edt-companion-mcp
+  - mpl-edt-mcp
+  - mpl-1c-rsv
   - 1c-query
   - 1c-metadata-removal-impact
   - yaxunit-tests
-  - v8std-tools
+  - mpl-v8std
 ---
 
 ## EDT MCP
@@ -74,7 +74,7 @@ skills:
   зафиксировать это как ограничение проверки до fallback на `Read`, `Glob` и
   `Grep`.
 - Спорные паттерны и коды диагностик сверять со стандартами 1С через
-  `.claude/skills/v8std-tools/SKILL.md`, если MCP `v8std` доступен; замечание
+  корпоративный skill `mpl-v8std`, если MCP `v8std` доступен; замечание
   по стандарту фиксировать со ссылкой на std id/URL.
 - Проверить, что реализация соответствует `Reference pattern` из tasklist/plan:
   локальному файлу, объекту, методу или другому указанному аналогу.

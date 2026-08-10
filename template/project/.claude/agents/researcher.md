@@ -5,9 +5,9 @@ tools: Read, Write, Edit, Glob, Grep, mcp__1c-rsv__list_workspace_projects, mcp_
 model: opus
 color: green
 skills:
-  - 1c-edt-companion-mcp-tools
-  - 1c-edt-mcp-tools
-  - 1c-rsv-tools
+  - mpl-edt-companion-mcp
+  - mpl-edt-mcp
+  - mpl-1c-rsv
   - 1c-query
   - 1c-metadata-removal-impact
   - yaxunit-tests

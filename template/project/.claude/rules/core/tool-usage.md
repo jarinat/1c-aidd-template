@@ -21,8 +21,8 @@ Shell не является универсальным fallback для чтен�
   `.claude/rules/core/aidd-artifacts.md`.
 - 1С/EDT metadata, BSL, формы, СКД, роли и подсистемы: используй единственный
   EDT MCP из project-local `.mcp.json` и соответствующий ему skill:
-  `edt-companion-mcp` → `1c-edt-companion-mcp-tools`, `edt-mcp` →
-  `1c-edt-mcp-tools`, `1c-rsv` → `1c-rsv-tools`. Другой EDT MCP не является
+  `edt-companion-mcp` → `mpl-edt-companion-mcp`, `edt-mcp` →
+  `mpl-edt-mcp`, `1c-rsv` → `mpl-1c-rsv`. Другой EDT MCP не является
   fallback. Если выбранный сервер недоступен или не покрывает операцию,
   зафиксируй limitation/tooling gap и применяй штатный project fallback.
 - Runtime-диагностика живой 1С базы, журнал регистрации, структура объектов в

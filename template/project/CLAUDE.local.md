@@ -59,10 +59,10 @@ supporting docs.
   `.claude/skills/1c-debug-info-tools/SKILL.md`
   `.claude/skills/1c-query/SKILL.md`
   `.claude/skills/1c-metadata-removal-impact/SKILL.md`
-  `.claude/skills/1c-edt-companion-mcp-tools/SKILL.md`
-  `.claude/skills/1c-edt-mcp-tools/SKILL.md`
-  `.claude/skills/1c-rsv-tools/SKILL.md`
-  `.claude/skills/v8std-tools/SKILL.md`
+  `.claude/skills/mpl-edt-companion-mcp/SKILL.md` (корпоративный)
+  `.claude/skills/mpl-edt-mcp/SKILL.md` (корпоративный)
+  `.claude/skills/mpl-1c-rsv/SKILL.md` (корпоративный)
+  `.claude/skills/mpl-v8std/SKILL.md` (корпоративный)
   `.claude/skills/yaxunit-tests/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
@@ -121,9 +121,9 @@ supporting docs.
 
 | Сервер в `.mcp.json` | Обязательный skill | Допустимые tools |
 | --- | --- | --- |
-| `edt-companion-mcp` | `.claude/skills/1c-edt-companion-mcp-tools/SKILL.md` | `mcp__edt-companion-mcp__*` |
-| `edt-mcp` | `.claude/skills/1c-edt-mcp-tools/SKILL.md` | `mcp__edt-mcp__*` |
-| `1c-rsv` | `.claude/skills/1c-rsv-tools/SKILL.md` | `mcp__1c-rsv__*` |
+| `edt-companion-mcp` | `mpl-edt-companion-mcp` | `mcp__edt-companion-mcp__*` |
+| `edt-mcp` | `mpl-edt-mcp` | `mcp__edt-mcp__*` |
+| `1c-rsv` | `mpl-1c-rsv` | `mcp__1c-rsv__*` |
 
 Не выбирай другой EDT MCP из-за недоступности, непокрытой операции, ошибки или
 неполного результата выбранного сервера. Зафиксируй limitation/tooling gap и
@@ -158,11 +158,11 @@ project-wrapper-ы БСП, варианты отчетов, работу с фа
 в `.mcp.json`; при его недоступности действуй через разрешенный project
 fallback.
 
-### v8std-tools
+### mpl-v8std
 
 Для сверки паттерна кода со стандартами 1С, расшифровки кодов диагностик
 (BSLLS, АПК, EDT/v8-code-style) и разрешения споров «стандарт или вкус»
-используй `.claude/skills/v8std-tools/SKILL.md`, если MCP `v8std` доступен.
+используй корпоративный skill `mpl-v8std`, если MCP `v8std` доступен.
 Это read-only база знаний без привязки к рабочей копии; она разрешена и в
 review-сценариях с изолированным worktree.
 

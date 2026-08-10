@@ -7,7 +7,7 @@ color: cyan
 skills:
   - 1c-query
   - yaxunit-tests
-  - v8std-tools
+  - mpl-v8std
   - sonar-pr-evidence
 ---
 
@@ -31,14 +31,13 @@ skills:
 - специализированные проверки:
   - `1c-query`
   - `yaxunit-tests`
-  - `v8std-tools`
+  - `mpl-v8std`
 
 Важно: не используй workspace-bound MCP discovery. Этот agent может работать в
 отдельном `REVIEW_WORKTREE`, а MCP-серверы, привязанные к EDT workspace или
 локальному индексу, могут смотреть на другую рабочую копию. Исключение —
 MCP `v8std`: это read-only база знаний стандартов 1С без привязки к рабочей
-копии, его использовать можно и нужно по
-`.claude/skills/v8std-tools/SKILL.md`.
+копии, его использовать можно и нужно по корпоративному skill `mpl-v8std`.
 
 ## Зона ответственности
 
