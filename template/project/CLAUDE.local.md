@@ -72,6 +72,9 @@ supporting docs.
   `.claude/skills/project-onboarding/SKILL.md`
 - Роли subagent-ов:
   `.claude/agents/*.md`
+- Корпоративные роли, на которые надстроены личные агенты:
+  `.agents/roles/mpl-*/ROLE.md` (канонические)
+  `.claude/agents/mpl-*.md` (сгенерированы корпоративным renderer'ом)
 - Project entrypoint scripts:
   `.claude/scripts/*`
 - Project hooks:
