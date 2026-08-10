@@ -15,7 +15,9 @@ disable-model-invocation: true
 Source of truth:
 
 - MR review engine:
-  - `.claude/skills/review-mr/SKILL.md`
+  - subagent `review-mr` (`.claude/agents/review-mr.md`)
+- суть review, категории и формат замечания:
+  - `mpl-code-review`
 - Sonar issues evidence:
   - `.claude/skills/sonar-pr-evidence/SKILL.md`
 - общая политика code review:
@@ -136,13 +138,11 @@ inline env. Не проси пользователя присылать token в
    - `SONAR_COVERAGE` и `SONAR_COVERAGE_REASON`; при `verified` — точный
      `SONAR_EVIDENCE_PATH`, при `unverified` с полным valid report — точный
      `SONAR_HINTS_PATH` в `<manifest directory>/sonar/issues-pr-<mr_iid>.json`.
-     Оба пути являются исключением только для чтения Sonar JSON;
-   - требование брать repo-relative paths дословно из manifest-файлов или
-     `changed_files_path`, без ручной реконструкции кириллических имён;
-   - требование не использовать `Bash`, `cmd`, `powershell`, `.cmd`, `.ps1`,
-     `git` или shell pipelines внутри subagent review;
-   - требование читать MR context через `Read`, `Glob`, `Grep` по
-     `REVIEW_WORKTREE`, `base_snapshot_root` и `head_snapshot_root`.
+     Оба пути являются исключением только для чтения Sonar JSON.
+
+   Транспортные ограничения subagent — запрет shell и workspace-bound MCP,
+   правила чтения snapshots, дословные repo-relative paths — заданы в
+   `.claude/agents/review-mr.md` и в этом задании не повторяются.
 8. Сформируй итоговый отчёт review:
     - MR title/link;
     - проверенные `base_sha` и `head_sha`;

@@ -64,7 +64,7 @@ supporting docs.
   `.claude/skills/mpl-1c-rsv/SKILL.md` (корпоративный)
   `.claude/skills/mpl-v8std/SKILL.md` (корпоративный)
   `.claude/skills/mpl-yaxunit/SKILL.md`
-  `.claude/skills/review-mr/SKILL.md`
+  `.claude/skills/mpl-code-review/SKILL.md` (корпоративный)
   `.claude/skills/review-gitlab-mr/SKILL.md`
   `.claude/skills/sonar-pr-evidence/SKILL.md`
   `.claude/skills/gitlab-tools/SKILL.md`
