@@ -10,7 +10,7 @@ skills:
   - mpl-1c-rsv
   - mpl-1c-query
   - mpl-metadata-removal-impact
-  - yaxunit-tests
+  - mpl-yaxunit
 ---
 
 ## EDT MCP

@@ -10,7 +10,7 @@ skills:
   - mpl-1c-rsv
   - mpl-1c-query
   - mpl-metadata-removal-impact
-  - yaxunit-tests
+  - mpl-yaxunit
   - mpl-v8std
 ---
 
@@ -114,10 +114,10 @@ skills:
   повторять проверяемую бизнес-логику или тестировать дубль реализации.
 - Если review затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, обязательно
-  используй `.claude/skills/yaxunit-tests/SKILL.md`. Для API YAxUnit, Мокито,
+  используй `.claude/skills/mpl-yaxunit/SKILL.md`. Для API YAxUnit, Мокито,
   HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или `&Вместо` дополнительно
-  прочитай `.claude/skills/yaxunit-tests/references/api-reference.md`.
-  Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
+  прочитай `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
+  Чтение reference-файла не заменяет применение `mpl-yaxunit/SKILL.md`.
 
 ## Вход
 

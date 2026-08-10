@@ -8,7 +8,7 @@ skills:
   - mpl-edt-companion-mcp
   - mpl-edt-mcp
   - mpl-1c-rsv
-  - yaxunit-tests
+  - mpl-yaxunit
 ---
 
 ## EDT MCP
@@ -76,7 +76,7 @@ skills:
   проверки.
 - Если tasklist включает YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или DoD по YAxUnit, обязательно
-  используй `.claude/skills/yaxunit-tests/SKILL.md` и не наследуй исторические
+  используй `.claude/skills/mpl-yaxunit/SKILL.md` и не наследуй исторические
   тестовые паттерны, которые ему противоречат.
 - Не добавлять задачи и DoD на комментарии к новым методам, кроме полноценной
   EDT-документации экспортного программного интерфейса, если это явно требуется.

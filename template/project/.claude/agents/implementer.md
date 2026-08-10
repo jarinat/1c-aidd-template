@@ -10,7 +10,7 @@ skills:
   - mpl-edt-mcp
   - mpl-1c-rsv
   - mpl-1c-query
-  - yaxunit-tests
+  - mpl-yaxunit
 permissionMode: acceptEdits
 ---
 
@@ -83,11 +83,11 @@ permissionMode: acceptEdits
   затронуты.
 - Если задача затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, обязательно
-  используй `.claude/skills/yaxunit-tests/SKILL.md` до анализа и правки. Для
+  используй `.claude/skills/mpl-yaxunit/SKILL.md` до анализа и правки. Для
   API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
   `&Вместо` дополнительно прочитай
-  `.claude/skills/yaxunit-tests/references/api-reference.md`.
-  Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
+  `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
+  Чтение reference-файла не заменяет применение `mpl-yaxunit/SKILL.md`.
 - Не добавлять комментарии к новым методам автоматически. Для неэкспортных
   методов комментарии не добавлять; для экспортных — только полноценную
   EDT-документацию, если она требуется правилами или пользователем.
@@ -111,7 +111,7 @@ permissionMode: acceptEdits
   `Новый`), а не `PO`, `Spec`, `Спец`, `1`, `2`, `A` или похожий алиас.
 - Если локальный reference pattern использует такие сокращения, не копировать
   этот дефект в новый код. Следовать `.claude/rules/core/code-style.md`,
-  `.claude/rules/project/naming.md` и, для тестов, `yaxunit-tests`.
+  `.claude/rules/project/naming.md` и, для тестов, `mpl-yaxunit`.
 - Если tasklist подменяет переименование mdo-объекта правкой синонима или
   заголовка формы, не реализовывать затронутую часть и вернуть основной сессии
   описание расхождения как блокер.

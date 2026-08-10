@@ -64,9 +64,9 @@ Source of truth для lifecycle `feedback` и статусов:
      business/scope решение;
    - если само замечание пользователя связано с YAxUnit-тестами, тестовым
      расширением, Мокито, assertions, test doubles или YAxUnit API, основная
-     сессия применяет `.claude/skills/yaxunit-tests/SKILL.md` до анализа причины
+     сессия применяет `.claude/skills/mpl-yaxunit/SKILL.md` до анализа причины
      и формулирования рекомендации в feedback;
-   - нельзя откладывать `yaxunit-tests` только до этапа `feedback-fixer`, если в
+   - нельзя откладывать `mpl-yaxunit` только до этапа `feedback-fixer`, если в
      feedback записывается технический вывод по тесту.
 5. Перед исправлением убедись, что пользователь согласовал рекомендацию. Если
    согласия нет, покажи рекомендацию и остановись до решения пользователя.
@@ -75,12 +75,12 @@ Source of truth для lifecycle `feedback` и статусов:
    - если замечание затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
      `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
      `feedback-fixer`, что он обязан применить
-     `.claude/skills/yaxunit-tests/SKILL.md`;
-   - чтение `.claude/skills/yaxunit-tests/references/api-reference.md` не
-     заменяет применение `.claude/skills/yaxunit-tests/SKILL.md`;
+     `.claude/skills/mpl-yaxunit/SKILL.md`;
+   - чтение `.claude/skills/mpl-yaxunit/references/yaxunit-api.md` не
+     заменяет применение `.claude/skills/mpl-yaxunit/SKILL.md`;
    - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
      `&Вместо` отдельно укажи прочитать
-     `.claude/skills/yaxunit-tests/references/api-reference.md`.
+     `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
 8. Проверь результат и обнови запись в `aidd/docs/feedback/<ticket>.md`:
    - зафиксируй фактическое исправление;
    - перечисли изменённые файлы;

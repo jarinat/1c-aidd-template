@@ -6,7 +6,7 @@ model: sonnet
 color: cyan
 skills:
   - mpl-1c-query
-  - yaxunit-tests
+  - mpl-yaxunit
   - mpl-v8std
   - sonar-pr-evidence
 ---
@@ -30,7 +30,7 @@ skills:
   - `.claude/rules/core/onec-general.md`
 - специализированные проверки:
   - `mpl-1c-query`
-  - `yaxunit-tests`
+  - `mpl-yaxunit`
   - `mpl-v8std`
 
 Важно: не используй workspace-bound MCP discovery. Этот agent может работать в
@@ -55,10 +55,10 @@ MCP `v8std`: это read-only база знаний стандартов 1С б�
   модулей, методов и соответствие тестируемому объекту метаданных.
 - Если diff затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, обязательно
-  используй `.claude/skills/yaxunit-tests/SKILL.md`. Для API YAxUnit, Мокито,
+  используй `.claude/skills/mpl-yaxunit/SKILL.md`. Для API YAxUnit, Мокито,
   HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или `&Вместо` дополнительно
-  прочитай `.claude/skills/yaxunit-tests/references/api-reference.md`.
-  Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
+  прочитай `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
+  Чтение reference-файла не заменяет применение `mpl-yaxunit/SKILL.md`.
 - Подготовить структурированный отчёт только с подтверждёнными категориями
   `blocking` и `important`.
 

@@ -80,10 +80,10 @@ Source of truth:
    - Если задача затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
      `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
      `implementer`, что он обязан применить
-     `.claude/skills/yaxunit-tests/SKILL.md`.
+     `.claude/skills/mpl-yaxunit/SKILL.md`.
    - Для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
      `&Вместо` дополнительно укажи прочитать
-     `.claude/skills/yaxunit-tests/references/api-reference.md`.
+     `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
 7. Проверь результат:
    - diff не выходит за scope;
    - правка соответствует PRD и constraints;

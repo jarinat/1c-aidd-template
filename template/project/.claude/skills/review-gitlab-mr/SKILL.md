@@ -22,7 +22,7 @@ Source of truth:
   - `.claude/rules/core/code-review.md`
 - специализированные проверки:
   - `mpl-1c-query`
-  - `yaxunit-tests`
+  - `mpl-yaxunit`
 
 ## Назначение
 

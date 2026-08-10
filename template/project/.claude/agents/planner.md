@@ -8,7 +8,7 @@ skills:
   - mpl-edt-companion-mcp
   - mpl-edt-mcp
   - mpl-1c-rsv
-  - yaxunit-tests
+  - mpl-yaxunit
 ---
 
 ## EDT MCP
@@ -87,7 +87,7 @@ skills:
   EDT-документацию экспортных тестовых процедур.
 - Если plan затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или стратегию тестирования через
-  YAxUnit, обязательно используй `.claude/skills/yaxunit-tests/SKILL.md`.
+  YAxUnit, обязательно используй `.claude/skills/mpl-yaxunit/SKILL.md`.
   Исторические тесты проекта не имеют приоритета над этим skill.
 - Если в PRD нет трассировки именования или видно смысловое сокращение
   относительно исходной формулировки, зафиксировать блокер вместо дальнейшего

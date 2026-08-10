@@ -39,12 +39,12 @@ Source of truth для lifecycle `review` и статусов:
    - если замечание затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
      `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
      `review-fixer`, что он обязан применить
-     `.claude/skills/yaxunit-tests/SKILL.md`;
-   - чтение `.claude/skills/yaxunit-tests/references/api-reference.md` не
-     заменяет применение `.claude/skills/yaxunit-tests/SKILL.md`;
+     `.claude/skills/mpl-yaxunit/SKILL.md`;
+   - чтение `.claude/skills/mpl-yaxunit/references/yaxunit-api.md` не
+     заменяет применение `.claude/skills/mpl-yaxunit/SKILL.md`;
    - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
      `&Вместо` отдельно укажи прочитать
-     `.claude/skills/yaxunit-tests/references/api-reference.md`.
+     `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
 7. Проверь результат.
 8. Обнови запись в `aidd/docs/review/<ticket>.md` по правилам AIDD:
    - зафиксируй, что изменено;

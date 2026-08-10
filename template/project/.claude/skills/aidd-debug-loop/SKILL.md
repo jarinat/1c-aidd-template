@@ -179,10 +179,10 @@ Started: <date>
    - если правка затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
      `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
      `debug-fixer`, что он обязан применить
-     `.claude/skills/yaxunit-tests/SKILL.md`;
+     `.claude/skills/mpl-yaxunit/SKILL.md`;
    - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
      `&Вместо` отдельно укажи прочитать
-     `.claude/skills/yaxunit-tests/references/api-reference.md`.
+     `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
 10. Проверь результат `debug-fixer`: diff, scope, отсутствие самовольных
     изменений и `Tooling gap`. Для выбранного EDT MCP bug/drift/gap/idea/performance
     зафиксируй literal evidence до следующего runner или fallback.

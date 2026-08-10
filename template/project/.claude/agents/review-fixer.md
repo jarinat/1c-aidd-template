@@ -11,7 +11,7 @@ skills:
   - mpl-edt-mcp
   - mpl-1c-rsv
   - mpl-1c-query
-  - yaxunit-tests
+  - mpl-yaxunit
 permissionMode: acceptEdits
 ---
 
@@ -54,11 +54,11 @@ permissionMode: acceptEdits
   комментариев из `code-style.md`.
 - Если замечание затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, обязательно
-  используй `.claude/skills/yaxunit-tests/SKILL.md` до анализа и правки. Для
+  используй `.claude/skills/mpl-yaxunit/SKILL.md` до анализа и правки. Для
   API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
   `&Вместо` дополнительно прочитай
-  `.claude/skills/yaxunit-tests/references/api-reference.md`.
-  Чтение reference-файла не заменяет применение `yaxunit-tests/SKILL.md`.
+  `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
+  Чтение reference-файла не заменяет применение `mpl-yaxunit/SKILL.md`.
 - Если замечание связано с переименованием объектов или элементов метаданных,
   применять `.claude/rules/project/naming.md`: менять mdo-имя и связанные
   ссылки, а не только синоним/заголовок, если пользователь явно не указал

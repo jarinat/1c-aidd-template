@@ -10,7 +10,7 @@ skills:
   - mpl-1c-rsv
   - mpl-1c-query
   - mpl-metadata-removal-impact
-  - yaxunit-tests
+  - mpl-yaxunit
 ---
 
 ## EDT MCP
@@ -110,7 +110,7 @@ skills:
   требуется после обсуждения с аналитиком/бизнесом до планирования удаления.
 - Если research анализирует YAxUnit-тесты, тестовое расширение, Мокито,
   `ЮТест.Данные()`, assertions, test doubles или существующие тестовые паттерны,
-  обязательно используй `.claude/skills/yaxunit-tests/SKILL.md`. Исторический
+  обязательно используй `.claude/skills/mpl-yaxunit/SKILL.md`. Исторический
   тестовый код фиксируй как факт или reference pattern, но не как правило, если
   он противоречит skill.
 - Если PRD выносит найденную точку использования за scope, но она сломается

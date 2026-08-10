@@ -238,7 +238,7 @@ and the canonical helper: bash .claude/scripts/commit-block.sh ...
 "@.Trim()
 
 $dokTransliterationReason = @"
-Latin Dok_ is blocked in 1C/YAxUnit paths and object names. Use the Cyrillic project prefix from .claude/rules/project/naming.md and .claude/skills/yaxunit-tests/SKILL.md.
+Latin Dok_ is blocked in 1C/YAxUnit paths and object names. Use the Cyrillic project prefix from .claude/rules/project/naming.md and .claude/skills/mpl-yaxunit/SKILL.md.
 "@.Trim()
 
 $bslFilesystemEditReason = @"

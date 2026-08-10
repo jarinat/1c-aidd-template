@@ -63,7 +63,7 @@ supporting docs.
   `.claude/skills/mpl-edt-mcp/SKILL.md` (корпоративный)
   `.claude/skills/mpl-1c-rsv/SKILL.md` (корпоративный)
   `.claude/skills/mpl-v8std/SKILL.md` (корпоративный)
-  `.claude/skills/yaxunit-tests/SKILL.md`
+  `.claude/skills/mpl-yaxunit/SKILL.md`
   `.claude/skills/review-mr/SKILL.md`
   `.claude/skills/review-gitlab-mr/SKILL.md`
   `.claude/skills/sonar-pr-evidence/SKILL.md`
@@ -181,7 +181,7 @@ evidence связывай с исходниками через EDT-слой, `Re
 ### YAxUnit
 
 Любое содержательное действие, связанное с YAxUnit, выполняй через
-`.claude/skills/yaxunit-tests/SKILL.md`.
+`.claude/skills/mpl-yaxunit/SKILL.md`.
 
 Это относится не только к редактированию кода, но и к анализу, планированию,
 review, интерпретации тестов, формулированию feedback/review-рекомендаций,
@@ -195,10 +195,10 @@ review, интерпретации тестов, формулированию fe
 
 Обычный поиск файлов или проверка наличия тестов может выполняться без skill.
 Как только нужно сделать технический вывод, рекомендацию, план или правку,
-сначала примени `yaxunit-tests/SKILL.md`.
+сначала примени `mpl-yaxunit/SKILL.md`.
 
-`references/api-reference.md` является справочником и не заменяет
-`yaxunit-tests/SKILL.md`.
+`references/yaxunit-api.md` является справочником и не заменяет
+`mpl-yaxunit/SKILL.md`.
 
 ## Приоритет источников
 

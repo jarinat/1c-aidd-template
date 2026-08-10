@@ -88,12 +88,12 @@ Source of truth для lifecycle этапов, статусов и change-бло
      методы используют полное имя метаданных и уточнение по роли, если нужно;
    - если задача затрагивает YAxUnit-тесты, тестовое расширение, Мокито,
      `ЮТест.Данные()`, assertions, test doubles или YAxUnit API, явно укажи
-     `implementer`, что он обязан применить `.claude/skills/yaxunit-tests/SKILL.md`;
-   - чтение `.claude/skills/yaxunit-tests/references/api-reference.md` не
-     заменяет применение `.claude/skills/yaxunit-tests/SKILL.md`;
+     `implementer`, что он обязан применить `.claude/skills/mpl-yaxunit/SKILL.md`;
+   - чтение `.claude/skills/mpl-yaxunit/references/yaxunit-api.md` не
+     заменяет применение `.claude/skills/mpl-yaxunit/SKILL.md`;
    - для API YAxUnit, Мокито, HTTP-моков, `HTTPОтвет`, `HTTPСервисЗапрос` или
      `&Вместо` отдельно укажи прочитать
-     `.claude/skills/yaxunit-tests/references/api-reference.md`.
+     `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
 8. После каждой задачи проверь результат и отсутствие выхода за scope.
    Отдельно проверь, что diff задачи не ввел новые смысловые сокращения для
    объектов метаданных в локальных именах кода.

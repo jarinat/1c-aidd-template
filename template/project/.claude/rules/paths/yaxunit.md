@@ -9,21 +9,21 @@ paths:
 файлам. После установки шаблона адаптируй `paths` под структуру конкретного
 проекта, если тестовое расширение лежит в другом месте.
 
-- Source of truth для правил YAxUnit — skill `yaxunit-tests`.
+- Source of truth для правил YAxUnit — skill `mpl-yaxunit`.
 - При любом содержательном действии с YAxUnit-тестами сначала прочитай и
-  примени `.claude/skills/yaxunit-tests/SKILL.md`: анализ, планирование,
+  примени `.claude/skills/mpl-yaxunit/SKILL.md`: анализ, планирование,
   feedback/review-рекомендации, review, интерпретация, генерация и
   редактирование кода.
 - Обычный поиск файлов или проверка наличия тестов может выполняться без skill.
   Как только нужно сделать технический вывод, рекомендацию, план или правку,
-  сначала применяй `yaxunit-tests/SKILL.md`.
-- Чтение `.claude/skills/yaxunit-tests/references/api-reference.md` напрямую не
+  сначала применяй `mpl-yaxunit/SKILL.md`.
+- Чтение `.claude/skills/mpl-yaxunit/references/yaxunit-api.md` напрямую не
   заменяет применение skill. Reference-файл используй только как дополнение к
   `SKILL.md`.
 - Если тестовый код использует `Мокито`, `ЮТест.Данные()`, HTTP-моки,
   `HTTPОтвет`, `HTTPСервисЗапрос`, `&Вместо` или заимствованные методы, до
   написания кода дополнительно прочитай
-  `.claude/skills/yaxunit-tests/references/api-reference.md`.
+  `.claude/skills/mpl-yaxunit/references/yaxunit-api.md`.
 - Файл `.claude/docs/yaxunit.md` используй только как проектный указатель и
   место для project-specific исключений.
 - Исторические паттерны именования тестов в репозитории не имеют приоритета над
