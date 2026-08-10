@@ -5,6 +5,19 @@ Claude Code и AIDD workflow для 1С/EDT/YAxUnit проектов. Цель �
 процесс, agents, skills и core rules из одного шаблона, не полагаясь на
 глобальный runtime в домашнем каталоге пользователя.
 
+## Предпосылка: надстройка над корпоративным слоем
+
+Начиная с 2026-08-10 этот шаблон — **надстройка** над корпоративным agent layer
+MPL Systems (`AGENTS.md`, `.agents/skills/mpl-*`, `doc/ai/**`), который
+поставляется через `EDT-project-template`. Самостоятельно личный слой не
+работает: он ссылается на skills `mpl-*`.
+
+`tools/sync-to-project.ps1` и `tools/bootstrap-project.ps1` отказываются
+устанавливать слой в проект без корпоративного основания.
+
+Имена `AGENTS.md` и `.claude/CLAUDE.md` принадлежат корпоративному слою. Личные
+точки входа — корневой `CLAUDE.local.md` и `.agents/local/instructions.md`.
+
 ## Принятые решения
 
 - Глобальный `~/.claude/CLAUDE.md` не используем.
@@ -31,8 +44,11 @@ Claude Code и AIDD workflow для 1С/EDT/YAxUnit проектов. Цель �
 ```text
 template/
   project/
+    CLAUDE.local.md
+    .agents/
+      local/
+        instructions.md
     .claude/
-      CLAUDE.md
       settings.json
       agents/
       config/
@@ -92,13 +108,12 @@ tools/bootstrap-project.ps1 -ProjectPath C:/work/project -Apply
 Bootstrap делает только локальную механическую подготовку:
 
 - обновляет переносимый runtime-слой:
-  `.claude/CLAUDE.md`, `.claude/settings.json`, `.claude/agents`,
-  `.claude/config`, `.claude/hooks`, `.claude/skills`, `.claude/rules/core`,
-  `.claude/scripts`, `.claude/docs`;
+  `CLAUDE.local.md`, `.agents/local/instructions.md`, `.claude/settings.json`,
+  `.claude/agents`, `.claude/config`, `.claude/hooks`, `.claude/skills`,
+  `.claude/rules/core`, `.claude/scripts`, `.claude/docs`;
 - обновляет общий helper выгрузки Sonar issues, read-only относительно
   SonarQube:
   `tools/scripts/download-sonar-issues.os`;
-- создает отсутствующий локальный `AGENTS.md`;
 - создает отсутствующие `.claude/rules/project/*`;
 - создает базовые отсутствующие `.claude/rules/paths/*` без копирования
   placeholder-примера `source-example.md`;
@@ -106,7 +121,7 @@ Bootstrap делает только локальную механическую 
 
 Bootstrap не делает project onboarding за агента:
 
-- не добавляет `.claude/`, `aidd/` или `AGENTS.md` в Git ignore/exclude;
+- не добавляет `.claude/`, `aidd/` или `CLAUDE.local.md` в Git ignore/exclude;
 - не запускает `rlm-bsl-index build/update`;
 - не угадывает тикетные префиксы, naming policy, change policy и правила
   комментариев;
@@ -119,8 +134,8 @@ Bootstrap не делает project onboarding за агента:
 ```
 
 Для Claude Code есть skill `.claude/skills/project-onboarding/SKILL.md`. Для
-Codex входом является локальный `AGENTS.md`, который ссылается на тот же общий
-onboarding-документ.
+Codex входом является `.agents/local/instructions.md`, который ссылается на тот
+же общий onboarding-документ.
 
 ## Локальный список проектов
 
@@ -140,8 +155,8 @@ Git.
 
 Подходит:
 
-- `.claude/CLAUDE.md` как project entry point;
-- `AGENTS.md` как локальная входная инструкция Codex;
+- `CLAUDE.local.md` как личная точка входа Claude Code;
+- `.agents/local/instructions.md` как личная инструкция Codex;
 - переносимые agents;
 - переносимые skills;
 - переносимые core rules;
@@ -192,7 +207,8 @@ Project-specific слой:
 
 В каждом рабочем проекте остаются:
 
-- `.claude/CLAUDE.md`;
+- `CLAUDE.local.md`;
+- `.agents/local/instructions.md`;
 - `.claude/settings.json`;
 - `.claude/agents/*`;
 - `.claude/hooks/*`;
@@ -225,7 +241,8 @@ Claude Code подхватывает agents, skills, rules, hooks, settings и s
 стандартных каталогов `.claude`. Поэтому в рабочих проектах в одних и тех же
 каталогах могут находиться и файлы шаблона, и project-local файлы:
 
-- `.claude/CLAUDE.md`;
+- `CLAUDE.local.md`;
+- `.agents/local/instructions.md`;
 - `.claude/settings.json`;
 - `.claude/agents/*`;
 - `.claude/hooks/*`;
@@ -253,12 +270,11 @@ Ownership определяется на уровне файла, а не кат�
 `.claude/rules/project`, `.claude/rules/paths` или отдельный project-local
 agent/skill/rule файл, которого нет в шаблоне.
 
-В конечных проектах не следует добавлять корневой `CLAUDE.md` без отдельного
-архитектурного решения. Шаблон использует `.claude/CLAUDE.md` как единственный
-project entry point для Claude Code, чтобы не создавать два конкурирующих
-источника project memory. Личные локальные заметки пользователя должны жить в
-gitignored `CLAUDE.local.md` или локальных настройках, а проектная специфика —
-в `.claude/rules/project` и `.claude/rules/paths`.
+Имя `.claude/CLAUDE.md` в конечном проекте занято корпоративным мостом
+(`@../AGENTS.md`) и шаблоном не поставляется. Личная точка входа Claude Code —
+корневой gitignored `CLAUDE.local.md`; корневой `CLAUDE.md` не создаём, чтобы не
+плодить конкурирующие источники project memory. Проектная специфика остаётся в
+`.claude/rules/project` и `.claude/rules/paths`.
 
 ## Что не версионируем здесь
 
@@ -354,7 +370,7 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
 
 Подготовлены для `template/project`:
 
-- `.claude/CLAUDE.md`: нейтральный project entry point, который ссылается на
+- `CLAUDE.local.md`: личная точка входа Claude Code, которая ссылается на
   project-local `rules/core`, `skills`, `agents`, `rules/project`,
   `rules/paths` и `scripts`; добавлен always-loaded инвариант чтения
   AIDD-артефактов активного тикета через точные repo-relative пути без shell
@@ -370,8 +386,8 @@ gitignored `CLAUDE.local.md` или локальных настройках, а 
   добавлен `PreToolUse` hook, который блокирует inline shell для file
   inspection и возвращает агенту подсказку использовать
   `.claude/rules/core/tool-usage.md`.
-- `AGENTS.md`: нейтральный Codex entry point для локальной настройки рабочих
-  проектов.
+- `.agents/local/instructions.md`: личная инструкция Codex поверх
+  корпоративного `AGENTS.md`, который читает её явно.
 - `.claude/docs/onboarding-project.md`: общий русскоязычный сценарий
   обследования 1С/EDT проекта и заполнения project/path rules.
 - `.claude/rules/project/*`: нейтральные шаблоны `profile`, `ticketing`,
