@@ -5,7 +5,7 @@ tools: Read, Glob, Grep, mcp__v8std__v8std_search, mcp__v8std__v8std_explain_sni
 model: sonnet
 color: cyan
 skills:
-  - 1c-query
+  - mpl-1c-query
   - yaxunit-tests
   - mpl-v8std
   - sonar-pr-evidence
@@ -29,7 +29,7 @@ skills:
 - общие правила 1С/EDT/БСП:
   - `.claude/rules/core/onec-general.md`
 - специализированные проверки:
-  - `1c-query`
+  - `mpl-1c-query`
   - `yaxunit-tests`
   - `mpl-v8std`
 

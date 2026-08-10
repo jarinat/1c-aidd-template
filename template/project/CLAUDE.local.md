@@ -55,10 +55,10 @@ supporting docs.
 - Исполняемые AIDD-сценарии:
   `.claude/skills/aidd-*/SKILL.md`
 - Специализированные skills:
-  `.claude/skills/1c-bsp/SKILL.md`
+  `.claude/skills/mpl-1c-bsp/SKILL.md` (корпоративный)
   `.claude/skills/1c-debug-info-tools/SKILL.md`
-  `.claude/skills/1c-query/SKILL.md`
-  `.claude/skills/1c-metadata-removal-impact/SKILL.md`
+  `.claude/skills/mpl-1c-query/SKILL.md` (корпоративный)
+  `.claude/skills/mpl-metadata-removal-impact/SKILL.md` (корпоративный)
   `.claude/skills/mpl-edt-companion-mcp/SKILL.md` (корпоративный)
   `.claude/skills/mpl-edt-mcp/SKILL.md` (корпоративный)
   `.claude/skills/mpl-1c-rsv/SKILL.md` (корпоративный)
@@ -146,14 +146,14 @@ rebuild, YAxUnit и debugger принимает только основная с
 Широкий `Glob`/`Grep` по 1С-исходникам используй только при недоступности
 выбранного MCP или для подтверждения уже найденных им кандидатов.
 
-### 1c-bsp
+### mpl-1c-bsp
 
 Если задача затрагивает стандартные подсистемы БСП, переопределяемые модули,
 project-wrapper-ы БСП, варианты отчетов, работу с файлами, безопасное
 хранилище, подключаемые команды, общие формы БСП или вспомогательные данные
-БСП в ИБ, используй `.claude/skills/1c-bsp/SKILL.md`.
+БСП в ИБ, используй корпоративный skill `mpl-1c-bsp`.
 
-`1c-bsp` задает БСП-контракты и чеклисты, но не навязывает конкретный
+`mpl-1c-bsp` задает БСП-контракты и чеклисты, но не навязывает конкретный
 инструмент. Для metadata, СКД, форм, ролей и BSL используй EDT MCP, выбранный
 в `.mcp.json`; при его недоступности действуй через разрешенный project
 fallback.

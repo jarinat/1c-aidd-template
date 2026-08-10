@@ -8,8 +8,8 @@ skills:
   - mpl-edt-companion-mcp
   - mpl-edt-mcp
   - mpl-1c-rsv
-  - 1c-query
-  - 1c-metadata-removal-impact
+  - mpl-1c-query
+  - mpl-metadata-removal-impact
   - yaxunit-tests
 ---
 

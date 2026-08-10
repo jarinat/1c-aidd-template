@@ -9,7 +9,7 @@ skills:
   - mpl-edt-companion-mcp
   - mpl-edt-mcp
   - mpl-1c-rsv
-  - 1c-query
+  - mpl-1c-query
   - yaxunit-tests
 permissionMode: acceptEdits
 ---

@@ -21,7 +21,7 @@ Source of truth:
 - общая политика code review:
   - `.claude/rules/core/code-review.md`
 - специализированные проверки:
-  - `1c-query`
+  - `mpl-1c-query`
   - `yaxunit-tests`
 
 ## Назначение

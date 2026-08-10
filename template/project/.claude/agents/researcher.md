@@ -8,8 +8,8 @@ skills:
   - mpl-edt-companion-mcp
   - mpl-edt-mcp
   - mpl-1c-rsv
-  - 1c-query
-  - 1c-metadata-removal-impact
+  - mpl-1c-query
+  - mpl-metadata-removal-impact
   - yaxunit-tests
 ---
 
@@ -104,7 +104,7 @@ skills:
   - вернуть `Impact Coverage Matrix` даже в preliminary reconnaissance, если
     пользователь просит оценить масштаб или impact.
 - При удалении элементов метаданных выполнить диагностику по
-  `.claude/skills/1c-metadata-removal-impact/SKILL.md` и классифицировать
+  корпоративный skill `mpl-metadata-removal-impact` и классифицировать
   результат как `UNUSED`, `DEAD_FUNC`, `USED` или `UNCLEAR`.
 - Для `USED` и `UNCLEAR` точек явно указать, какое пользовательское решение
   требуется после обсуждения с аналитиком/бизнесом до планирования удаления.
