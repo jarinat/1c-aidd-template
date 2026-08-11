@@ -10,11 +10,17 @@ description: >
 
 Используй subagent `review-fixer`.
 
-Source of truth для lifecycle `review` и статусов:
+Source of truth:
 
-- `.claude/rules/core/aidd-workflow.md`
-- `.claude/rules/core/aidd-artifacts.md`
-- `.claude/rules/core/tool-usage.md`
+- как применять замечание: `mpl-fix-review`
+  (`.agents/skills/mpl-fix-review/SKILL.md`) — повторное подтверждение
+  применимости по текущему коду, минимальное исправление первопричины, отчёт
+  «замечание -> изменение -> проверка», запрет трогать невыбранное. Здесь эта
+  процедура не повторяется;
+- lifecycle `review` и статусы:
+  - `.claude/rules/core/aidd-workflow.md`
+  - `.claude/rules/core/aidd-artifacts.md`
+  - `.claude/rules/core/tool-usage.md`
 
 ## Ключевые правила
 

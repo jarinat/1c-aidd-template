@@ -30,6 +30,10 @@ skills:
 
 ## Source of truth
 
+- что проверять и как формулировать замечание:
+  - `mpl-code-review` (`.agents/skills/mpl-code-review/SKILL.md`) — чек-лист,
+    категории, ближайший локальный образец, рассинхрон формы EDT и классы
+    дефектов режима review всей ветки
 - сценарий review:
   - `.claude/skills/aidd-review/SKILL.md`
 - lifecycle `review`:

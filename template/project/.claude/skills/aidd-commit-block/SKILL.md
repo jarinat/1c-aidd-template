@@ -13,6 +13,11 @@ description: >
 
 Source of truth:
 
+- политика безопасного коммита и правила вызова помощника:
+  - `mpl-commit` (`.agents/skills/mpl-commit/SKILL.md`) — только явные пути,
+    отказ при чужих проиндексированных изменениях, запрет обхода помощника
+    через heredoc, временные файлы сообщения и составные цепочки, запрет push.
+    Здесь это не повторяется
 - общая политика git и commit по change-блокам:
   - `.claude/rules/core/git-workflow.md`
 - project ticketing:
@@ -22,14 +27,12 @@ Source of truth:
 
 ## Критически важно
 
-- Используй точно команду `bash .claude/scripts/commit-block.sh ...`
-- Не используй heredoc, `$(cat ...)`, временные message-файлы и составные
-  команды вида `cd ... && git add ... && git commit ...`
+- Помощник в этом сценарии — проектный `.claude/scripts/commit-block.sh`, а не
+  корпоративный `tools/ai/mpl-commit.sh`. Политика у них общая, словарь флагов
+  разный: здесь `--add-path` и `--body-line`.
 - Default staged paths определяются проектным `.claude/scripts/commit-block.sh`
   и `.claude/rules/project/ticketing.md`; не считай `src/` универсальным
   default для всех проектов.
-- Если нужно добавить другой путь, передавай его отдельным аргументом
-  `--add-path`
 
 ## Алгоритм
 

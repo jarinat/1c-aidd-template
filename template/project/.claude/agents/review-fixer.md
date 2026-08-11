@@ -31,6 +31,11 @@ permissionMode: acceptEdits
 
 ## Source of truth
 
+- как применять замечание:
+  - `mpl-fix-review` (`.agents/skills/mpl-fix-review/SKILL.md`) — повторное
+    подтверждение применимости по текущему коду, минимальное исправление
+    первопричины, отчёт «замечание -> изменение -> проверка», запрет трогать
+    невыбранное
 - сценарий review-fix:
   - `.claude/skills/aidd-fix-review/SKILL.md`
 - project rules и path rules:
