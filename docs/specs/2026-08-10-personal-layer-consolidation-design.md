@@ -180,8 +180,16 @@
 | `.claude/skills/review-mr` + `.claude/agents/review-mr.md` | `mpl-code-review` |
 
 Класс О (5 пар): `.claude/agents/implementer.md` ↔ роль `mpl-implementer`;
-`aidd-commit-block` ↔ `mpl-commit`; `aidd-fix-review` ↔ `mpl-address-review`;
+`aidd-commit-block` ↔ `mpl-commit`; `aidd-fix-review` ↔ `mpl-fix-review`;
 `aidd-fix-sonar` ↔ `mpl-fix-sonar`; `aidd-review` ↔ `mpl-code-review`.
+
+Корпоративный skill `mpl-address-review` переименован в `mpl-fix-review`
+2026-08-11, до раскатки слоя. Причина: единственное имя в слое, требовавшее
+знания английской идиомы «address the review comments», при том что рядом уже
+стоял образец той же конструкции — `mpl-fix-sonar` («взять находки из источника
+и исправить подтверждённые»). Побочно имя совпало с личным `aidd-fix-review`,
+что упрощает пару в И5. Окно для переименования закрывается раскаткой: после
+неё это ломает мышечную память команды.
 
 Класс Л (15 skills): `aidd-idea`, `aidd-research`, `aidd-plan`, `aidd-tasks`,
 `aidd-implement`, `aidd-fast-implement`, `aidd-fix-feedback`, `aidd-debug-loop`,
