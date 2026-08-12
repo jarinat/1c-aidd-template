@@ -9,8 +9,9 @@ description: >
 
 # AIDD Fix Sonar
 
-Используй `tools/scripts/download-sonar-issues.os` как единственный entrypoint
-выгрузки Sonar issues. Сохраняй инженерные решения в
+Отчёт Sonar получай только корпоративным skill `mpl-sonar-evidence`: он
+единственный получатель отчёта и он же возвращает coverage. Сохраняй инженерные
+решения в
 `aidd/docs/review/<ticket>.md` и применяй принятые исправления через
 `.claude/skills/aidd-fix-review/SKILL.md`.
 
@@ -29,8 +30,8 @@ Source of truth:
   `.claude/rules/paths/*.md`;
 - исправление принятого `RV-XXX`:
   `.claude/skills/aidd-fix-review/SKILL.md`.
-- общий read-only contract выгрузки и JSON validation:
-  `.claude/skills/sonar-pr-evidence/SKILL.md`.
+- общий read-only contract выгрузки, JSON validation и coverage:
+  корпоративный skill `mpl-sonar-evidence`.
 
 ## Границы
 
@@ -42,8 +43,8 @@ Source of truth:
 - Не вшивай в skill префиксы, имена объектов и исключения отдельного проекта.
 - Не считай этот сценарий полным AIDD review изменений: он импортирует и
   обрабатывает только Sonar-находки.
-- Не запускай этот workflow из `review-gitlab-mr`: GitLab MR review получает
-  только evidence и не создаёт `RV-XXX`, решения или исправления.
+- Не запускай этот workflow из `mpl-review-mr`: review MR получает только
+  evidence и не создаёт `RV-XXX`, решения или исправления.
 - Security Hotspots не входят в scope первой версии: используемый API
   выгружает issues, но не hotspot review. Не заявляй, что hotspots проверены.
 - Не добавляй generated report в commit и не записывай в него токен.
@@ -79,20 +80,16 @@ Project-specific соглашения именования, на которые 
 2. Получи явный номер PR. Не угадывай его по активной ветке.
 3. Прочитай PRD, plan, tasklist, feedback и существующий review по протоколу
    AIDD, затем project/path rules.
-4. Примени `.claude/skills/sonar-pr-evidence/SKILL.md`: проверь наличие
-   entrypoint, `sonar-project.properties`, `oscript` и env var `SONAR_TOKEN`,
-   не выводя значение token.
-5. Запусти из корня проекта только через общий entrypoint:
-
-   ```text
-   .claude/scripts/download-sonar-issues.cmd -pr <PR>
-   ```
-
-6. Прочитай `out/sonar-reports/issues-pr-<PR>.json` и выполни validation из
-   общего contract: `schema`, PR, `total`, полнота `issues` и обязательные
-   поля/location. При `incomplete` не анализируй усеченный список. Evidence
-   revision сохраняй для последующего rescan, но не подменяй им отдельное
-   подтверждение свежего анализа после исправлений.
+4. Получи отчёт через корпоративный skill `mpl-sonar-evidence`, передав ему
+   номер PR, головную ревизию и каталог результата вне рабочего дерева. Свой
+   вызов helper-а не собирай: у отчёта один получатель.
+5. Возьми путь отчёта и coverage ровно такими, какими их вернул
+   `mpl-sonar-evidence`. При `unavailable`, `incomplete` и `stale` данные Sonar
+   не анализируй вовсе; при `unverified` считай их подсказками, которые обязан
+   подтвердить исходником, и не выдавай за подтверждённый `Source: SonarQube`.
+6. Прочитай отчёт по возвращённому пути. Evidence revision сохраняй для
+   последующего rescan, но не подменяй им отдельное подтверждение свежего
+   анализа после исправлений.
 7. Сопоставь `component` с repo-relative путем и прочитай точный исходник и
    релевантный фрагмент diff. Если сопоставление неоднозначно, зафиксируй
    `BLOCKED`, не угадывай файл.

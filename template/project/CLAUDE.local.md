@@ -65,8 +65,8 @@ supporting docs.
   `.claude/skills/mpl-v8std/SKILL.md` (корпоративный)
   `.claude/skills/mpl-yaxunit/SKILL.md`
   `.claude/skills/mpl-code-review/SKILL.md` (корпоративный)
-  `.claude/skills/review-gitlab-mr/SKILL.md`
-  `.claude/skills/sonar-pr-evidence/SKILL.md`
+  `.claude/skills/mpl-review-mr/SKILL.md` (корпоративный)
+  `.claude/skills/mpl-sonar-evidence/SKILL.md` (корпоративный)
   `.claude/skills/gitlab-tools/SKILL.md`
   `.claude/skills/release-mr/SKILL.md`
   `.claude/skills/project-onboarding/SKILL.md`
@@ -106,10 +106,11 @@ supporting docs.
   находка: оно идёт в `review`, а не в `feedback`. Эта маршрутизация имеет
   приоритет над общим правилом `feedback`.
 - Если пользователь передал GitLab MR URL и просит провести review самого
-  change-set, сначала прочитай `.claude/skills/review-gitlab-mr/SKILL.md`.
-  Этот read-only сценарий может использовать только verified Sonar evidence по
-  `.claude/skills/sonar-pr-evidence/SKILL.md`; он не запускает
-  `aidd-fix-sonar`, не создаёт `RV-XXX` и не исправляет код.
+  change-set, используй корпоративный skill `mpl-review-mr`. Он сам получает
+  Sonar evidence через `mpl-sonar-evidence` и делегирует проверку роли
+  `mpl-reviewer`. Этот read-only сценарий не запускает `aidd-fix-sonar`, не
+  создаёт `RV-XXX`, не исправляет код и ничего не публикует в merge request:
+  публикация замечаний — отдельная задача человека через `gitlab-tools`.
 - Если пользователь явно просит подготовить или создать релизные MR, сначала
   прочитай `.claude/skills/release-mr/SKILL.md`. Сценарий доступен только при
   заполненной секции «Релизные MR» в `.claude/rules/project/ticketing.md`.

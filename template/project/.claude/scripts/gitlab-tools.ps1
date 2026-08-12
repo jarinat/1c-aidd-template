@@ -58,9 +58,10 @@ Known extension points, deliberately not implemented yet:
 
 Related:
 
-  - .claude/scripts/gitlab-mr-review.cmd builds the read-only review context
-    (worktree, diffs, snapshots). It is a different tool with a blanket
-    read-only permission and must not gain write commands.
+  - tools/ai/mpl-review-mr (corporate layer, .cmd launcher on Windows) builds
+    the read-only review context (worktree, diffs, snapshots). It is a
+    different tool with a blanket read-only permission and must not gain write
+    commands.
 
 .EXAMPLE
 .claude/scripts/gitlab-tools.cmd threads -MrUrl https://gitlab.example.com/group/project/-/merge_requests/123

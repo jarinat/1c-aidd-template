@@ -20,12 +20,12 @@ Source of truth:
 - lifecycle review и статусы: `.claude/rules/core/aidd-workflow.md`,
   `.claude/rules/core/aidd-artifacts.md`;
 - выбор инструментов и shell policy: `.claude/rules/core/tool-usage.md`;
-- подготовка review-контекста MR (worktree, diff, snapshots):
-  `.claude/skills/review-gitlab-mr/SKILL.md`;
+- подготовка review-контекста MR (worktree, diff, snapshots) и сам review:
+  корпоративный skill `mpl-review-mr`;
 - исправление принятого `RV-XXX`: `.claude/skills/aidd-fix-review/SKILL.md`;
 - Sonar issues того же PR для AIDD-разбора:
-  `.claude/skills/aidd-fix-sonar/SKILL.md`; read-only evidence для GitLab MR
-  review получает `review-gitlab-mr` через `sonar-pr-evidence` и не публикует
+  `.claude/skills/aidd-fix-sonar/SKILL.md`; read-only evidence для review MR
+  получает `mpl-review-mr` через `mpl-sonar-evidence` и не публикует
   комментарии автоматически.
 
 ## Границы
@@ -45,8 +45,8 @@ Source of truth:
   рецепту из шапки `gitlab-tools.ps1`.
 - Не проси и не сохраняй GitLab token: авторизация только через `glab auth`.
 - SonarQube не заменяет проверку кода и не является автоматической командой на
-  исправление. Для GitLab MR review verified Sonar evidence обрабатывает
-  `review-gitlab-mr`; для самостоятельного AIDD-разбора и исправлений issues
+  исправление. Для review MR verified Sonar evidence обрабатывает
+  `mpl-review-mr`; для самостоятельного AIDD-разбора и исправлений issues
   используй `aidd-fix-sonar`. Этот skill не запускает ни один из этих workflow
   неявно и не публикует Sonar-находки автоматически.
 - Не меняй текущую ветку пользователя и не делай commit.
@@ -116,9 +116,11 @@ permission-запрос. Wildcard `Bash(.claude/scripts/gitlab-tools.cmd:*)` в 
 
 ## Алгоритм: публикация замечаний review отдельными тредами
 
-Сценарий: review MR уже проведен по
-`.claude/skills/review-gitlab-mr/SKILL.md`, и пользователь просит опубликовать
-замечания в GitLab. Отдельный тред на строку кода предпочтительнее одного общего
+Сценарий: review MR уже проведен корпоративным skill `mpl-review-mr`, и
+пользователь просит опубликовать замечания в GitLab. Корпоративный слой ничего в
+merge request не пишет, поэтому публикация — отдельная задача человека, и
+выполняется она только этим skill. Отдельный тред на строку кода
+предпочтительнее одного общего
 комментария: GitLab считает такие треды в unresolved и заставляет автора MR их
 закрыть, а общий комментарий теряется в ленте.
 

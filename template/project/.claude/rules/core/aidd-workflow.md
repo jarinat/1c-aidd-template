@@ -24,12 +24,12 @@ project-specific правилами.
 ## Выбор сценария
 
 - Если пользователь просит провести GitLab MR review по ссылке, основная
-  сессия использует `.claude/skills/review-gitlab-mr/SKILL.md`. В этом
-  сценарии SonarQube — только дополнительное read-only evidence по
-  `.claude/skills/sonar-pr-evidence/SKILL.md`: review не создаёт `RV-XXX`, не
-  меняет код и не запускает `aidd-fix-sonar`. Недоступный, неполный, stale или
-  unverified Sonar report не отменяет review, но его coverage и причина должны
-  войти в отчёт.
+  сессия использует корпоративный skill `mpl-review-mr`. В этом сценарии
+  SonarQube — только дополнительное read-only evidence, которое
+  `mpl-review-mr` получает через `mpl-sonar-evidence`: review не создаёт
+  `RV-XXX`, не меняет код, ничего не публикует в merge request и не запускает
+  `aidd-fix-sonar`. Недоступный, неполный, stale или unverified Sonar report не
+  отменяет review, но его coverage и причина должны войти в отчёт.
 - Если пользователь просит скачать, разобрать или исправить SonarQube issues
   конкретного PR, основная сессия использует
   `.claude/skills/aidd-fix-sonar/SKILL.md`. Sonar-находки фиксируются в

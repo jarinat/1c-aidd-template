@@ -24,19 +24,6 @@ Deterministic блокировки shell-паттернов живут отде�
   при ручной правке XML/.mdo и других 1С/EDT артефактов.
 - `new-guid.ps1` -- реализация генерации GUID/UUID. Не вызывай напрямую из
   Claude Code, используй `.cmd` wrapper.
-- `gitlab-mr-review.cmd` -- approval-friendly entrypoint для GitLab MR review.
-- `gitlab-mr-review.ps1` -- реализация GitLab MR review: metadata, fetch refs,
-  изолированный worktree под `C:\ai-review-wt`, diff-файлы и cleanup. Не
-  вызывай напрямую из Claude Code, используй `.cmd` wrapper. Read-only по
-  отношению к GitLab: команд записи здесь быть не должно.
-- `gitlab-mr-review` manifest содержит `mr_iid`, `base_sha` и `head_sha`.
-  Sonar evidence для этого MR получает только
-  `tools/scripts/download-sonar-issues.os` через skill `sonar-pr-evidence`; его
-  JSON сохраняется рядом с manifest, а не в рабочем репозитории.
-- `download-sonar-issues.cmd` -- approval-friendly wrapper для единственного
-  Sonar entrypoint `tools/scripts/download-sonar-issues.os`. Он переходит в
-  корень проекта и только передаёт аргументы helper-у; не добавляет другой
-  Sonar client, способ аутентификации или операции записи.
 - `gitlab-tools.cmd` -- approval-friendly entrypoint для GitLab-операций через
   `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), общие
   комментарии, ответы, inline review-треды и resolve (`note`, `reply`,
@@ -73,20 +60,12 @@ Deterministic блокировки shell-паттернов живут отде�
   (machine-local, не коммитится) или в явно переданном `-ConfigFile`.
   Версионируемый `.claude/config/http-smoke.example.json` содержит только
   пример профилей без секретов.
-- GitLab MR review не должен собираться ad-hoc командами `curl`, `python -c`,
-  `git credential fill` и ручными `/tmp/*.json`. Используй
-  `gitlab-mr-review.cmd` как единственный внешний entrypoint подготовки и
-  cleanup.
-- Для дополнительного чтения MR context из review worktree используй read-only
-  subcommands `gitlab-mr-review.cmd`: `show-file`, `grep-file`, `list-files`,
-  `grep-tree`. `grep-file` и `grep-tree` поддерживают `-First <count>`, чтобы
-  не собирать `Select-Object -First`, `head` или `tail` через shell pipeline.
-  Не собирай команды вида `cd "<worktree_path>" && git show ... | grep ...`
-  или `powershell -Command "cd ...; git show ... | Select-String ..."`.
-- Для GitLab API `gitlab-mr-review.ps1` использует только авторизацию `glab`.
-  Токен должен храниться в `glab auth`; fallback на `GITLAB_TOKEN`,
-  `GITLAB_ACCESS_TOKEN`, git credential manager, prompt или inline env не
-  используется.
+- Подготовка и cleanup review merge request в этом каталоге не живут: их
+  выполняет корпоративный `tools/ai/mpl-review-mr` (на Windows launcher
+  `.cmd`) в рамках skill `mpl-review-mr`, а получение Sonar-отчёта --
+  корпоративный `tools/ai/mpl-sonar-issues` в рамках `mpl-sonar-evidence`.
+  Не собирай их ad-hoc командами `curl`, `python -c`, `git credential fill`
+  и ручными `/tmp/*.json`.
 - Для review diff используй read-only subcommands
   `.claude/scripts/aidd-inspect.cmd review-diff summary|bsl|metadata|file`.
   Не делай выводы по усеченному diff через `head`, `Select-Object -First` или
@@ -95,8 +74,7 @@ Deterministic блокировки shell-паттернов живут отде�
   `.claude/scripts/*`. Если нужно запомнить разрешение, оно должно быть
   привязано к конкретному `.cmd` wrapper в `.claude/scripts/`, например
   `.claude/scripts/aidd-bootstrap-ticket.cmd`,
-  `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd`,
-  `.claude/scripts/gitlab-mr-review.cmd` или
+  `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd` или
   `.claude/scripts/http-smoke.cmd`.
 - Если скрипт совмещает read- и write-операции, разрешение выдается по
   префиксу подкоманды, а не на скрипт целиком. Для `gitlab-tools.cmd` в
