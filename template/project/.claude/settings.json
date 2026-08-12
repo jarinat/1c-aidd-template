@@ -39,8 +39,6 @@
       "Skill(aidd-review *)",
       "Skill(aidd-tasks)",
       "Skill(aidd-tasks *)",
-      "Skill(gitlab-tools)",
-      "Skill(gitlab-tools *)",
       "Skill(project-onboarding)",
       "Skill(project-onboarding *)",
       "Skill(mpl-project-onboarding)",
@@ -53,10 +51,6 @@
       "Skill(mpl-yaxunit *)",
       "Bash(.claude/scripts/aidd-bootstrap-ticket.cmd:*)",
       "Bash(.claude/scripts/aidd-inspect.cmd:*)",
-      "Bash(.claude/scripts/gitlab-tools.cmd help:*)",
-      "Bash(.claude/scripts/gitlab-tools.cmd threads:*)",
-      "Bash(.claude/scripts/gitlab-tools.cmd pipeline:*)",
-      "Bash(.claude/scripts/gitlab-tools.cmd pipeline-log:*)",
       "Bash(.claude/scripts/http-smoke.cmd:*)",
       "Bash(.claude/scripts/new-guid.cmd:*)",
       "Bash(.claude/scripts/commit-block.sh:*)",
@@ -87,7 +81,6 @@
     "deny": [
       "Bash(.claude\\scripts\\aidd-bootstrap-ticket.cmd:*)",
       "Bash(.claude\\scripts\\aidd-inspect.cmd:*)",
-      "Bash(.claude\\scripts\\gitlab-tools.cmd:*)",
       "Bash(.claude\\scripts\\http-smoke.cmd:*)",
       "Bash(.claude\\scripts\\new-guid.cmd:*)",
       "Bash(.claude\\scripts\\commit-block.sh:*)"

@@ -67,7 +67,7 @@ supporting docs.
   `.claude/skills/mpl-code-review/SKILL.md` (корпоративный)
   `.claude/skills/mpl-review-mr/SKILL.md` (корпоративный)
   `.claude/skills/mpl-sonar-evidence/SKILL.md` (корпоративный)
-  `.claude/skills/gitlab-tools/SKILL.md`
+  `.claude/skills/mpl-gitlab-mr/SKILL.md` (корпоративный)
   `.claude/skills/release-mr/SKILL.md`
   `.claude/skills/project-onboarding/SKILL.md`
 - Роли subagent-ов:
@@ -101,16 +101,18 @@ supporting docs.
 - `debug-loop` не заменяет `feedback-fix`: пользовательские замечания идут в
   `feedback`, машинный trace runner-ов идёт в `aidd/docs/debug/<ticket>.md`.
 - Если пользователь просит посмотреть замечания GitLab merge request, проверить
-  их исправленность, ответить ревьюеру, узнать статус пайплайна или разобрать
-  падение CI, это сценарий `gitlab-tools`. Замечание ревьюера GitLab — внешняя
-  находка: оно идёт в `review`, а не в `feedback`. Эта маршрутизация имеет
-  приоритет над общим правилом `feedback`.
+  их исправленность, ответить ревьюеру, опубликовать замечания review, узнать
+  статус пайплайна или разобрать падение CI, используй корпоративный skill
+  `mpl-gitlab-mr`. Замечание ревьюера GitLab — внешняя находка: оно идёт в
+  `review`, а не в `feedback`. Эта маршрутизация имеет приоритет над общим
+  правилом `feedback`. Классификация замечаний и формат записи `RV-XXX` — в
+  `.claude/rules/core/code-review.md`.
 - Если пользователь передал GitLab MR URL и просит провести review самого
   change-set, используй корпоративный skill `mpl-review-mr`. Он сам получает
   Sonar evidence через `mpl-sonar-evidence` и делегирует проверку роли
   `mpl-reviewer`. Этот read-only сценарий не запускает `aidd-fix-sonar`, не
   создаёт `RV-XXX`, не исправляет код и ничего не публикует в merge request:
-  публикация замечаний — отдельная задача человека через `gitlab-tools`.
+  публикация замечаний — отдельная задача человека через `mpl-gitlab-mr`.
 - Если пользователь явно просит подготовить или создать релизные MR, сначала
   прочитай `.claude/skills/release-mr/SKILL.md`. Сценарий доступен только при
   заполненной секции «Релизные MR» в `.claude/rules/project/ticketing.md`.

@@ -24,15 +24,6 @@ Deterministic блокировки shell-паттернов живут отде�
   при ручной правке XML/.mdo и других 1С/EDT артефактов.
 - `new-guid.ps1` -- реализация генерации GUID/UUID. Не вызывай напрямую из
   Claude Code, используй `.cmd` wrapper.
-- `gitlab-tools.cmd` -- approval-friendly entrypoint для GitLab-операций через
-  `glab`: треды MR (`threads`), пайплайны (`pipeline`, `pipeline-log`), общие
-  комментарии, ответы, inline review-треды и resolve (`note`, `reply`,
-  `discuss`, `resolve`). Сценарий и границы —
-  `.claude/skills/gitlab-tools/SKILL.md`.
-- `gitlab-tools.ps1` -- реализация GitLab-операций: явные валидируемые
-  подкоманды, ретрай только на DNS-ошибках, тело заметки только из файла. Не
-  вызывай напрямую из Claude Code, используй `.cmd` wrapper. Правила
-  расширения описаны в шапке самого скрипта.
 - `http-smoke.cmd` -- approval-friendly entrypoint для HTTP-smoke runner-а,
   разрешённого только когда `aidd-debug-loop` или test/debug plan явно
   указывает этот runner.
@@ -66,6 +57,11 @@ Deterministic блокировки shell-паттернов живут отде�
   корпоративный `tools/ai/mpl-sonar-issues` в рамках `mpl-sonar-evidence`.
   Не собирай их ad-hoc командами `curl`, `python -c`, `git credential fill`
   и ручными `/tmp/*.json`.
+- Операции с самим merge request -- треды, ответы, публикация замечаний
+  review, resolve, пайплайны и логи упавших job -- в этом каталоге тоже не
+  живут: их выполняет корпоративный `tools/ai/mpl-gitlab-mr` (на Windows
+  launcher `.cmd`) в рамках skill `mpl-gitlab-mr`. Не подменяй его
+  inline-вызовами `glab api`, `curl`, `python -c` и временными JSON.
 - Для review diff используй read-only subcommands
   `.claude/scripts/aidd-inspect.cmd review-diff summary|bsl|metadata|file`.
   Не делай выводы по усеченному diff через `head`, `Select-Object -First` или
@@ -77,11 +73,10 @@ Deterministic блокировки shell-паттернов живут отде�
   `.claude/scripts/aidd-inspect.cmd`, `.claude/scripts/new-guid.cmd` или
   `.claude/scripts/http-smoke.cmd`.
 - Если скрипт совмещает read- и write-операции, разрешение выдается по
-  префиксу подкоманды, а не на скрипт целиком. Для `gitlab-tools.cmd` в
-  `permissions.allow` входят только `threads`, `pipeline`, `pipeline-log` и
-  `help`; `reply` и `resolve` намеренно остаются без разрешения, чтобы каждая
-  публикация в GitLab упиралась в permission-запрос. Wildcard
-  `Bash(.claude/scripts/gitlab-tools.cmd:*)` добавлять в allow нельзя.
+  префиксу подкоманды, а не на скрипт целиком, и wildcard на весь скрипт в
+  allow не добавляется: он молча выдал бы право писать во внешнюю систему без
+  спроса. Это же правило распространяется на корпоративные скрипты, которые
+  вызываются из этого проекта.
 - HTTP-smoke runner используется только в рамках `aidd-debug-loop`, когда
   test plan в `aidd/docs/debug/<ticket>.md` его явно указывает. URL стендов
   и профили — через `.claude/config/http-smoke.local.json`; креды и токены —

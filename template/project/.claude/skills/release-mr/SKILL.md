@@ -9,9 +9,9 @@ description: >
 
 # Release MR
 
-Этот skill является ограниченным исключением из запрета `gitlab-tools` на
-создание MR. Он не заменяет обычный workflow feature-MR и не применяется,
-если проект не настроил релизный процесс.
+Этот skill является ограниченным исключением из запрета корпоративного
+`mpl-gitlab-mr` на создание MR. Он не заменяет обычный workflow feature-MR и не
+применяется, если проект не настроил релизный процесс.
 
 ## Source of truth
 
@@ -19,8 +19,8 @@ description: >
 - git workflow: `.claude/rules/core/git-workflow.md`;
 - project-local релизный контракт:
   `.claude/rules/project/ticketing.md`, раздел «Релизные MR»;
-- треды, пайплайны и ограничения обычных GitLab-операций:
-  `.claude/skills/gitlab-tools/SKILL.md`.
+- треды, пайплайны и ограничения обычных GitLab-операций: корпоративный skill
+  `mpl-gitlab-mr`.
 
 ## Триггеры
 
@@ -29,7 +29,7 @@ description: >
 - «создай релизные MR <версия>».
 
 Запросы про review, комментарии, pipeline или feature-MR не являются
-триггером: для них используй `gitlab-tools` или соответствующий AIDD skill.
+триггером: для них используй `mpl-gitlab-mr` или соответствующий AIDD skill.
 
 ## Границы
 
