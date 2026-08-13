@@ -1,5 +1,8 @@
 # Дизайн: консолидация личного AIDD-слоя с корпоративным слоем `mpl-*`
 
+> **Переехало.** Актуальная версия — в wiki шаблона, раздел
+> `agent-layer/dev`. Здесь файл заморожен и не обновляется.
+
 Дата: 2026-08-10. Статус: на ревью владельца.
 Связанные документы: [`../roadmap-team-agent-layer.md`](../roadmap-team-agent-layer.md),
 [`2026-08-08-project-path-rules-design.md`](2026-08-08-project-path-rules-design.md).

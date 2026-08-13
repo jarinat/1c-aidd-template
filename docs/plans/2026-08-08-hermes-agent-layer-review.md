@@ -1,5 +1,8 @@
 # План ревизии корпоративного agent layer (результат Hermes)
 
+> **Переехало.** Актуальная версия — в wiki шаблона, раздел
+> `agent-layer/dev`. Здесь файл заморожен и не обновляется.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Read-only ревизия итерации B (agent layer Гермеса) с вердиктом принять/доработать/выбросить по каждому артефакту и отчётом-матрицей.

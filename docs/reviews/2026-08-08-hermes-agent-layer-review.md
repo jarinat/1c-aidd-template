@@ -1,5 +1,8 @@
 # Ревизия agent layer Hermes (итерация B)
 
+> **Переехало.** Актуальная версия — в wiki шаблона, раздел
+> `agent-layer/dev`. Здесь файл заморожен и не обновляется.
+
 Дата: 2026-08-08
 Спека: ../specs/2026-08-08-hermes-agent-layer-review-design.md
 План: ../plans/2026-08-08-hermes-agent-layer-review.md
