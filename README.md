@@ -60,9 +60,6 @@ template/
         project/
       scripts/
       skills/
-    tools/
-      scripts/
-        download-sonar-issues.os
     aidd/
       docs/
         adr/
@@ -111,9 +108,6 @@ Bootstrap делает только локальную механическую 
   `CLAUDE.local.md`, `.agents/local/instructions.md`, `.claude/settings.json`,
   `.claude/agents`, `.claude/config`, `.claude/hooks`, `.claude/skills`,
   `.claude/rules/core`, `.claude/scripts`, `.claude/docs`;
-- обновляет общий helper выгрузки Sonar issues, read-only относительно
-  SonarQube:
-  `tools/scripts/download-sonar-issues.os`;
 - создает отсутствующие `.claude/rules/project/*`;
 - создает базовые отсутствующие `.claude/rules/paths/*` без копирования
   placeholder-примера `source-example.md`;

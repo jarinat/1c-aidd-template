@@ -262,8 +262,7 @@ $overwriteRoots = @(
     ".claude/skills",
     ".claude/rules/core",
     ".claude/scripts",
-    ".claude/docs",
-    "tools/scripts/download-sonar-issues.os"
+    ".claude/docs"
 )
 
 $createIfMissingRoots = @(

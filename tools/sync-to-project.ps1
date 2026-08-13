@@ -141,8 +141,7 @@ $syncRoots = @(
     ".claude/rules/core",
     ".claude/scripts",
     ".claude/docs",
-    "aidd/fixtures",
-    "tools/scripts/download-sonar-issues.os"
+    "aidd/fixtures"
 )
 
 $sourceFiles = New-Object System.Collections.Generic.List[System.IO.FileInfo]
